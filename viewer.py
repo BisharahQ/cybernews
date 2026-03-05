@@ -15,7 +15,7 @@ import asyncio
 import threading
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from io import StringIO
+from io import StringIO, BytesIO
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from collections import defaultdict
@@ -2213,6 +2213,243 @@ def api_blocklist_export():
                         ioc.get("context", ""), ioc.get("confidence", "")])
     return Response(buf.getvalue(), mimetype="text/csv",
                     headers={"Content-Disposition": "attachment;filename=blocklist.csv"})
+
+
+# ── DOCX Report Generator (Template-based) ────────────────────
+def _generate_blocklist_report():
+    """Generate ScanWave SOC Client Advisory using the original branded template.
+
+    Opens scanwave_report_template.docx (exact copy of original report),
+    preserves ALL styling/branding/logo/cover page, removes old IOC tables,
+    inserts live blocklist IOCs organized by APT group.
+    """
+    from docx import Document
+    from docx.shared import Pt, RGBColor
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+
+    template_path = Path(__file__).parent / "scanwave_report_template.docx"
+    if not template_path.exists():
+        raise FileNotFoundError("Report template not found: scanwave_report_template.docx")
+
+    doc = Document(str(template_path))
+    body = doc.element.body
+    now = datetime.now(timezone.utc)
+
+    # ── Load live IOC data — per-group, no cross-group name merging ──
+    cache = _load_research_cache()
+    apt_iocs = {}  # {apt_name: [unique IOC dicts]}
+    global_seen = set()  # track all unique IOC values for total count
+    for apt_name, entry in cache.items():
+        iocs = entry.get("iocs", [])
+        if not iocs:
+            continue
+        seen_in_group = set()
+        unique = []
+        for ioc in iocs:
+            val = ioc["value"].lower().strip()
+            if val not in seen_in_group:
+                seen_in_group.add(val)
+                unique.append(ioc)
+                global_seen.add(val)
+        if unique:
+            apt_iocs[apt_name] = unique
+
+    # Split: major groups (>=4 IOCs) shown individually, minor (<4) pooled
+    THRESHOLD = 4
+    major = {k: v for k, v in apt_iocs.items() if len(v) >= THRESHOLD}
+    minor = {k: v for k, v in apt_iocs.items() if len(v) < THRESHOLD}
+
+    # Pool minor-group IOCs (deduped)
+    other_iocs = []
+    other_seen = set()
+    other_group_names = sorted(minor.keys())
+    for grp in other_group_names:
+        for ioc in minor[grp]:
+            val = ioc["value"].lower().strip()
+            if val not in other_seen:
+                other_seen.add(val)
+                other_iocs.append(ioc)
+
+    total_iocs = len(global_seen)
+    all_flat = [ioc for group_iocs in apt_iocs.values() for ioc in group_iocs]
+    total_mal = sum(1 for i in all_flat if i.get("abuse_verdict") == "MALICIOUS")
+    total_sus = sum(1 for i in all_flat if i.get("abuse_verdict") == "SUSPICIOUS")
+
+    # ── Step 1: Update date on cover page ──
+    import re as _re
+    for p in doc.paragraphs:
+        if _re.match(r'^[A-Z][a-z]+ \d{4}$', p.text.strip()):
+            for run in p.runs:
+                run.text = now.strftime("%B %Y")
+            break
+
+    # ── Step 2: Find markers ──
+    ioc_summary_el = None
+    critical_note_el = None
+    for p in doc.paragraphs:
+        if "IOC SUMMARY" in p.text and ioc_summary_el is None:
+            ioc_summary_el = p._element
+        if "CRITICAL NOTE" in p.text:
+            critical_note_el = p._element
+
+    if ioc_summary_el is None or critical_note_el is None:
+        raise ValueError("Template missing IOC SUMMARY or CRITICAL NOTE markers")
+
+    # ── Step 3: Remove everything between IOC SUMMARY and CRITICAL NOTE ──
+    # Find indices of the two markers
+    children = list(body)
+    ioc_idx = None
+    crit_idx = None
+    for i, child in enumerate(children):
+        if child is ioc_summary_el:
+            ioc_idx = i
+        if child is critical_note_el:
+            crit_idx = i
+    if ioc_idx is None or crit_idx is None:
+        raise ValueError("Cannot locate marker indices")
+
+    # Remove elements between markers (exclusive of both)
+    for child in children[ioc_idx + 1:crit_idx]:
+        body.remove(child)
+
+    # ── Step 4: Build new IOC content as raw XML elements ──
+    # We build elements via doc.add_paragraph/add_table, then detach and
+    # insert at the correct position right after IOC SUMMARY.
+    new_elements = []
+
+    # Helper: build a 3-column IOC grid table and return the tbl element
+    def _add_ioc_table(ioc_list):
+        values = [i["value"] for i in ioc_list]
+        cols = 3
+        nrows = (len(values) + cols - 1) // cols
+        table = doc.add_table(rows=nrows, cols=cols)
+        tbl = table._tbl
+        tblPr = tbl.tblPr
+        if tblPr is None:
+            tblPr = OxmlElement("w:tblPr")
+            tbl.insert(0, tblPr)
+        borders = OxmlElement("w:tblBorders")
+        for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+            el = OxmlElement(f"w:{edge}")
+            el.set(qn("w:val"), "single")
+            el.set(qn("w:sz"), "4")
+            el.set(qn("w:space"), "0")
+            el.set(qn("w:color"), "E5E7EB")
+            borders.append(el)
+        tblPr.append(borders)
+        for idx, val in enumerate(values):
+            r, c = divmod(idx, cols)
+            cell = table.cell(r, c)
+            cell.text = val
+            for par in cell.paragraphs:
+                for rn in par.runs:
+                    rn.font.size = Pt(7)
+                    rn.font.color.rgb = RGBColor(0x1F, 0x2A, 0x37)
+        return tbl
+
+    # Summary paragraph
+    p = doc.add_paragraph()
+    run = p.add_run(
+        f"All indicators below are sourced from automated threat intelligence research "
+        f"conducted by the ScanWave CyberIntel Platform across AlienVault OTX, ThreatFox, "
+        f"and curated CTI reports, collected {now.strftime('%B %d, %Y')}. "
+        f"Total unique IOCs: {total_iocs} (Malicious: {total_mal}, Suspicious: {total_sus}). "
+        f"Every IOC has been verified through automated scoring and cross-referenced "
+        f"against multiple threat intelligence feeds before inclusion."
+    )
+    run.font.size = Pt(8)
+    run.font.color.rgb = RGBColor(0x1F, 0x2A, 0x37)
+    new_elements.append(p._element)
+
+    spacer = doc.add_paragraph()
+    new_elements.append(spacer._element)
+
+    # ── Major APT groups (>= 4 IOCs each) — individual sections ──
+    for apt_name, iocs in sorted(major.items()):
+        # Sub-header
+        p = doc.add_paragraph()
+        run = p.add_run(f"{apt_name} \u2014 {len(iocs)} Indicators")
+        run.bold = True
+        run.font.size = Pt(10.5)
+        run.font.color.rgb = RGBColor(0x2D, 0x3A, 0x4A)
+        new_elements.append(p._element)
+
+        # AI summary
+        summary = cache.get(apt_name, {}).get("summary", "")
+        if summary:
+            p = doc.add_paragraph()
+            run = p.add_run(summary)
+            run.font.size = Pt(8)
+            run.font.color.rgb = RGBColor(0x4A, 0x55, 0x68)
+            run.italic = True
+            new_elements.append(p._element)
+
+        new_elements.append(_add_ioc_table(iocs))
+
+        spacer = doc.add_paragraph()
+        new_elements.append(spacer._element)
+
+    # ── Minor groups (< 4 IOCs) — pooled into one section ──
+    if other_iocs:
+        p = doc.add_paragraph()
+        run = p.add_run(
+            f"Additional Threat Indicators \u2014 {len(other_iocs)} IOCs "
+            f"from {len(other_group_names)} Monitored Groups"
+        )
+        run.bold = True
+        run.font.size = Pt(10.5)
+        run.font.color.rgb = RGBColor(0x2D, 0x3A, 0x4A)
+        new_elements.append(p._element)
+
+        p = doc.add_paragraph()
+        run = p.add_run(
+            "The following indicators were identified across additional threat groups "
+            "under active monitoring, each contributing a small number of IOCs: "
+            + ", ".join(other_group_names) + "."
+        )
+        run.font.size = Pt(8)
+        run.font.color.rgb = RGBColor(0x4A, 0x55, 0x68)
+        run.italic = True
+        new_elements.append(p._element)
+
+        new_elements.append(_add_ioc_table(other_iocs))
+
+        spacer = doc.add_paragraph()
+        new_elements.append(spacer._element)
+
+    # ── Step 5: Detach new elements from end of doc, insert after IOC SUMMARY ──
+    for elem in new_elements:
+        body.remove(elem)
+
+    # Insert right after ioc_summary_el (ioc_idx position)
+    insert_pos = list(body).index(ioc_summary_el) + 1
+    for i, elem in enumerate(new_elements):
+        body.insert(insert_pos + i, elem)
+
+    # ── Save ──
+    buf = BytesIO()
+    doc.save(buf)
+    buf.seek(0)
+    return buf
+
+
+@app.route("/api/blocklist/report")
+def api_blocklist_report():
+    """Generate and download ScanWave SOC Client Advisory DOCX."""
+    try:
+        buf = _generate_blocklist_report()
+        now = datetime.now(timezone.utc)
+        fname = f"ScanWave_SOC_Client_Advisory_{now.strftime('%d_%B%Y')}.docx"
+        return Response(
+            buf.getvalue(),
+            mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f"attachment;filename={fname}"}
+        )
+    except Exception as e:
+        import traceback
+        traceback.print_exc(flush=True)
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/messages/<channel_username>/<message_id>/context")
@@ -5010,6 +5247,7 @@ button.primary:hover{background:#1f3a5e}
         <input type="text" id="bl-search" placeholder="Search IOCs..." oninput="loadBlocklist()" style="background:#0d1117;border:1px solid #30363d;border-radius:4px;padding:4px 8px;color:#e6edf3;font-size:10px;width:160px">
         <button onclick="window.location='/api/blocklist/export?verdict='+encodeURIComponent(document.getElementById('bl-verdict-filter').value)" style="background:#238636;border:none;color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700">EXPORT CSV</button>
         <button onclick="copyBlocklistIPs()" style="background:#21262d;border:1px solid #30363d;color:#8b949e;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700">COPY ALL IPs</button>
+        <button onclick="generateReport(this)" style="background:#1f6feb;border:none;color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700">📄 GENERATE REPORT</button>
       </div>
       <!-- Stats -->
       <div id="bl-stats" style="padding:8px 20px;background:#161b22;border-bottom:1px solid #21262d;display:flex;gap:20px;font-size:10px;flex-shrink:0"></div>
@@ -8604,6 +8842,32 @@ function copyBlocklistIPs() {
     .map(i => i.value);
   navigator.clipboard.writeText(ips.join('\\n'));
   alert('Copied ' + ips.length + ' IP addresses to clipboard.');
+}
+
+async function generateReport(btn) {
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+  btn.style.opacity = '0.6';
+  try {
+    const resp = await fetch('/api/blocklist/report');
+    if (!resp.ok) throw new Error('Report generation failed');
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = resp.headers.get('Content-Disposition')?.split('filename=')[1] || 'ScanWave_Report.docx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch(e) {
+    alert('Error generating report: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = orig;
+    btn.style.opacity = '1';
+  }
 }
 
 </script>

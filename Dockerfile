@@ -13,6 +13,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Application code
 COPY *.py ./
 
+# Report template and branding assets
+COPY scanwave_report_template.docx ./
+COPY scanwave_logo.png ./
+
 # All existing data: messages, IOCs, keywords, state, chat history, watchlists
 COPY telegram_intel/ telegram_intel/
 
