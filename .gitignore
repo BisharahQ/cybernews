@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Telethon sessions (contain auth tokens)
+*.session
+*.session-journal
+
+# Data files (too large / sensitive for git)
+telegram_intel/messages.jsonl
+telegram_intel/messages.jsonl.bak
+telegram_intel/alerts.jsonl
+telegram_intel/enriched_alerts.jsonl
+telegram_intel/iocs.jsonl
+telegram_intel/discovered_channels.jsonl
+telegram_intel/timing_analysis.jsonl
+telegram_intel/media/
+telegram_intel/ai_agent.log
+telegram_intel/monitor.log
+telegram_intel/orchestrator.log
+telegram_intel/discovery.log
+telegram_intel/discovery_bg.log
+telegram_intel/discovery_session2.log
+telegram_intel/backfill_*.log
+telegram_intel/viewer.log
+telegram_intel/chat_history.json
+telegram_intel/apt_ioc_research.json
+telegram_intel/tg_sent_iocs.json
+telegram_intel/orchestrator_status.json
+telegram_intel/ai_agent_state.json
+telegram_intel/ai_brief.json
+telegram_intel/last_seen.json
+
+# Temp/scratch files
+tmp_*.py
+jordan_incidents_raw.json
+WORKLOG.txt
+email_infra_proposal.txt
+
+# IDE
+.vscode/
+.idea/

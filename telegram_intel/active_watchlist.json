@@ -1,0 +1,2723 @@
+{
+  "generated_at": "2026-03-03T18:42:00.551279+00:00",
+  "channels_by_username": [
+    "fatimion110",
+    "x313xTeamLeak",
+    "hak994",
+    "ElamAlmoqawama",
+    "mhwear0",
+    "Khamenei_arabi",
+    "hkr313",
+    "LulzSecHackers",
+    "Handala_hack_iranian",
+    "Handala_Hack_Team",
+    "toufan_alaksa",
+    "islamic_hacker_army1",
+    "Chat_Islamic_Hacker_Army"
+  ],
+  "channels_by_id": [
+    1071970086460,
+    3531408908,
+    1651470668,
+    2015336851,
+    1071651470668,
+    3238751733
+  ],
+  "all_discovered": [
+    {
+      "id": 1648868409,
+      "username": "fatimion110",
+      "title": "مجمع فاطميون || شباب المقاومة الاسلامية",
+      "about": "",
+      "score": 4,
+      "relevance_matches": [
+        "مقاومة",
+        "اسلامي",
+        "fatimion",
+        "فاطميون"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:52.904038+00:00"
+    },
+    {
+      "id": 2214615288,
+      "username": "x313xTeamLeak",
+      "title": "313 Team Leak",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "leak",
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:02.289919+00:00"
+    },
+    {
+      "id": 1970086460,
+      "username": "hak994",
+      "title": "فريق فاطميون الالكتروني - Fatimion cyber team",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "fatimion",
+        "فاطميون"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:03.452781+00:00"
+    },
+    {
+      "id": 1960633093,
+      "username": "ElamAlmoqawama",
+      "title": "المقاومة الاسلامية في العراق",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "مقاومة",
+        "اسلامي"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:08.110061+00:00"
+    },
+    {
+      "id": 6555846997,
+      "username": "mhwear0",
+      "title": "Cyber ​​Islamic resistance 🇵🇸",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "resistance",
+        "islamic"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:10.464456+00:00"
+    },
+    {
+      "id": 1174745679,
+      "username": "Khamenei_arabi",
+      "title": "الإمام الخامنئي",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "khamenei",
+        "خامنئي"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:12.522765+00:00"
+    },
+    {
+      "id": 1071970086460,
+      "username": null,
+      "title": "فريق فاطميون الالكتروني - Fatimion cyber team Messages",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "fatimion",
+        "فاطميون"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:21.926444+00:00"
+    },
+    {
+      "id": 1139647392,
+      "username": "hkr313",
+      "title": "فريق فاطميون الميداني",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "313",
+        "فاطميون"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:23.090773+00:00"
+    },
+    {
+      "id": 3435813385,
+      "username": "LulzSecHackers",
+      "title": "LulzSec Hackers",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "hack",
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:22.211502+00:00"
+    },
+    {
+      "id": 2419280023,
+      "username": "Handala_hack_iranian",
+      "title": "Handala Team",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "hack",
+        "handala"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:28.145709+00:00"
+    },
+    {
+      "id": 1816789287,
+      "username": "Handala_Hack_Team",
+      "title": "Handala",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "hack",
+        "handala"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:29.927808+00:00"
+    },
+    {
+      "id": 2023649916,
+      "username": "toufan_alaksa",
+      "title": "طوفان الأقصى محور المقاومة",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "مقاومة",
+        "محور المقاومة"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:52.055824+00:00"
+    },
+    {
+      "id": 2848792934,
+      "username": "islamic_hacker_army1",
+      "title": "Islamic Hacker Army",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "hack",
+        "islamic"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:57.719757+00:00"
+    },
+    {
+      "id": 2469585260,
+      "username": "Chat_Islamic_Hacker_Army",
+      "title": "Chat Islamic Hacker Army",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "hack",
+        "islamic"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:58.367706+00:00"
+    },
+    {
+      "id": 3531408908,
+      "username": null,
+      "title": "DieNet Hack",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "hack",
+        "dienet"
+      ],
+      "source": "global:Fatemiyoun",
+      "discovered_at": "2026-03-03T18:37:23.744346+00:00"
+    },
+    {
+      "id": 1651470668,
+      "username": null,
+      "title": "Cyber ​​Islamic Resistance",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "resistance",
+        "islamic"
+      ],
+      "source": "global:313team",
+      "discovered_at": "2026-03-03T18:37:35.124806+00:00"
+    },
+    {
+      "id": 2015336851,
+      "username": null,
+      "title": "Cyber ​​Islamic resistance",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "resistance",
+        "islamic"
+      ],
+      "source": "global:313team",
+      "discovered_at": "2026-03-03T18:37:35.127700+00:00"
+    },
+    {
+      "id": 1071651470668,
+      "username": null,
+      "title": "Cyber ​​Islamic resistance 🇵🇸 Messages",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "resistance",
+        "islamic"
+      ],
+      "source": "global:313team",
+      "discovered_at": "2026-03-03T18:37:35.133117+00:00"
+    },
+    {
+      "id": 3238751733,
+      "username": null,
+      "title": "DieNet Hack",
+      "about": "",
+      "score": 2,
+      "relevance_matches": [
+        "hack",
+        "dienet"
+      ],
+      "source": "global:Sylhet Gang",
+      "discovered_at": "2026-03-03T18:38:31.882574+00:00"
+    },
+    {
+      "id": 2250158203,
+      "username": "xX313XxTeam",
+      "title": "313 Team",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:01.129335+00:00"
+    },
+    {
+      "id": 1233310276,
+      "username": "Team313Official",
+      "title": "313 Team",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:01.708606+00:00"
+    },
+    {
+      "id": 2227640343,
+      "username": "x313xTeamBackup",
+      "title": "313 Team Backup",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:02.878094+00:00"
+    },
+    {
+      "id": 2468283118,
+      "username": "KeymousTeam",
+      "title": "keymous+",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "keymous"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:04.614042+00:00"
+    },
+    {
+      "id": 2727439812,
+      "username": "LulzSecBlack",
+      "title": "LulzSec Black🇵🇸",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:05.785167+00:00"
+    },
+    {
+      "id": 2763821789,
+      "username": "handal_a",
+      "title": "HANDALA",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "handala"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:06.369739+00:00"
+    },
+    {
+      "id": 3302196184,
+      "username": "dienet3",
+      "title": "DieNet",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "dienet"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:06.951712+00:00"
+    },
+    {
+      "id": 2067766372,
+      "username": "the7october_87",
+      "title": "لأن الكلمة مقاومة",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "مقاومة"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:14.279601+00:00"
+    },
+    {
+      "id": 2119828326,
+      "username": "PalestineNowGazaa",
+      "title": "فلسطين الان🔻",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "فلسطين"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:14.870715+00:00"
+    },
+    {
+      "id": 8545087852,
+      "username": "dnnmabot",
+      "title": "DieNet Network APIs Notifications",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "dienet"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:19.590908+00:00"
+    },
+    {
+      "id": 3368731086,
+      "username": "NRTNewsEN",
+      "title": "DieNet Media Corporation",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "dienet"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:20.164192+00:00"
+    },
+    {
+      "id": 1072250158203,
+      "username": null,
+      "title": "313 Team Messages",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:22.503617+00:00"
+    },
+    {
+      "id": 1073302196184,
+      "username": null,
+      "title": "DieNet Messages",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "dienet"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:24.241806+00:00"
+    },
+    {
+      "id": 3630562671,
+      "username": null,
+      "title": "DieNet Private Chat",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "dienet"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:27.157785+00:00"
+    },
+    {
+      "id": 2304200860,
+      "username": null,
+      "title": "LulzSec Black 🇵🇸 Chat",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:27.743830+00:00"
+    },
+    {
+      "id": 1072727439812,
+      "username": null,
+      "title": "LulzSec Black🇵🇸 Messages",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:30.283173+00:00"
+    },
+    {
+      "id": 1981994015,
+      "username": "HackerNewsAR",
+      "title": "Hacker News",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "hack"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:39.631403+00:00"
+    },
+    {
+      "id": 2174219304,
+      "username": null,
+      "title": "Keymous Chat",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "keymous"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:40.240239+00:00"
+    },
+    {
+      "id": 2290203051,
+      "username": "operationswordofjustice",
+      "title": "Op Sword of justice",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "operation"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:48.229500+00:00"
+    },
+    {
+      "id": 2265065050,
+      "username": "HackerNewscyber",
+      "title": "هکرنیوز|Hacker News",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "hack"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:49.385138+00:00"
+    },
+    {
+      "id": 2021301071,
+      "username": "Anonymous0islamic",
+      "title": "Anonymous Islamic",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "islamic"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:49.985214+00:00"
+    },
+    {
+      "id": 1430084177,
+      "username": "Fatimion_A",
+      "title": "انه يراكم",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "fatimion"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:52.322329+00:00"
+    },
+    {
+      "id": 1755405551,
+      "username": "maua_fatimion",
+      "title": "مـــأوى الــفـاطــمـيـون",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "fatimion"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:53.479775+00:00"
+    },
+    {
+      "id": 1759997546,
+      "username": "mvvnxvzvzvxbc",
+      "title": "مجموعة فاطميون ميديا",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "فاطميون"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:54.054536+00:00"
+    },
+    {
+      "id": 1256059763,
+      "username": "Fatemiyuunn",
+      "title": "سرايا فاطميون✌🏻",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "فاطميون"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:54.642386+00:00"
+    },
+    {
+      "id": 1406173535,
+      "username": "Jamal336",
+      "title": "فاطميون☫",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "فاطميون"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:55.242947+00:00"
+    },
+    {
+      "id": 2900685617,
+      "username": "fttmff",
+      "title": "مؤسسة فاطميون",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "فاطميون"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:55.843229+00:00"
+    },
+    {
+      "id": 2735066042,
+      "username": "tttteam313",
+      "title": "313 TEAM",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:02.486179+00:00"
+    },
+    {
+      "id": 1497870818,
+      "username": "pharmacy_B_313",
+      "title": "🍀TEAM IFAYMEZI",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:03.104994+00:00"
+    },
+    {
+      "id": 1670828782,
+      "username": "sidecarcross",
+      "title": "Мотокросс🥇Team_313",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:03.695692+00:00"
+    },
+    {
+      "id": 2370327450,
+      "username": "team313team",
+      "title": "TEAM 313",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:04.293800+00:00"
+    },
+    {
+      "id": 2196346275,
+      "username": "KB313team",
+      "title": "313 TEAM | 3D Технологии",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:04.896025+00:00"
+    },
+    {
+      "id": 2340159453,
+      "username": "motobratstvo313",
+      "title": "313 team",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:05.528644+00:00"
+    },
+    {
+      "id": 1157956201,
+      "username": "Teame_313",
+      "title": "تیم تبلیغات 313",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:06.104700+00:00"
+    },
+    {
+      "id": 1580211121,
+      "username": "team_313n",
+      "title": "𓆩 فريق لـ؏ـلـي ننتمـي 𓆪",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:06.712575+00:00"
+    },
+    {
+      "id": 1984697039,
+      "username": "Team_313m",
+      "title": "اجتماعات فريق الخيمة المهدوية",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:07.304031+00:00"
+    },
+    {
+      "id": 1068829700,
+      "username": "alnoor_team_313",
+      "title": "فَريقْ النُور",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:07.892012+00:00"
+    },
+    {
+      "id": 2148997401,
+      "username": "ths_313",
+      "title": "فريق ممهدون",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:08.478248+00:00"
+    },
+    {
+      "id": 2005688409,
+      "username": "aathar_313",
+      "title": "فريق أثر 🌱",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:09.060082+00:00"
+    },
+    {
+      "id": 3849185862,
+      "username": "kmj_313",
+      "title": "فريق شباب علي الأكبر «ع» الإنساني (1)",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:09.653091+00:00"
+    },
+    {
+      "id": 1967507022,
+      "username": "aimtidad_313",
+      "title": "فريقُ الإمتِداد الحُسيني",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:10.234775+00:00"
+    },
+    {
+      "id": 3002283768,
+      "username": "mmzSad",
+      "title": "313Team",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:10.999902+00:00"
+    },
+    {
+      "id": 1330856652,
+      "username": "dienet_einander_in_liebe",
+      "title": "Dienet einander in Liebe",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "dienet"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:11.710865+00:00"
+    },
+    {
+      "id": 2383542444,
+      "username": "tnxtnxt",
+      "title": "Dienetnet",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "dienet"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:12.298556+00:00"
+    },
+    {
+      "id": 1622278216,
+      "username": "Luls_sec_muslims",
+      "title": "🕷LULZSEC MUSLIM'S🕷",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:21.622185+00:00"
+    },
+    {
+      "id": 2122127588,
+      "username": "SocieteGeneral1",
+      "title": "LulzSec",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:22.813432+00:00"
+    },
+    {
+      "id": 2775372858,
+      "username": "lulzsecnews",
+      "title": "Lulzsec News Chat",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:23.398273+00:00"
+    },
+    {
+      "id": 2658276088,
+      "username": "infolulzsec",
+      "title": "INFO LULZSEC🤖",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:24.012723+00:00"
+    },
+    {
+      "id": 2017033541,
+      "username": "DarkGhost_LulzSec",
+      "title": "(▀ Ĺ̯▀ ) ℒ𝓊𝓁𝓏 𝒮ℯ𝒸",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:24.612008+00:00"
+    },
+    {
+      "id": 2387578678,
+      "username": "BLACK_LulzSec",
+      "title": "𝐵𝐿𝐴𝐶𝐾>𝐿𝑈𝐿𝑍𝑆𝐸𝐶",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:25.198499+00:00"
+    },
+    {
+      "id": 2776821232,
+      "username": "lulzsec_blackhat_team",
+      "title": "LulzSec BlackHat Team",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:25.794690+00:00"
+    },
+    {
+      "id": 1804472242,
+      "username": "handala24",
+      "title": "منصة حنظلة - Hanzala",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "handala"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:26.375640+00:00"
+    },
+    {
+      "id": 1168295815,
+      "username": "handala_pal",
+      "title": "حَنظلة 🕊",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "handala"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:26.982378+00:00"
+    },
+    {
+      "id": 1665361638,
+      "username": "handala",
+      "title": "Sinifdoshlar",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "handala"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:27.568920+00:00"
+    },
+    {
+      "id": 2449410690,
+      "username": "handala_backup_357",
+      "title": "Handala 𓂆 🇵🇸 حنظله",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "handala"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:28.727407+00:00"
+    },
+    {
+      "id": 2782285969,
+      "username": "Handala_channal",
+      "title": "Handala_channel",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "handala"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:29.342992+00:00"
+    },
+    {
+      "id": 1752926965,
+      "username": "handala2",
+      "title": "مركز حنظلة للأسرى والمحررين",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "handala"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:30.509194+00:00"
+    },
+    {
+      "id": 1207198721,
+      "username": "handala1",
+      "title": "مركز حنظلة للأسرى والمحررين",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "handala"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:31.085861+00:00"
+    },
+    {
+      "id": 1186576996,
+      "username": "AMC239",
+      "title": "انصار المقاومة السيبرانية_AMC239",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "مقاومة"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:33.477900+00:00"
+    },
+    {
+      "id": 2193537737,
+      "username": "mrhamza6313",
+      "title": "⁨Mr Hamza Math and Science⁩ محادثة",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:38.421630+00:00"
+    },
+    {
+      "id": 2346579062,
+      "username": "hamza313095",
+      "title": "Mr.Hamza",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:39.008720+00:00"
+    },
+    {
+      "id": 2211083896,
+      "username": "RIPPER_Sec",
+      "title": "𝗥𝗜𝗣𝗣𝗘𝗥 | شایان",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "ripper"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:39.596078+00:00"
+    },
+    {
+      "id": 1981250352,
+      "username": "ripperofsekret",
+      "title": "The Rippers Of Secrets",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "ripper"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:40.161733+00:00"
+    },
+    {
+      "id": 1462379706,
+      "username": "KeyMouseTechnology",
+      "title": "KeyMouse Technology",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "keymous"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:43.101201+00:00"
+    },
+    {
+      "id": 3176043584,
+      "username": "keymouss",
+      "title": "keymouss",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "keymous"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:43.686224+00:00"
+    },
+    {
+      "id": 2097948206,
+      "username": "kemos24",
+      "title": "دليل ثقه كيموس",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "كيموس"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:44.417248+00:00"
+    },
+    {
+      "id": 2000293993,
+      "username": "aq_sa2",
+      "title": "سايبر طوفان الاقصى Cyber Toufan Al Aqsa",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "الاقصى"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:50.242800+00:00"
+    },
+    {
+      "id": 1646707784,
+      "username": "Toufan_Al_Aqssa",
+      "title": "طوفان الاقصى",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "الاقصى"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:52.706786+00:00"
+    },
+    {
+      "id": 1977560110,
+      "username": "arabi_khamenei_comments",
+      "title": "Comments",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "khamenei"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:37:03.057150+00:00"
+    },
+    {
+      "id": 2588114907,
+      "username": "KeymousTG",
+      "title": "Keymous Plus",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "keymous"
+      ],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:37:07.709141+00:00"
+    },
+    {
+      "id": 2764897010,
+      "username": null,
+      "title": "флудилка 313",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "global:313team",
+      "discovered_at": "2026-03-03T18:37:35.124806+00:00"
+    },
+    {
+      "id": 2322806440,
+      "username": "lulzchat1",
+      "title": "LulzSec chat",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "global:313team",
+      "discovered_at": "2026-03-03T18:37:35.129003+00:00"
+    },
+    {
+      "id": 3325520970,
+      "username": null,
+      "title": "DieNet API Information",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "dienet"
+      ],
+      "source": "global:DieNet",
+      "discovered_at": "2026-03-03T18:37:37.341374+00:00"
+    },
+    {
+      "id": 2218423825,
+      "username": null,
+      "title": "LulzSec Black 🇵🇸",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "global:LulzSec",
+      "discovered_at": "2026-03-03T18:37:43.765209+00:00"
+    },
+    {
+      "id": 2079010153,
+      "username": "Anonymousislamic",
+      "title": "Anonymous Islamic {طوفان الأقصى}",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "islamic"
+      ],
+      "source": "global:LulzSec",
+      "discovered_at": "2026-03-03T18:37:43.766579+00:00"
+    },
+    {
+      "id": 1072218423825,
+      "username": null,
+      "title": "LulzSec Black 🇵🇸 Messages",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "lulzsec"
+      ],
+      "source": "global:LulzSec",
+      "discovered_at": "2026-03-03T18:37:43.766579+00:00"
+    },
+    {
+      "id": 1977310735,
+      "username": "Gaza_Children_Hackers",
+      "title": "Gaza Children's Group",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "hack"
+      ],
+      "source": "global:Cyber Avengers",
+      "discovered_at": "2026-03-03T18:38:14.568538+00:00"
+    },
+    {
+      "id": 2291310850,
+      "username": null,
+      "title": "Arab Ghosts Hackers",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "hack"
+      ],
+      "source": "global:Mr Hamza",
+      "discovered_at": "2026-03-03T18:38:18.888770+00:00"
+    },
+    {
+      "id": 2875163062,
+      "username": null,
+      "title": "RipperSec (ريفرسيچ)",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "ripper"
+      ],
+      "source": "global:RipperSec",
+      "discovered_at": "2026-03-03T18:38:23.268820+00:00"
+    },
+    {
+      "id": 1914467285,
+      "username": null,
+      "title": "RipperSec (ريفرسيچ)",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "ripper"
+      ],
+      "source": "global:RipperSec",
+      "discovered_at": "2026-03-03T18:38:23.268820+00:00"
+    },
+    {
+      "id": 1072875163062,
+      "username": null,
+      "title": "RipperSec (ريفرسيچ) Messages",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "ripper"
+      ],
+      "source": "global:RipperSec",
+      "discovered_at": "2026-03-03T18:38:23.268820+00:00"
+    },
+    {
+      "id": 1567922478,
+      "username": "HacktivistOfGarudaOfficial",
+      "title": "Hacktivist Of Garuda",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "hack"
+      ],
+      "source": "global:AnonGhost",
+      "discovered_at": "2026-03-03T18:38:27.558089+00:00"
+    },
+    {
+      "id": 2657348557,
+      "username": "DIeNlt",
+      "title": "DieNet",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "dienet"
+      ],
+      "source": "global:Keymous",
+      "discovered_at": "2026-03-03T18:38:36.224961+00:00"
+    },
+    {
+      "id": 1072588114907,
+      "username": null,
+      "title": "Keymous Plus Messages",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "keymous"
+      ],
+      "source": "global:Keymous",
+      "discovered_at": "2026-03-03T18:38:36.224961+00:00"
+    },
+    {
+      "id": 1072657348557,
+      "username": null,
+      "title": "DieNet Messages",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "dienet"
+      ],
+      "source": "global:Keymous",
+      "discovered_at": "2026-03-03T18:38:36.224961+00:00"
+    },
+    {
+      "id": 2490464527,
+      "username": null,
+      "title": "NOS's Targets",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "target"
+      ],
+      "source": "global:Team Fearless",
+      "discovered_at": "2026-03-03T18:38:58.158526+00:00"
+    },
+    {
+      "id": 2138781159,
+      "username": null,
+      "title": "313 Team",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "313"
+      ],
+      "source": "global:اختراق اسرائيل",
+      "discovered_at": "2026-03-03T18:39:28.175677+00:00"
+    },
+    {
+      "id": 2305173962,
+      "username": null,
+      "title": "Specter Hacker",
+      "about": "",
+      "score": 1,
+      "relevance_matches": [
+        "hack"
+      ],
+      "source": "global:عمليات سيبرانية",
+      "discovered_at": "2026-03-03T18:39:30.342880+00:00"
+    },
+    {
+      "id": 3148465603,
+      "username": "hak993",
+      "title": "الدرع الشيعي Shia Shield",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:04.027222+00:00"
+    },
+    {
+      "id": 1116498519,
+      "username": "IraninArabic",
+      "title": "إيران بالعربية",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:07.534620+00:00"
+    },
+    {
+      "id": 1364992115,
+      "username": "iraninarabic_ir",
+      "title": "إيران بالعربية | عاجل",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:08.693754+00:00"
+    },
+    {
+      "id": 2047970239,
+      "username": "awlialdm",
+      "title": "سرايا اولياء الدم",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:09.288401+00:00"
+    },
+    {
+      "id": 1343549608,
+      "username": "Electrohizbullah",
+      "title": "حزب الله الإلكتروني",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:09.871977+00:00"
+    },
+    {
+      "id": 2536272687,
+      "username": "teorizandonamatrix",
+      "title": "Petrov's News",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:11.044804+00:00"
+    },
+    {
+      "id": 1072345716,
+      "username": "centerkaf",
+      "title": "كاف - Kaf",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:11.837642+00:00"
+    },
+    {
+      "id": 1491094605,
+      "username": "SabrenNewss",
+      "title": "صابرين نيوز - Sabereen news",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:13.108236+00:00"
+    },
+    {
+      "id": 2437048420,
+      "username": "TEAM_SHADOW1",
+      "title": "SHADOW",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:15.448688+00:00"
+    },
+    {
+      "id": 7824398927,
+      "username": "CyberShop_contact_bot",
+      "title": "CyberShop contact",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:16.029823+00:00"
+    },
+    {
+      "id": 3141598341,
+      "username": "Nadbgnen",
+      "title": "نبض جنين",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:16.615112+00:00"
+    },
+    {
+      "id": 3396018631,
+      "username": "ebrahimhodifa",
+      "title": "إبراهيم حذيفة الكحلوت",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:17.200333+00:00"
+    },
+    {
+      "id": 1310612033,
+      "username": "iran_military_capabilities",
+      "title": "القدرات العسكرية الإيرانية",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:17.816492+00:00"
+    },
+    {
+      "id": 3215188764,
+      "username": "Balagh1PS",
+      "title": "بلاغ",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:18.393472+00:00"
+    },
+    {
+      "id": 2397887911,
+      "username": "shamatlypro",
+      "title": "الشمطلي جديد",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:18.990017+00:00"
+    },
+    {
+      "id": 1864494577,
+      "username": "SylhetGangSG1",
+      "title": "SYLHET GANG-SG 🏴",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:20.751043+00:00"
+    },
+    {
+      "id": 2372105196,
+      "username": "MOROCCANSOLDIERS2",
+      "title": "Moroccan Soldiers",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:28.918186+00:00"
+    },
+    {
+      "id": 2428265519,
+      "username": "fattah_iriii",
+      "title": "Cyber Fattah team",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:32.354089+00:00"
+    },
+    {
+      "id": 2612279681,
+      "username": "liwaamohammad",
+      "title": "لواء محمد ﷺ – السيادة السيبرانية",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:32.949240+00:00"
+    },
+    {
+      "id": 1072612279681,
+      "username": null,
+      "title": "لواء محمد ﷺ Messages",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:33.550521+00:00"
+    },
+    {
+      "id": 1536802757,
+      "username": "CyperBattle",
+      "title": "Cyber Battle",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:35.463163+00:00"
+    },
+    {
+      "id": 2405977219,
+      "username": "TheDarkBinary",
+      "title": "Dark Binary",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:37.220336+00:00"
+    },
+    {
+      "id": 2377994245,
+      "username": "Vulture_000",
+      "title": "Vulture",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:39.033345+00:00"
+    },
+    {
+      "id": 2172828146,
+      "username": "OXO_News_HN",
+      "title": "OXO News HN",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:44.495414+00:00"
+    },
+    {
+      "id": 1072172828146,
+      "username": null,
+      "title": "OXO News HN Messages",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:45.094122+00:00"
+    },
+    {
+      "id": 3111908532,
+      "username": "CyberToufan08",
+      "title": "CyberToufan",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:45.887645+00:00"
+    },
+    {
+      "id": 2477750439,
+      "username": "Mhwear96",
+      "title": "نفير",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:46.575562+00:00"
+    },
+    {
+      "id": 1072477750439,
+      "username": null,
+      "title": "Holy league Messages",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:48.810599+00:00"
+    },
+    {
+      "id": 2183446194,
+      "username": "faadeeeee",
+      "title": "Fade Team",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:56.436936+00:00"
+    },
+    {
+      "id": 1592775071,
+      "username": "PolkaEntertaiment",
+      "title": "FADIA MILASHKR TEAM",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:57.016912+00:00"
+    },
+    {
+      "id": 1953372577,
+      "username": "FaDyFoDa96",
+      "title": "𝙏𝙚𝙖𝙢🔥𝙁𝙖𝘿𝙮",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:57.594060+00:00"
+    },
+    {
+      "id": 2625942832,
+      "username": "fadaehweplay_Afrix_Tele",
+      "title": "𝐓𝐄𝐀𝐌 𝐀𝐕𝐄𝐑𝐈𝐗 | تـيـم اڤـريـكـس ま",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:58.167533+00:00"
+    },
+    {
+      "id": 3549210578,
+      "username": "TEAMJOHANNAFADULOFICIAL",
+      "title": "TEAM JOHANNA FADUL OFICIAL",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:58.744043+00:00"
+    },
+    {
+      "id": 2696076878,
+      "username": "fadeTeamm",
+      "title": "Fade Team",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:59.320850+00:00"
+    },
+    {
+      "id": 2866660767,
+      "username": "FAD_Team_Iran",
+      "title": "FAD Team فارسی",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:35:59.903082+00:00"
+    },
+    {
+      "id": 1979437566,
+      "username": "FAD_Team",
+      "title": "Al Mousawi",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:00.485546+00:00"
+    },
+    {
+      "id": 1852079637,
+      "username": "team_fadi",
+      "title": "𝘾𝙍𝘼𝘾𝙆𝙄𝙉𝙂 / 𝙉𝙏𝙁 📊",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:01.054449+00:00"
+    },
+    {
+      "id": 2333594663,
+      "username": "FADED_TEAM",
+      "title": "ИЩЕМ ТИМ",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:01.634996+00:00"
+    },
+    {
+      "id": 2341119981,
+      "username": "v2rayng_fars",
+      "title": "سرور فیلترشکن نت ملی پروکسی دائمی تلگرام وصل متصل وی پی ان فیلتر شکن ویتوری رایگان کانفیگ فارس قوی",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:12.877123+00:00"
+    },
+    {
+      "id": 1592235175,
+      "username": "internetforfree23",
+      "title": "نت مجاني فودافون وي اتصالات اورانج النت دايما مجاني كونفيجات و هكر ببجي",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:13.451796+00:00"
+    },
+    {
+      "id": 2273467131,
+      "username": "N_gh26",
+      "title": "نِتٌـوٌکْلَ عٌلَى لَلَهّ دٍأّئمًآ",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:14.035129+00:00"
+    },
+    {
+      "id": 1497981605,
+      "username": "o_m114",
+      "title": "• 💕دعنـآ نتفق بالسعآدة دائماً ،🥺",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:14.628571+00:00"
+    },
+    {
+      "id": 2394551881,
+      "username": "diamondkhonj",
+      "title": "كافى نت دايموند خنج",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:15.203465+00:00"
+    },
+    {
+      "id": 2584644990,
+      "username": "J97JJJ",
+      "title": "نتائج دايمون",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:15.786106+00:00"
+    },
+    {
+      "id": 1560550977,
+      "username": "zcrez",
+      "title": "فیلتر شکن پر سرعت فیلترشکن پرسرعت و قوی رایگان مجانی دانلود سرور وی پی ان ضد فیلتر دائمی ملی رفع برای اندویید ایفون اختلال نت با",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:16.384569+00:00"
+    },
+    {
+      "id": 1123083360,
+      "username": "gracheva_net_diet",
+      "title": "Диетолог Юлия Грачева",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:16.979520+00:00"
+    },
+    {
+      "id": 2693472232,
+      "username": "diettutnet",
+      "title": "Диет.net",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:17.565616+00:00"
+    },
+    {
+      "id": 1282243971,
+      "username": "Win_Diesel_net",
+      "title": "DIZLTech 👨‍🔧",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:18.146211+00:00"
+    },
+    {
+      "id": 1849281855,
+      "username": "diem_pi_network",
+      "title": "Diễm PI NODE",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:18.739077+00:00"
+    },
+    {
+      "id": 1248271124,
+      "username": "netscapedidnothingwrong",
+      "title": "Web 1.0 is a beautiful place and I'm no longer afraid to die",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:19.777934+00:00"
+    },
+    {
+      "id": 2161606070,
+      "username": "sandiegonetworking",
+      "title": "San Diego | Buisness Networking",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:20.358011+00:00"
+    },
+    {
+      "id": 1827841294,
+      "username": "Onlyteraboxx",
+      "title": "Peracun Handal",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:31.679763+00:00"
+    },
+    {
+      "id": 3177311140,
+      "username": "ceceeeeeeyy",
+      "title": "pembSyol hAndalL",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:32.259442+00:00"
+    },
+    {
+      "id": 2052801035,
+      "username": "handal6",
+      "title": "معهد الحنظل دفعة 2025 العزم والتحدي",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:32.883318+00:00"
+    },
+    {
+      "id": 2895770590,
+      "username": "CyberAv3ngerss",
+      "title": "CyberAv3ngers",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:34.068789+00:00"
+    },
+    {
+      "id": 2232527441,
+      "username": "slotsmines_esqueleto_mariachi",
+      "title": "Rise of anubis the avengers casino syndicate punk bonus rocker wrath no deposit of the dragons cyber 3077 review",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:34.687943+00:00"
+    },
+    {
+      "id": 1226398355,
+      "username": "mre_hamza",
+      "title": "مريم حمزة",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:35.299755+00:00"
+    },
+    {
+      "id": 1559145211,
+      "username": "physics_hamza",
+      "title": "Physics with Mr. Hamza",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:35.893561+00:00"
+    },
+    {
+      "id": 1103394305,
+      "username": "hamza_physic",
+      "title": "قناة الفيزياء التعليمية Mr.hamza",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:37.113545+00:00"
+    },
+    {
+      "id": 2210678362,
+      "username": "mrhamza63",
+      "title": "Mr Hamza Math and Science",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:37.719563+00:00"
+    },
+    {
+      "id": 2936680644,
+      "username": "anonghost",
+      "title": "anonghost",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:40.743012+00:00"
+    },
+    {
+      "id": 2350752211,
+      "username": "AnonGhostG",
+      "title": "AnonGhost Official",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:41.336018+00:00"
+    },
+    {
+      "id": 1513124536,
+      "username": "AnonGhostindo",
+      "title": "AnonGhost Indonesian",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:41.932766+00:00"
+    },
+    {
+      "id": 1396497570,
+      "username": "Anonghost1",
+      "title": "ÁÑØÑGHØSTØF6IX",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:42.526241+00:00"
+    },
+    {
+      "id": 2448952813,
+      "username": "M0roccan_Black_CyberArmy",
+      "title": "Moroccan Black Cyber Army",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:44.998279+00:00"
+    },
+    {
+      "id": 2125412374,
+      "username": "moroccan_black_cyber_army",
+      "title": "Moroccan Black Cyber Army",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:45.587529+00:00"
+    },
+    {
+      "id": 3132928861,
+      "username": "Cyb3rDrag0nzz",
+      "title": "Cybb",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:46.160392+00:00"
+    },
+    {
+      "id": 3333992738,
+      "username": "SSERATIESCS",
+      "title": "The Fearless Union Team.",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:46.735303+00:00"
+    },
+    {
+      "id": 1768832990,
+      "username": "Fearlesseteam",
+      "title": "🔥💸Fearless team🔔🔥",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:47.309421+00:00"
+    },
+    {
+      "id": 1745332244,
+      "username": "Team_Fearless_Motivation",
+      "title": "Team Fearless Motivation",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:47.896358+00:00"
+    },
+    {
+      "id": 1626245859,
+      "username": "prashantshivaliya",
+      "title": "Team Fearless",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:48.475541+00:00"
+    },
+    {
+      "id": 1772818089,
+      "username": "Hanan_h0m",
+      "title": "🔥💸Hanan Fearless Team 💸🔥",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:49.066541+00:00"
+    },
+    {
+      "id": 3176824649,
+      "username": "fearlessteam2025",
+      "title": "Fearless Team ☢️",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:49.649571+00:00"
+    },
+    {
+      "id": 2404410641,
+      "username": "toufan_alaqsa",
+      "title": "طلبة ملحقة المسيلة",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:50.836340+00:00"
+    },
+    {
+      "id": 1419273866,
+      "username": "toufan_alaghsa",
+      "title": "طوفان الاقصی",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:51.427291+00:00"
+    },
+    {
+      "id": 1847342519,
+      "username": "toufan_alaqssa",
+      "title": "طوفان_الأقصى",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:53.412602+00:00"
+    },
+    {
+      "id": 2012733082,
+      "username": "saytuf",
+      "title": "سايبر طوفان",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:54.292660+00:00"
+    },
+    {
+      "id": 1420112605,
+      "username": "Holy_League_Official",
+      "title": "The Holy League 🇻🇦",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:54.897644+00:00"
+    },
+    {
+      "id": 2440875163,
+      "username": "HolyfaceMcr",
+      "title": "Holy Face League of St Martin Uk",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:55.943648+00:00"
+    },
+    {
+      "id": 3651750749,
+      "username": "ekanf",
+      "title": "League Holy Angel",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:56.568402+00:00"
+    },
+    {
+      "id": 1778181147,
+      "username": "OSMinformation",
+      "title": "ℎ𝑜𝐿𝑌 𝐶𝑈𝑃 𝐿𝐸𝐴𝐺𝑈𝐸 / لیگ جام مقدس",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:57.145612+00:00"
+    },
+    {
+      "id": 1187031121,
+      "username": "sharp33377",
+      "title": "sharp333",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:58.973834+00:00"
+    },
+    {
+      "id": 1135056818,
+      "username": "sharp33377gr",
+      "title": "sharp333",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:36:59.567279+00:00"
+    },
+    {
+      "id": 1487972678,
+      "username": "rental_apt_tehran",
+      "title": "Rental.apt.vanak.tehran.iran",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:37:00.151312+00:00"
+    },
+    {
+      "id": 2890176643,
+      "username": "APTIR1",
+      "title": "APT IRAN BANK",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:37:00.732293+00:00"
+    },
+    {
+      "id": 1824504025,
+      "username": "aptos_ir",
+      "title": "Aptos iranian",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:37:01.304744+00:00"
+    },
+    {
+      "id": 3770317474,
+      "username": "AdvancedPersistentThreat_Iran",
+      "title": "APTIRAN",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:37:01.883279+00:00"
+    },
+    {
+      "id": 2264481485,
+      "username": "SyrianCyperArmy",
+      "title": "غرفة العمليات الإلكترونية",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:37:02.465750+00:00"
+    },
+    {
+      "id": 1879400684,
+      "username": "AKAlkah",
+      "title": "فتية عســقـلان..",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:37:05.944377+00:00"
+    },
+    {
+      "id": 2016359706,
+      "username": "IsnadPalestin",
+      "title": "ISNAD - Palestine Movement",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:37:06.536774+00:00"
+    },
+    {
+      "id": 1410314151,
+      "username": "Fe_khalal",
+      "title": "في خلل",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "id_resolution",
+      "discovered_at": "2026-03-03T18:37:07.124941+00:00"
+    },
+    {
+      "id": 2120532431,
+      "username": "r3_6j",
+      "title": "FAD Team",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:FaD TeaM",
+      "discovered_at": "2026-03-03T18:37:25.962941+00:00"
+    },
+    {
+      "id": 2429189729,
+      "username": "fadteam",
+      "title": "⁨FAD Team⁩ محادثة",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:FaD TeaM",
+      "discovered_at": "2026-03-03T18:37:25.963921+00:00"
+    },
+    {
+      "id": 1072735066042,
+      "username": null,
+      "title": "t2 mx × 250 lite Messages",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:313team",
+      "discovered_at": "2026-03-03T18:37:35.130853+00:00"
+    },
+    {
+      "id": 1073002283768,
+      "username": null,
+      "title": "666Team Messages",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:313team",
+      "discovered_at": "2026-03-03T18:37:35.132121+00:00"
+    },
+    {
+      "id": 2462707138,
+      "username": "ARABIAN_GHOSTS",
+      "title": "ＭＡＤ ＧＨＯＳＴ",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:DieNet",
+      "discovered_at": "2026-03-03T18:37:37.342196+00:00"
+    },
+    {
+      "id": 1072462707138,
+      "username": null,
+      "title": "𝐀𝐑𝐀𝐁𝐈𝐀𝐍 𝐆𝐇𝐎𝐒𝐓𝐒 Messages",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:DieNet",
+      "discovered_at": "2026-03-03T18:37:37.344218+00:00"
+    },
+    {
+      "id": 2549388080,
+      "username": null,
+      "title": "Jokeir 07x",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:lulzsec black",
+      "discovered_at": "2026-03-03T18:37:46.000815+00:00"
+    },
+    {
+      "id": 1830410330,
+      "username": "stucxteam",
+      "title": "STUCX TEAM 🕷",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:handal",
+      "discovered_at": "2026-03-03T18:37:54.557555+00:00"
+    },
+    {
+      "id": 3534543792,
+      "username": "M0roccanBlack_CyberArmy",
+      "title": "Moroccon Black Cyber Army",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Cyber Islamic Resistance",
+      "discovered_at": "2026-03-03T18:37:56.738486+00:00"
+    },
+    {
+      "id": 2753579144,
+      "username": "nation_of_saviors_public",
+      "title": "𝐍𝐀𝐓𝐈𝐎𝐍 𝐎𝐅 𝐒𝐀𝐕𝐈𝐎𝐑𝐒 (All Alliance)",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Cyber Islamic Resistance",
+      "discovered_at": "2026-03-03T18:37:56.738486+00:00"
+    },
+    {
+      "id": 2153154436,
+      "username": "NATION_OF_SAVIORS_Discussion",
+      "title": "NOS Discussion",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Cyber Islamic Resistance",
+      "discovered_at": "2026-03-03T18:37:56.738486+00:00"
+    },
+    {
+      "id": 1072753579144,
+      "username": null,
+      "title": "Nation Of Saviors(Public) Messages",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Cyber Islamic Resistance",
+      "discovered_at": "2026-03-03T18:37:56.740492+00:00"
+    },
+    {
+      "id": 1595644133,
+      "username": "maymun5",
+      "title": "صابرين بلس - Sabereen plus",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Cyber Avengers",
+      "discovered_at": "2026-03-03T18:38:14.568538+00:00"
+    },
+    {
+      "id": 2245031785,
+      "username": "Golden_falcon_team",
+      "title": "Golden Falcon",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Mr Hamza",
+      "discovered_at": "2026-03-03T18:38:18.882742+00:00"
+    },
+    {
+      "id": 2551353086,
+      "username": null,
+      "title": "Mr Hamza",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Mr Hamza",
+      "discovered_at": "2026-03-03T18:38:18.883764+00:00"
+    },
+    {
+      "id": 2100901736,
+      "username": "musicarusaesp",
+      "title": "🐻Desinformador ruso👁‍🗨",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Mr Hamza",
+      "discovered_at": "2026-03-03T18:38:18.885774+00:00"
+    },
+    {
+      "id": 2500821186,
+      "username": null,
+      "title": "Mr Hamza",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Mr Hamza",
+      "discovered_at": "2026-03-03T18:38:18.887775+00:00"
+    },
+    {
+      "id": 2507836937,
+      "username": null,
+      "title": "Mr Hamza",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Mr Hamza",
+      "discovered_at": "2026-03-03T18:38:18.892228+00:00"
+    },
+    {
+      "id": 2601166559,
+      "username": "AKATSUKI4492",
+      "title": "AKATSUKI CYBER TEAM (official)",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:AnonGhost",
+      "discovered_at": "2026-03-03T18:38:27.558089+00:00"
+    },
+    {
+      "id": 1848803060,
+      "username": null,
+      "title": "🏆⏤͟͞ǤʘĐᎰλƬℍᎬЯ🏆",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:AnonGhost",
+      "discovered_at": "2026-03-03T18:38:27.558089+00:00"
+    },
+    {
+      "id": 1211406420,
+      "username": "dragonforceio",
+      "title": "DragonForce Malaysia",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:AnonGhost",
+      "discovered_at": "2026-03-03T18:38:27.558089+00:00"
+    },
+    {
+      "id": 1638233592,
+      "username": null,
+      "title": "AnonGhost Official",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:AnonGhost",
+      "discovered_at": "2026-03-03T18:38:27.558089+00:00"
+    },
+    {
+      "id": 1806562122,
+      "username": null,
+      "title": "🔻AnonGhost™ Official🔻",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:AnonGhost",
+      "discovered_at": "2026-03-03T18:38:27.558089+00:00"
+    },
+    {
+      "id": 1071211406420,
+      "username": null,
+      "title": "DragonForce Malaysia Messages",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:AnonGhost",
+      "discovered_at": "2026-03-03T18:38:27.558089+00:00"
+    },
+    {
+      "id": 2175170406,
+      "username": null,
+      "title": "🇧🇩Binary Revenants Bangladesh🇧🇩🚩",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Sylhet Gang",
+      "discovered_at": "2026-03-03T18:38:31.883572+00:00"
+    },
+    {
+      "id": 2378469897,
+      "username": null,
+      "title": "NOS's Intelligence Agency",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Sylhet Gang",
+      "discovered_at": "2026-03-03T18:38:31.884538+00:00"
+    },
+    {
+      "id": 2613500489,
+      "username": null,
+      "title": "KMP Group Private",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Keymous",
+      "discovered_at": "2026-03-03T18:38:36.219073+00:00"
+    },
+    {
+      "id": 2351486333,
+      "username": null,
+      "title": "Holy League",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Keymous",
+      "discovered_at": "2026-03-03T18:38:36.224961+00:00"
+    },
+    {
+      "id": 2472270906,
+      "username": "Cyb3er_ma",
+      "title": "Chat/M-B-C-A",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Keymous",
+      "discovered_at": "2026-03-03T18:38:36.224961+00:00"
+    },
+    {
+      "id": 2619831107,
+      "username": null,
+      "title": "Al Ahad l ٱلْ أَحَد",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Keymous",
+      "discovered_at": "2026-03-03T18:38:36.224961+00:00"
+    },
+    {
+      "id": 2259100562,
+      "username": null,
+      "title": "𝐍𝐀𝐓𝐈𝐎𝐍 𝐎𝐅 𝐒𝐀𝐕𝐈𝐎𝐑𝐒",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Nation of Saviors",
+      "discovered_at": "2026-03-03T18:38:40.460839+00:00"
+    },
+    {
+      "id": 1072259100562,
+      "username": null,
+      "title": "𝐍𝐀𝐓𝐈𝐎𝐍 𝐎𝐅 𝐒𝐀𝐕𝐈𝐎𝐑𝐒 Messages",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Nation of Saviors",
+      "discovered_at": "2026-03-03T18:38:40.461790+00:00"
+    },
+    {
+      "id": 2683023174,
+      "username": null,
+      "title": "NoName057(16) Eng_vers",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:NoName057",
+      "discovered_at": "2026-03-03T18:38:44.725239+00:00"
+    },
+    {
+      "id": 2694389044,
+      "username": null,
+      "title": "Taxi",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:NoName057",
+      "discovered_at": "2026-03-03T18:38:44.725239+00:00"
+    },
+    {
+      "id": 1945925441,
+      "username": null,
+      "title": "NoName057(16)🇷🇺",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:NoName057",
+      "discovered_at": "2026-03-03T18:38:44.725239+00:00"
+    },
+    {
+      "id": 2413023131,
+      "username": null,
+      "title": "NoName057(16) Eng version",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:NoName057",
+      "discovered_at": "2026-03-03T18:38:44.725239+00:00"
+    },
+    {
+      "id": 2429154502,
+      "username": null,
+      "title": "NoName057(16)🇷🇺 reserve",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:NoName057",
+      "discovered_at": "2026-03-03T18:38:44.725239+00:00"
+    },
+    {
+      "id": 2368282565,
+      "username": null,
+      "title": "NoName057(16)",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:NoName057",
+      "discovered_at": "2026-03-03T18:38:44.725239+00:00"
+    },
+    {
+      "id": 2648540620,
+      "username": null,
+      "title": "Moroccan Black Cyber Army",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Moroccan Black Cyber",
+      "discovered_at": "2026-03-03T18:38:49.139725+00:00"
+    },
+    {
+      "id": 1935403127,
+      "username": "anonymous_Cr02x",
+      "title": "Team Azrael--Angel Of Death®",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:cyber dragonz",
+      "discovered_at": "2026-03-03T18:38:55.819612+00:00"
+    },
+    {
+      "id": 1924453035,
+      "username": null,
+      "title": "GARUDA SECURITY",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:cyber dragonz",
+      "discovered_at": "2026-03-03T18:38:55.819612+00:00"
+    },
+    {
+      "id": 2490433969,
+      "username": null,
+      "title": "CYBER TEAM INDONESIA",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Team Fearless",
+      "discovered_at": "2026-03-03T18:38:58.158526+00:00"
+    },
+    {
+      "id": 2684253824,
+      "username": null,
+      "title": "𝙏𝙀𝘼𝙈 𝙁𝙀𝘼𝙍𝙇𝙀𝙎𝙎 🇵🇸",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Team Fearless",
+      "discovered_at": "2026-03-03T18:38:58.158526+00:00"
+    },
+    {
+      "id": 1737158390,
+      "username": null,
+      "title": "Holy League",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Holy League",
+      "discovered_at": "2026-03-03T18:39:09.119658+00:00"
+    },
+    {
+      "id": 1535137265,
+      "username": null,
+      "title": "NoName057(16)🇷🇺",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:Holy League",
+      "discovered_at": "2026-03-03T18:39:09.119658+00:00"
+    },
+    {
+      "id": 2459593667,
+      "username": null,
+      "title": "NRT News - الشرق الأوسط",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:هاكرز المقاومة",
+      "discovered_at": "2026-03-03T18:39:23.826475+00:00"
+    },
+    {
+      "id": 2422304837,
+      "username": null,
+      "title": "Elite Squad",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "global:اختراق اسرائيل",
+      "discovered_at": "2026-03-03T18:39:28.175677+00:00"
+    },
+    {
+      "id": 2538041756,
+      "username": "nuozhuo",
+      "title": "@l23sb 阿木NFT精品馆",
+      "about": "",
+      "score": 0,
+      "relevance_matches": [],
+      "source": "contact:Keymous",
+      "discovered_at": "2026-03-03T18:40:57.240449+00:00"
+    }
+  ]
+}

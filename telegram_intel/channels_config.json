@@ -1,0 +1,548 @@
+{
+  "hak993": {
+    "tier": 1,
+    "label": "Fatemiyoun Cyber Team",
+    "threat": "CRITICAL"
+  },
+  "hak994": {
+    "tier": 1,
+    "label": "Fatemiyoun Cyber Team",
+    "threat": "CRITICAL"
+  },
+  "Fatimion310_bot": {
+    "tier": 1,
+    "label": "Fatemiyoun Bot",
+    "threat": "CRITICAL"
+  },
+  "fatimion110": {
+    "tier": 1,
+    "label": "Fatemiyoun Community",
+    "threat": "CRITICAL"
+  },
+  "hkr313": {
+    "tier": 1,
+    "label": "Fatemiyoun Field Team",
+    "threat": "CRITICAL"
+  },
+  "xX313XxTeam": {
+    "tier": 1,
+    "label": "313 Team (Iraqi Cyber Resistance)",
+    "threat": "CRITICAL"
+  },
+  "Team313Official": {
+    "tier": 1,
+    "label": "313 Team Official",
+    "threat": "CRITICAL"
+  },
+  "x313xTeamLeak": {
+    "tier": 1,
+    "label": "313 Team Leaks",
+    "threat": "CRITICAL"
+  },
+  "x313xTeamBackup": {
+    "tier": 1,
+    "label": "313 Team Backup",
+    "threat": "CRITICAL"
+  },
+  "Mhwear98": {
+    "tier": 2,
+    "label": "Cyber Islamic Resistance",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "Mhwercyber4": {
+    "tier": 2,
+    "label": "Cyber Islamic Resistance",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "mhwear0": {
+    "tier": 2,
+    "label": "Cyber Islamic Resistance (active handle)",
+    "threat": "HIGH"
+  },
+  "fattahh_ir": {
+    "tier": 2,
+    "label": "Cyber Fattah Team",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "Handala_hack": {
+    "tier": 2,
+    "label": "Handala (MOIS/Void Manticore)",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "handala_hack26": {
+    "tier": 2,
+    "label": "Handala Backup",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "handal_a": {
+    "tier": 2,
+    "label": "Handala (Active 2025)",
+    "threat": "HIGH"
+  },
+  "Handala_hack_iranian": {
+    "tier": 2,
+    "label": "Handala Iranian",
+    "threat": "HIGH"
+  },
+  "Handala_Hack_Team": {
+    "tier": 2,
+    "label": "Handala Team",
+    "threat": "HIGH"
+  },
+  "blackopmrhamza": {
+    "tier": 2,
+    "label": "Mr Hamza",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "RipperSec": {
+    "tier": 2,
+    "label": "RipperSec (Malaysia)",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "TheRipperSec": {
+    "tier": 2,
+    "label": "RipperSec Main",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "AnonGhostOfficialTeam": {
+    "tier": 2,
+    "label": "AnonGhost",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "sylhetgangsgofficial": {
+    "tier": 2,
+    "label": "Sylhet Gang SG",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "KeymousTeam": {
+    "tier": 2,
+    "label": "Keymous+",
+    "threat": "HIGH"
+  },
+  "KMPteam": {
+    "tier": 2,
+    "label": "Keymous+ (Alt)",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "Keymous_V2": {
+    "tier": 2,
+    "label": "Keymous+ Backup",
+    "threat": "HIGH",
+    "status": "banned"
+  },
+  "islamic_hacker_army1": {
+    "tier": 2,
+    "label": "Islamic Hacker Army",
+    "threat": "HIGH"
+  },
+  "noname05716eng": {
+    "tier": 3,
+    "label": "NoName057(16) EN",
+    "threat": "MEDIUM",
+    "status": "banned"
+  },
+  "noname05716": {
+    "tier": 3,
+    "label": "NoName057(16) RU",
+    "threat": "MEDIUM",
+    "status": "banned"
+  },
+  "dienet3": {
+    "tier": 3,
+    "label": "DieNet (DDoS-as-a-service)",
+    "threat": "MEDIUM"
+  },
+  "dnnmabot": {
+    "tier": 3,
+    "label": "DieNet Attack Notifier Bot",
+    "threat": "MEDIUM"
+  },
+  "LulzSecBlack": {
+    "tier": 3,
+    "label": "LulzSec Black (PIJ)",
+    "threat": "MEDIUM"
+  },
+  "LulzSecHackers": {
+    "tier": 3,
+    "label": "LulzSec Hackers",
+    "threat": "MEDIUM"
+  },
+  "Luls_sec_muslims": {
+    "tier": 3,
+    "label": "LulzSec Muslims",
+    "threat": "MEDIUM"
+  },
+  "ElamAlmoqawama": {
+    "tier": 3,
+    "label": "Islamic Resistance Iraq",
+    "threat": "MEDIUM"
+  },
+  "toufan_alaksa": {
+    "tier": 3,
+    "label": "Al Aqsa Resistance Axis",
+    "threat": "MEDIUM"
+  },
+  "Chat_Islamic_Hacker_Army": {
+    "tier": 3,
+    "label": "IHA Discussion",
+    "threat": "MEDIUM"
+  },
+  "Khamenei_arabi": {
+    "tier": 3,
+    "label": "Khamenei Arabic",
+    "threat": "LOW"
+  },
+  "operationswordofjustice": {
+    "tier": 2,
+    "label": "Operation Sword of Justice",
+    "threat": "HIGH"
+  },
+  "Anonymous0islamic": {
+    "tier": 3,
+    "label": "Anonymous Islamic",
+    "threat": "MEDIUM"
+  },
+  "handala24": {
+    "tier": 2,
+    "label": "Handala (Active 2024+)",
+    "threat": "HIGH"
+  },
+  "tttteam313": {
+    "tier": 2,
+    "label": "313 Team (Affiliated)",
+    "threat": "HIGH"
+  },
+  "SabrenNewss": {
+    "tier": 2,
+    "label": "Sabren News",
+    "threat": "HIGH"
+  },
+  "DarkStormTeams": {
+    "tier": 2,
+    "label": "Dark Storm Team",
+    "threat": "HIGH"
+  },
+  "DarkStormBackup": {
+    "tier": 2,
+    "label": "Dark Storm Team (Backup)",
+    "threat": "HIGH"
+  },
+  "darkstormchat": {
+    "tier": 2,
+    "label": "Dark Storm Team (Chat)",
+    "threat": "HIGH"
+  },
+  "arabian_ghosts": {
+    "tier": 2,
+    "label": "Arabian Ghosts",
+    "threat": "HIGH"
+  },
+  "aptiran": {
+    "tier": 2,
+    "label": "APT Iran",
+    "threat": "HIGH"
+  },
+  "Golden_falcon_team": {
+    "tier": 2,
+    "label": "Golden Falcon",
+    "threat": "HIGH"
+  },
+  "stucxteam": {
+    "tier": 2,
+    "label": "Stucx Team",
+    "threat": "HIGH"
+  },
+  "stucxnet": {
+    "tier": 2,
+    "label": "Stucx Net",
+    "threat": "HIGH"
+  },
+  "xxstucxteam": {
+    "tier": 2,
+    "label": "Stucx Team (Alt)",
+    "threat": "HIGH"
+  },
+  "the_hand_of_justice": {
+    "tier": 2,
+    "label": "Hand of Justice",
+    "threat": "HIGH"
+  },
+  "CyberIsnaadFront": {
+    "tier": 2,
+    "label": "Cyber Isnaad Front",
+    "threat": "HIGH"
+  },
+  "TeamCyb3rDrag0nz": {
+    "tier": 2,
+    "label": "CyberDrag0nzz",
+    "threat": "HIGH"
+  },
+  "cyb3r_drag0nz_team": {
+    "tier": 2,
+    "label": "CyberDrag0nzz (Alt)",
+    "threat": "HIGH"
+  },
+  "HacktivistOfGaruda": {
+    "tier": 3,
+    "label": "Garuda Eye (Indonesia)",
+    "threat": "MEDIUM"
+  },
+  "HacktivistOfGarudaOfficial": {
+    "tier": 3,
+    "label": "Garuda Eye (Official)",
+    "threat": "MEDIUM"
+  },
+  "nation_of_saviors_public": {
+    "tier": 3,
+    "label": "Nation of Saviours",
+    "threat": "MEDIUM"
+  },
+  "EvilNet3": {
+    "tier": 3,
+    "label": "EvilNet 3.0",
+    "threat": "MEDIUM"
+  },
+  "Gaza_Children_Hackers": {
+    "tier": 2,
+    "label": "Gaza Children's Group",
+    "threat": "HIGH"
+  },
+  "gaza_children_ha": {
+    "tier": 2,
+    "label": "Gaza Children (Backup)",
+    "threat": "HIGH"
+  },
+  "INDOHAXSEC": {
+    "tier": 3,
+    "label": "Indohaxsec",
+    "threat": "MEDIUM"
+  },
+  "ALTOUFANTEAM": {
+    "tier": 2,
+    "label": "Altoufan Team",
+    "threat": "HIGH"
+  },
+  "anonymous_cr02x": {
+    "tier": 2,
+    "label": "Team Azrael (Angel of Death)",
+    "threat": "HIGH"
+  },
+  "teamAzraelbackup": {
+    "tier": 2,
+    "label": "Team Azrael (Backup)",
+    "threat": "HIGH"
+  },
+  "anonymous_bangladesh": {
+    "tier": 3,
+    "label": "BD Anonymous",
+    "threat": "MEDIUM"
+  },
+  "t_gray_hacker": {
+    "tier": 3,
+    "label": "The Anonymous BD",
+    "threat": "MEDIUM"
+  },
+  "M0roccan_Black_CyberArmy": {
+    "tier": 3,
+    "label": "Moroccan Black Cyber Army",
+    "threat": "MEDIUM"
+  },
+  "moroccan_blackcyberarmy": {
+    "tier": 3,
+    "label": "MBCA (Alt)",
+    "threat": "MEDIUM"
+  },
+  "akatsukicyberteam": {
+    "tier": 3,
+    "label": "Akatsuki Cyber Team",
+    "threat": "MEDIUM"
+  },
+  "r3_6j": {
+    "tier": 1,
+    "label": "FAD Team (Min. of Finance breach)",
+    "threat": "CRITICAL"
+  },
+  "CyberAv3ngers": {
+    "tier": 2,
+    "label": "Cyber Av3ngers (IRGC)",
+    "threat": "HIGH"
+  },
+  "cyberaveng3rs": {
+    "tier": 2,
+    "label": "Cyber Av3ngers (Alt)",
+    "threat": "HIGH"
+  },
+  "anonopiran": {
+    "tier": 3,
+    "label": "Anonymous OpIran",
+    "threat": "MEDIUM"
+  },
+  "liwaamohammad": {
+    "tier": 2,
+    "label": "Liwaa Mohammad (Lebanese Resistance)",
+    "threat": "HIGH"
+  },
+  "mhwear10": {
+    "tier": 2,
+    "label": "Tharallah Brigade",
+    "threat": "HIGH"
+  },
+  "Cyber32": {
+    "tier": 3,
+    "label": "Cyber32",
+    "threat": "MEDIUM"
+  },
+  "DieNetAPI": {
+    "tier": 3,
+    "label": "DieNet API Info",
+    "threat": "MEDIUM"
+  },
+  "dienet_media": {
+    "tier": 3,
+    "label": "DieNet Media Corp",
+    "threat": "MEDIUM"
+  },
+  "databasetestbank": {
+    "label": "databasetestbank",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "iraqdatam": {
+    "label": "iraqdatam",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "x1xr2": {
+    "label": "x1xr2",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "zgfdesadses": {
+    "label": "zgfdesadses",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "official_empress_leaks": {
+    "label": "OFFICIAL_EMPRESS_LEAKS",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "anonymous_palestine": {
+    "label": "anonymous_palestine",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "instagram_snapchet_ig_hacker": {
+    "label": "Instagram_snapchet_ig_hacker",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "jordanien12": {
+    "label": "jordanien12",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "n9_y_m": {
+    "label": "n9_y_m",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "vbvb331": {
+    "label": "vbvb331",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "anonymouspalestineofficial": {
+    "label": "AnonymousPalestineOfficial",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "fdhhfhhggu": {
+    "label": "fdhhfhhggu",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "liberationofalaqsa": {
+    "label": "LiberationofAlAqsa",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "lock_anonymous_news": {
+    "label": "lock_anonymous_news",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "moroccan_black_cyber_army": {
+    "label": "moroccan_black_cyber_army",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "resistancetoast": {
+    "label": "Resistancetoast",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "chetohackjordan1": {
+    "label": "chetohackjordan1",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "hackerjordan": {
+    "label": "hackerjordan",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "jordancyberclub": {
+    "label": "JordanCyberClub",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "tnxgg": {
+    "label": "TNXGG",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "alnasr2022a": {
+    "label": "alnasr2022a",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "jordan_bank_account": {
+    "label": "Jordan_bank_account",
+    "tier": 3,
+    "threat": "MEDIUM",
+    "status": "active"
+  }
+}

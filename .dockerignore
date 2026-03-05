@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+.git/
+telegram_intel/*.log
+telegram_intel/backfill_*.log
+telegram_intel/media/
+WORKLOG.txt

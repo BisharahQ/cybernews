@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  cybernews:
+    build: .
+    container_name: cybernews
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "0.0.0.0:${HOST_PORT:-8888}:5000"
+    volumes:
+      - cybernews_data:/app/telegram_intel
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+volumes:
+  cybernews_data:
