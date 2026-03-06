@@ -1603,9 +1603,9 @@ textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba
       <div class="tl-toolbar">
         <span class="fl">Priority:</span>
         <select id="tl-priority" onchange="loadTimeline()">
+          <option value="ALL">All</option>
           <option value="CRITICAL">Critical only</option>
           <option value="MEDIUM">Medium &amp; Critical</option>
-          <option value="ALL">All</option>
         </select>
         <div class="crit-toggle" id="crit-toggle-timeline" style="margin-left:4px">
           <button class="ctbtn active" data-sub="ALL"      onclick="setCritSub('timeline','ALL')"> All</button>
@@ -3659,6 +3659,13 @@ function buildTLItemHtml(m) {
   const isLong  = text.length > 300;
   const id      = `tlmsg-${msgId}-${ch}`;
 
+  // Media
+  const hasMedia = m.has_media || m.media_path;
+  const mediaBadge = hasMedia ? `<span class="media-badge">📎 media</span>` : '';
+  const mediaPlaceholder = hasMedia
+    ? `<div class="media-container" data-media-ch="${esc(ch)}" data-media-id="${msgId}"><span class="media-loading">loading media…</span></div>`
+    : '';
+
   // Subtype badge
   const subBC = {CYBER:'var(--green)',NATIONAL:'var(--blue)',BOTH:'var(--medium-text)',GENERAL:'var(--critical)'};
   const subBadge = (p==='CRITICAL' && critSub)
@@ -3704,11 +3711,13 @@ function buildTLItemHtml(m) {
         ${subBadge}
         <span class="tl-channel">@${esc(ch)}</span>
         ${langBadge}${translateBtn}
+        ${mediaBadge}
       </div>
       ${kwHtml?`<div class="tl-kws">${kwHtml}</div>`:''}
       <div class="tl-btext" id="${id}">${esc(text)}</div>
       <div class="translate-result" style="display:none;margin-top:4px;padding:4px 7px;background:var(--bg-surface);border-left:2px solid var(--purple);font-size:10px;color:var(--text-secondary);font-style:italic"></div>
       ${isLong?`<button class="tl-expand" onclick="event.stopPropagation();tlExpand('${id}')">Show more ↓</button>`:''}
+      ${mediaPlaceholder}
       ${iocHtml}
       ${aiHtml}
     </div>
@@ -3767,6 +3776,8 @@ function prependTimelineItems(newMsgs) {
   let html = `<div class="tl-day" style="color:var(--green);border-color:var(--green)">↑ ${sorted.length} new message${sorted.length>1?'s':''}</div>`;
   sorted.forEach(m=>{ html += buildTLItemHtml(m); });
   el.insertAdjacentHTML('afterbegin', html);
+  // Observe media containers for lazy loading
+  el.querySelectorAll('.media-container[data-media-ch]').forEach(mc => _mediaObserver.observe(mc));
 }
 
 function renderTimeline(msgs) {
@@ -3786,6 +3797,8 @@ function renderTimeline(msgs) {
     html += buildTLItemHtml(m);
   });
   el.innerHTML=html;
+  // Observe media containers for lazy loading
+  el.querySelectorAll('.media-container[data-media-ch]').forEach(mc => _mediaObserver.observe(mc));
 }
 
 function tlExpand(id) {
@@ -3794,7 +3807,7 @@ function tlExpand(id) {
 }
 
 function resetTLFilters() {
-  document.getElementById('tl-priority').value='CRITICAL';
+  document.getElementById('tl-priority').value='ALL';
   document.getElementById('tl-since').value='';
   document.getElementById('tl-until').value='';
   document.getElementById('tl-channel').value='';
