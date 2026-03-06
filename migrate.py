@@ -56,8 +56,31 @@ _NATIONAL_SIGNALS = {
     "استخبارات", "intelligence", "gendarmerie", "الدرك",
     "border guard", "حرس الحدود", "مكافحة الإرهاب", "counter terrorism",
     "الأمن العام", "security directorate", "muwaffaq", "الموفق",
-    "war", "حرب", "missile", "صاروخ", "escalation", "تصعيد",
-    "strike", "عملية عسكرية", "military operation",
+    "warfare", "warzone", "at war", "of war", "حرب", "missile", "صاروخ", "escalation", "تصعيد",
+    "airstrike", "air strike", "عملية عسكرية", "military operation",
+}
+
+_SERVICE_SIGNALS = {
+    "service", "services", "for sale", "for hire", "hire", "buy", "sell", "selling",
+    "pricing", "price", "order", "contact us", "dm for", "dm me",
+    "blackhat", "black hat", "professional hacking", "hacking service", "blackhat service",
+    "we hack", "hack for", "hacker for",
+    "we offer", "we provide", "available now", "24/7",
+    "guaranteed results", "confidential", "affordable", "discount",
+    "package", "combo", "premium", "vip",
+    "خدمات", "خدمة", "للبيع", "للإيجار", "اشتري", "نبيع",
+    "اسعار", "سعر", "اطلب", "تواصل معنا", "راسلنا",
+    "نقدم", "نوفر", "متاح الآن", "خدمات احترافية",
+    "خدمات هک", "سرویس", "فروش", "قیمت", "سفارش",
+    "تماس بگیرید", "ارائه می‌دهیم",
+}
+
+_JORDAN_REFS = {
+    "jordan", "jordanian", "amman",
+    "الاردن", "الأردن", "أردن", "اردن", "اردني", "أردني", "الأردني", "الاردني",
+    "عمان", "عمّان",
+    "اردن", "اُردن",
+    ".jo", ".gov.jo", ".com.jo", ".edu.jo", ".org.jo", ".mil.jo",
 }
 
 
@@ -78,6 +101,12 @@ def _compute_critical_subtype(keyword_hits, text=""):
     is_cyber = strong_cyber
     if ambig_cyber and not is_national:
         is_cyber = True
+
+    # Demote service/sale ads unless Jordan is mentioned
+    if is_cyber and not is_national and txt:
+        if sum(1 for sig in _SERVICE_SIGNALS if sig in txt) >= 2:
+            if not any(ref in txt for ref in _JORDAN_REFS):
+                return "GENERAL"
 
     if is_cyber and is_national:
         return "BOTH"
@@ -468,6 +497,62 @@ def main():
     print("[7/7] Migrating APT research + AbuseIPDB cache...")
     migrate_apt_research()
     migrate_abuseipdb_cache()
+    print()
+
+    # Recompute critical_subtype for all CRITICAL messages (picks up filter changes)
+    print("[8/8] Recomputing critical subtypes...")
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT id, keyword_hits, text_preview, full_text FROM messages WHERE priority = 'CRITICAL'"
+    ).fetchall()
+    updated = 0
+    for row in rows:
+        kw_raw = row[1]
+        kw = json.loads(kw_raw) if kw_raw else []
+        text = row[2] or row[3] or ""
+        new_sub = _compute_critical_subtype(kw, text)
+        conn.execute("UPDATE messages SET critical_subtype = ? WHERE id = ?", (new_sub, row[0]))
+        updated += 1
+    conn.commit()
+    print(f"  {updated} CRITICAL messages recomputed")
+    # Show distribution
+    dist = conn.execute(
+        "SELECT critical_subtype, COUNT(*) FROM messages WHERE priority='CRITICAL' GROUP BY critical_subtype"
+    ).fetchall()
+    for sub, cnt in dist:
+        print(f"    {sub or 'NULL'}: {cnt}")
+    print()
+
+    # Backfill media_path for existing downloaded media files
+    print("[9/9] Backfilling media_path from existing files...")
+    # Clear invalid media_path values (old migration stored media_type like "MessageMediaWebPage")
+    conn.execute("UPDATE messages SET media_path = NULL WHERE media_path IS NOT NULL AND media_path NOT LIKE 'media/%'")
+    conn.commit()
+    media_root = DATA_DIR / "media"
+    media_updated = 0
+    if media_root.exists():
+        for d in sorted(media_root.iterdir()):
+            if not d.is_dir() or "_" not in d.name:
+                continue
+            # Directory name is {channel}_{message_id}
+            parts = d.name.rsplit("_", 1)
+            if len(parts) != 2:
+                continue
+            channel, msg_id_str = parts
+            try:
+                msg_id = int(msg_id_str)
+            except ValueError:
+                continue
+            files = [f for f in d.iterdir() if f.is_file()]
+            if files:
+                rel_path = f"media/{d.name}/{files[0].name}"
+                conn.execute(
+                    "UPDATE messages SET media_path=?, has_media=1 WHERE channel_username=? AND message_id=?",
+                    (rel_path, channel, msg_id)
+                )
+                media_updated += 1
+        conn.commit()
+    print(f"  {media_updated} messages linked to media files")
     print()
 
     elapsed = time.time() - t0

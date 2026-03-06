@@ -763,9 +763,33 @@ NATIONAL_CRITICAL_SIGNALS = {
     "استخبارات", "intelligence", "gendarmerie", "الدرك",
     "border guard", "حرس الحدود", "مكافحة الإرهاب", "counter terrorism",
     "الأمن العام", "security directorate", "muwaffaq", "الموفق",
-    # War / conflict signals
-    "حرب", "war", "strike", "missile", "صاروخ", "تصعيد", "escalation",
+    # War / conflict signals (avoid short words that match inside cyber terms like "malware")
+    "حرب", "warfare", "warzone", "at war", "of war", "airstrike", "air strike",
+    "missile", "صاروخ", "تصعيد", "escalation",
     "عملية عسكرية", "military operation",
+}
+
+# Service/sale advertisements — hacking services being sold, not actual attacks
+SERVICE_AD_SIGNALS = {
+    "service", "services", "for sale", "for hire", "hire", "buy", "sell", "selling",
+    "pricing", "price", "order", "contact us", "dm for", "dm me",
+    "blackhat", "black hat", "professional hacking", "hacking service", "blackhat service",
+    "we hack", "hack for", "hacker for",
+    "we offer", "we provide", "available now", "24/7",
+    "guaranteed results", "confidential", "affordable", "discount",
+    "package", "combo", "premium", "vip",
+    "خدمات", "خدمة", "للبيع", "للإيجار", "اشتري", "نبيع",
+    "اسعار", "سعر", "اطلب", "تواصل معنا", "راسلنا",
+    "نقدم", "نوفر", "متاح الآن", "خدمات احترافية",
+    "خدمات هک", "سرویس", "فروش", "قیمت", "سفارش",
+    "تماس بگیرید", "ارائه می‌دهیم",
+}
+
+JORDAN_REFS = {
+    "jordan", "jordanian", "amman",
+    "الاردن", "الأردن", "أردن", "اردن", "اردني", "أردني", "الأردني", "الاردني",
+    "عمان", "عمّان", "اردن", "اُردن",
+    ".jo", ".gov.jo", ".com.jo", ".edu.jo", ".org.jo", ".mil.jo",
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1124,6 +1148,12 @@ class TelegramMonitor:
             # Substring match: signal keyword appears inside the hit phrase (or exact match)
             is_cyber    = any(sig in hit for hit in hits_lower for sig in cyber_set)
             is_national = any(sig in hit for hit in hits_lower for sig in national_set)
+            # Demote service/sale ads unless Jordan is mentioned
+            if is_cyber and not is_national:
+                svc_count = sum(1 for sig in SERVICE_AD_SIGNALS if sig in text_lower)
+                if svc_count >= 2 and not any(ref in text_lower for ref in JORDAN_REFS):
+                    is_cyber = False  # demote to GENERAL
+
             if is_cyber and is_national:
                 critical_subtype = "BOTH"
             elif is_cyber:
@@ -1248,6 +1278,18 @@ class TelegramMonitor:
             }
             self._write_jsonl(self.timing_log, timing_record)
 
+            # Download media for CRITICAL and MEDIUM messages
+            if message.media and priority in ("CRITICAL", "MEDIUM"):
+                try:
+                    media_dir = OUTPUT_DIR / "media" / f"{chat_username}_{message.id}"
+                    media_dir.mkdir(parents=True, exist_ok=True)
+                    dl_path = await message.download_media(file=str(media_dir))
+                    if dl_path:
+                        record["media_path"] = str(Path(dl_path).relative_to(OUTPUT_DIR))
+                        log.info(f"  Media saved: {record['media_path']}")
+                except Exception as _me:
+                    log.warning(f"  Media download failed: {_me}")
+
             # Handle based on priority
             if priority == "CRITICAL":
                 self.stats["critical"] += 1
@@ -1262,12 +1304,6 @@ class TelegramMonitor:
                     f"Text: {text[:300]}\n"
                     f"{'='*60}"
                 )
-                # Download media if present (screenshots of attacks, etc.)
-                if message.media:
-                    media_dir = OUTPUT_DIR / "media" / f"{chat_username}_{message.id}"
-                    media_dir.mkdir(parents=True, exist_ok=True)
-                    await message.download_media(file=str(media_dir))
-                    log.info(f"  Media saved to {media_dir}")
 
             elif priority == "MEDIUM":
                 self.stats["medium"] += 1
@@ -1439,6 +1475,16 @@ class TelegramMonitor:
                     "critical_subtype": critical_subtype,
                     "backfill":       True,
                 }
+                # Download media for CRITICAL/MEDIUM backfills
+                if message.media and priority in ("CRITICAL", "MEDIUM"):
+                    try:
+                        media_dir = OUTPUT_DIR / "media" / f"{chat_username}_{message.id}"
+                        media_dir.mkdir(parents=True, exist_ok=True)
+                        dl_path = await message.download_media(file=str(media_dir))
+                        if dl_path:
+                            record["media_path"] = str(Path(dl_path).relative_to(OUTPUT_DIR))
+                    except Exception:
+                        pass
                 self._write_jsonl(self.message_log, record)
                 if priority in ("CRITICAL", "MEDIUM"):
                     self._write_jsonl(self.alert_log, record)

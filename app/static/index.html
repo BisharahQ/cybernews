@@ -498,6 +498,14 @@ button.primary:hover{background:#1f3a5e}
   .bubble{padding:6px 8px}
   #bl-table{min-width:700px}
 }
+/* ── Media display in message bubbles ── */
+.media-container{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.media-container img{max-width:100%;max-height:300px;border-radius:6px;cursor:pointer;border:1px solid #30363d;object-fit:contain;background:#0d1117}
+.media-container video{max-width:100%;max-height:300px;border-radius:6px;border:1px solid #30363d;background:#0d1117}
+.media-container .media-loading{font-size:9px;color:#484f58;padding:4px}
+.media-badge{font-size:8px;padding:1px 5px;background:#1a1a2e;color:#818cf8;border-radius:3px}
+.media-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.media-lightbox img,.media-lightbox video{max-width:95vw;max-height:95vh;object-fit:contain;border-radius:4px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/marked@15/marked.min.js"></script>
 </head>
@@ -1575,11 +1583,13 @@ async function checkNewMessages() {
   const r = await fetch(url).catch(()=>null);
   if (!r) return;
   const msgs = await r.json();
-  // Compare newest timestamp — works even when both arrays hit the 5000 cap
+  // Compare only non-backfill messages to detect genuinely new live messages
+  const liveMsgs = arr => arr.filter(m => !m.backfill);
   const newestTs = arr => arr.reduce((best,m) => (m.timestamp_utc||'') > best ? m.timestamp_utc : best, '');
-  const hasNew = msgs.length > allMsgs.length || newestTs(msgs) > newestTs(allMsgs);
+  const oldLive = liveMsgs(allMsgs), newLive = liveMsgs(msgs);
+  const hasNew = newLive.length > oldLive.length || newestTs(newLive) > newestTs(oldLive);
   if (hasNew) {
-    const diff = msgs.length - allMsgs.length;
+    const diff = newLive.length - oldLive.length;
     allMsgs = msgs;
     renderMessages(applyLocalFilters(allMsgs), 'msgs');
     const label = currentCh === '__ALL__' ? 'all channels' : `@${currentCh}`;
@@ -1970,6 +1980,11 @@ function _buildMsgHTML(list, containerId, isPrepend) {
     const translateBtn = showTranslate
       ? `<button onclick="event.stopPropagation();translateMsg(this,${JSON.stringify(text)})" style="font-size:8px;padding:1px 6px;background:#161b22;border:1px solid #30363d;color:#818cf8;border-radius:3px;cursor:pointer;margin-left:2px">🌐</button>`
       : '';
+    const hasMedia = m.has_media || m.media_path;
+    const mediaBadge = hasMedia ? `<span class="media-badge">📎 media</span>` : '';
+    const mediaPlaceholder = hasMedia
+      ? `<div class="media-container" data-media-ch="${esc(ch)}" data-media-id="${m.message_id||0}"><span class="media-loading">loading media…</span></div>`
+      : '';
     html += `
       <div class="bubble ${p}" onclick="openContext(${m.message_id||0},'${esc(ch)}')">
         <div class="b-meta">
@@ -1979,17 +1994,69 @@ function _buildMsgHTML(list, containerId, isPrepend) {
           <span class="b-time">${timeStr} · ${dateStr}</span>
           ${irst ? `<span class="b-irst">${esc(irst)}</span>` : ''}
           ${langBadge}${translateBtn}
+          ${mediaBadge}
           ${ai ? `<span style="font-size:8px;padding:1px 5px;background:#58a6ff22;color:#58a6ff;border-radius:3px;margin-left:auto">🤖 AI enriched</span>` : ''}
         </div>
         ${kwHtml}
         <div class="b-text">${esc(text)}</div>
         <div class="translate-result" style="display:none;margin-top:5px;padding:5px 8px;background:#0d1117;border-left:2px solid #818cf8;font-size:10px;color:#c9d1d9;font-style:italic"></div>
+        ${mediaPlaceholder}
         ${iocHtml}
         ${aiHtml}
       </div>`;
   });
   return html;
 }
+
+// ── Media lazy loading + lightbox ──
+const _mediaCache = new Map();
+const _mediaObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    _mediaObserver.unobserve(el);
+    const ch = el.dataset.mediaCh, id = el.dataset.mediaId;
+    const key = `${ch}_${id}`;
+    if (_mediaCache.has(key)) { _renderMedia(el, _mediaCache.get(key)); return; }
+    fetch(`/api/media/lookup/${encodeURIComponent(ch)}/${id}`)
+      .then(r => r.json())
+      .then(data => { _mediaCache.set(key, data.files); _renderMedia(el, data.files); })
+      .catch(() => { el.innerHTML = ''; });
+  });
+}, { rootMargin: '200px' });
+
+function _renderMedia(el, files) {
+  if (!files || !files.length) { el.innerHTML = ''; return; }
+  el.innerHTML = files.map(f => {
+    if (f.type === 'image')
+      return `<img src="${f.url}" alt="${esc(f.name)}" loading="lazy" onclick="event.stopPropagation();openLightbox('${f.url}','image')">`;
+    if (f.type === 'video')
+      return `<video src="${f.url}" controls preload="none" onclick="event.stopPropagation()"></video>`;
+    return `<a href="${f.url}" target="_blank" onclick="event.stopPropagation()" style="font-size:9px;color:#58a6ff">📄 ${esc(f.name)}</a>`;
+  }).join('');
+}
+
+function openLightbox(url, type) {
+  const lb = document.createElement('div');
+  lb.className = 'media-lightbox';
+  lb.onclick = () => lb.remove();
+  if (type === 'image') lb.innerHTML = `<img src="${url}">`;
+  else lb.innerHTML = `<video src="${url}" controls autoplay></video>`;
+  document.body.appendChild(lb);
+  document.addEventListener('keydown', function _esc(e) {
+    if (e.key === 'Escape') { lb.remove(); document.removeEventListener('keydown', _esc); }
+  });
+}
+
+// Hook into renderMessages to start observing media containers
+const _origRenderMessages = renderMessages;
+renderMessages = function(msgs, containerId) {
+  _origRenderMessages(msgs, containerId);
+  // Observe all media containers that need loading
+  document.querySelectorAll(`#${containerId} .media-container[data-media-ch]`).forEach(el => {
+    _mediaObserver.observe(el);
+  });
+};
 
 function updateStat(total, crit, med) {
   const pill = document.getElementById('chat-stat');

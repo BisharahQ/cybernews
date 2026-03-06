@@ -19,7 +19,7 @@ from io import StringIO, BytesIO
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from collections import defaultdict
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, send_file, abort
 
 try:
     from telethon.sync import TelegramClient as TGSync
@@ -198,14 +198,27 @@ def load_messages():
             _msg_cache["ts"] = now  # refresh TTL
             return _msg_cache["data"]
         rows = conn.execute(
-            "SELECT raw_json, critical_subtype FROM messages ORDER BY timestamp_utc ASC"
+            "SELECT raw_json, critical_subtype, backfill, media_path, has_media FROM messages ORDER BY timestamp_utc ASC"
         ).fetchall()
         msgs = []
         for row in rows:
             try:
                 m = json.loads(row[0])
-                if row[1]:
+                # Always recompute critical_subtype (viewer has latest filters)
+                if m.get("priority") == "CRITICAL":
+                    m["critical_subtype"] = _compute_critical_subtype(
+                        m.get("keyword_hits", []),
+                        m.get("text_preview", "") or m.get("full_text", "") or m.get("text", "")
+                    )
+                elif row[1]:
                     m["critical_subtype"] = row[1]
+                if row[2]:
+                    m["backfill"] = True
+                # Ensure media fields are set from DB columns (may not be in raw_json)
+                if row[3]:
+                    m["media_path"] = row[3]
+                if row[4]:
+                    m["has_media"] = True
                 msgs.append(m)
             except Exception:
                 pass
@@ -2294,6 +2307,42 @@ def api_blocklist_export():
                     headers={"Content-Disposition": "attachment;filename=blocklist.csv"})
 
 
+# ── Media serving ──────────────────────────────────────────────
+_MEDIA_DIR = OUTPUT_DIR / "media"
+_IMG_EXTS = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+_VID_EXTS = {'.mp4', '.webm', '.mov', '.avi', '.mkv'}
+
+@app.route("/api/media/<path:filepath>")
+def api_media(filepath):
+    """Serve downloaded media files with path traversal protection."""
+    safe = (_MEDIA_DIR / filepath).resolve()
+    if not str(safe).startswith(str(_MEDIA_DIR.resolve())):
+        abort(403)
+    if not safe.exists() or not safe.is_file():
+        abort(404)
+    return send_file(safe)
+
+@app.route("/api/media/lookup/<channel>/<int:message_id>")
+def api_media_lookup(channel, message_id):
+    """Find all media files for a specific message."""
+    media_dir = _MEDIA_DIR / f"{channel}_{message_id}"
+    if not media_dir.exists() or not media_dir.is_dir():
+        return jsonify({"files": []})
+    files = []
+    for f in sorted(media_dir.iterdir()):
+        if not f.is_file():
+            continue
+        ext = f.suffix.lower()
+        mtype = "image" if ext in _IMG_EXTS else "video" if ext in _VID_EXTS else "file"
+        files.append({
+            "url": f"/api/media/{channel}_{message_id}/{f.name}",
+            "type": mtype,
+            "name": f.name,
+            "size": f.stat().st_size,
+        })
+    return jsonify({"files": files})
+
+
 # ── DOCX Report Generator (Template-based) ────────────────────
 def _generate_blocklist_report():
     """Generate ScanWave SOC Client Advisory using the original branded template.
@@ -2707,10 +2756,50 @@ _NATIONAL_SIGNALS = {
     "استخبارات", "intelligence", "gendarmerie", "الدرك",
     "border guard", "حرس الحدود", "مكافحة الإرهاب", "counter terrorism",
     "الأمن العام", "security directorate", "muwaffaq", "الموفق",
-    # War / conflict
-    "war", "حرب", "missile", "صاروخ", "escalation", "تصعيد",
-    "strike", "عملية عسكرية", "military operation",
+    # War / conflict (avoid short words that match inside cyber terms like "malware")
+    "warfare", "warzone", "at war", "of war", "حرب", "missile", "صاروخ", "escalation", "تصعيد",
+    "airstrike", "air strike", "عملية عسكرية", "military operation",
 }
+
+# Service/sale advertisements — generic hacking services being sold, not actual attacks
+_SERVICE_SIGNALS = {
+    # English service/sale indicators
+    "service", "services", "for sale", "for hire", "hire", "buy", "sell", "selling",
+    "pricing", "price", "order", "contact us", "dm for", "dm me",
+    "blackhat", "black hat", "professional hacking", "hacking service", "blackhat service",
+    "we hack", "hack for", "hacker for",
+    "we offer", "we provide", "available now", "24/7",
+    "guaranteed results", "confidential", "affordable", "discount",
+    "package", "combo", "premium", "vip",
+    # Arabic service/sale indicators
+    "خدمات", "خدمة", "للبيع", "للإيجار", "اشتري", "نبيع",
+    "اسعار", "سعر", "اطلب", "تواصل معنا", "راسلنا",
+    "نقدم", "نوفر", "متاح الآن", "خدمات احترافية",
+    # Farsi service/sale indicators
+    "خدمات هک", "سرویس", "فروش", "قیمت", "سفارش",
+    "تماس بگیرید", "ارائه می‌دهیم",
+}
+
+# Jordan references — all formats (English, Arabic, Farsi)
+_JORDAN_REFS = {
+    # English
+    "jordan", "jordanian", "amman",
+    # Arabic (all common spellings)
+    "الاردن", "الأردن", "أردن", "اردن", "اردني", "أردني", "الأردني", "الاردني",
+    "عمان", "عمّان",
+    # Farsi
+    "اردن", "اُردن",
+    # Jordan domains
+    ".jo", ".gov.jo", ".com.jo", ".edu.jo", ".org.jo", ".mil.jo",
+}
+
+def _mentions_jordan(txt):
+    """Check if text mentions Jordan in any language."""
+    return any(ref in txt for ref in _JORDAN_REFS)
+
+def _is_service_ad(txt):
+    """Check if text is advertising hacking services for sale."""
+    return sum(1 for sig in _SERVICE_SIGNALS if sig in txt) >= 2
 
 def _compute_critical_subtype(keyword_hits, text=""):
     """Classify a CRITICAL message by subtype.
@@ -2719,6 +2808,9 @@ def _compute_critical_subtype(keyword_hits, text=""):
     context.  Ambiguous terms (like اختراق which means both 'hack' and
     'military penetration') are only counted as CYBER when the message
     has no national-security context.
+
+    Service advertisements (hacking-for-sale) are demoted to GENERAL
+    unless Jordan is explicitly mentioned.
     """
     if not keyword_hits:
         return "GENERAL"
@@ -2740,6 +2832,11 @@ def _compute_critical_subtype(keyword_hits, text=""):
     if ambig_cyber and not is_national:
         # Ambiguous term + no national context → count as cyber
         is_cyber = True
+
+    # Demote service/sale ads: if it's a hacking service advertisement
+    # and doesn't mention Jordan, it's not a relevant cyber threat
+    if is_cyber and not is_national and txt and _is_service_ad(txt) and not _mentions_jordan(txt):
+        return "GENERAL"
 
     if is_cyber and is_national: return "BOTH"
     if is_cyber:    return "CYBER"

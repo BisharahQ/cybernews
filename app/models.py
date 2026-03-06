@@ -156,7 +156,7 @@ def insert_message(msg_dict):
             json.dumps(iocs, ensure_ascii=False) if iocs else None,
             msg_dict.get("language"),
             1 if msg_dict.get("has_media") else 0,
-            msg_dict.get("media_path") or msg_dict.get("media_type"),
+            msg_dict.get("media_path"),
             1 if msg_dict.get("backfill") else 0,
             json.dumps(msg_dict, ensure_ascii=False),
         ))
