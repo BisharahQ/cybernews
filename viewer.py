@@ -468,7 +468,7 @@ def api_messages(channel_username):
             m["ai_enrichment"] = enrichments[key]
         # Inject critical_subtype for backward compat (old messages won't have it)
         if m.get("priority") == "CRITICAL" and not m.get("critical_subtype"):
-            m["critical_subtype"] = _compute_critical_subtype(m.get("keyword_hits", []))
+            m["critical_subtype"] = _compute_critical_subtype(m.get("keyword_hits", []), m.get("text_preview", "") or m.get("text", ""))
         # Apply critical_subtype filter (only filters CRITICAL messages)
         if subtype_filter != "ALL" and m.get("priority") == "CRITICAL":
             ms = m.get("critical_subtype", "GENERAL")
@@ -521,7 +521,7 @@ def api_messages_all():
         m = dict(m)
         # Inject critical_subtype for backward compat (old messages won't have it)
         if p == "CRITICAL" and not m.get("critical_subtype"):
-            m["critical_subtype"] = _compute_critical_subtype(m.get("keyword_hits", []))
+            m["critical_subtype"] = _compute_critical_subtype(m.get("keyword_hits", []), m.get("text_preview", "") or m.get("text", ""))
         # Attach AI enrichment if available
         ch_full = m.get("channel_username") or m.get("channel", "")
         key = f"{ch_full}_{m.get('message_id','')}"
@@ -1618,7 +1618,7 @@ def _generate_apt_summary(apt_name, aliases):
                 {"role": "system", "content": "You are a senior cyber threat intelligence analyst. Provide concise, factual profiles of threat actors based on publicly available OSINT and published CTI reports. Write in a professional, intelligence-briefing style."},
                 {"role": "user", "content": f"""Write a 2-3 sentence intelligence profile of the threat group "{apt_name}" (aliases: {alias_str}).
 
-Include: origin/nationality, known affiliations (state sponsors, parent APT groups, or hacktivist collectives), primary motivations, known targets/campaigns, and operational timeline if known.
+Include: origin/nationality, known affiliations (state sponsors, parent APT groups, or hacktivist collectives), primary motivations, targeted sectors (e.g. government, banking, energy, telecom), and operational timeline if known.
 
 This is a hacktivist/APT group active in the Middle East conflict. They may be linked to Iranian, Russian, or pro-Palestinian cyber operations.
 
@@ -1672,7 +1672,7 @@ Only output IOC lines. If zero knowledge, output: NONE"""
     try:
         client = openai.OpenAI(api_key=openai_key)
         resp = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a CTI analyst. When asked about threat actors, always list any IOCs you know from published reports, blog posts, CISA advisories, or OSINT research. Never say NONE if you can recall any infrastructure details at all. Include approximate or historically reported IOCs."},
                 {"role": "user", "content": prompt}
@@ -2238,9 +2238,13 @@ def _generate_blocklist_report():
 
     # ── Load live IOC data — per-group, no cross-group name merging ──
     cache = _load_research_cache()
+    # Only include groups that exist in CHANNEL_TIERS (skip bogus entries)
+    known_labels = {v.get("label", k) for k, v in CHANNEL_TIERS.items()}
     apt_iocs = {}  # {apt_name: [unique IOC dicts]}
     global_seen = set()  # track all unique IOC values for total count
     for apt_name, entry in cache.items():
+        if apt_name not in known_labels:
+            continue
         iocs = entry.get("iocs", [])
         if not iocs:
             continue
@@ -2282,6 +2286,33 @@ def _generate_blocklist_report():
         if _re.match(r'^[A-Z][a-z]+ \d{4}$', p.text.strip()):
             for run in p.runs:
                 run.text = now.strftime("%B %Y")
+            break
+
+    # ── Step 1b: Update header dates to current month ──
+    ns_w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+    date_str = now.strftime("%B %Y")
+    for section in doc.sections:
+        for hdr_attr in ("header", "first_page_header", "even_page_header"):
+            try:
+                hdr = getattr(section, hdr_attr)
+                for t_el in hdr._element.iter(f"{{{ns_w}}}t"):
+                    if t_el.text and _re.search(r'[A-Z][a-z]+ \d{4}', t_el.text):
+                        t_el.text = _re.sub(r'[A-Z][a-z]+ \d{4}', date_str, t_el.text)
+            except Exception:
+                pass
+
+    # ── Step 1d: Add Qatar to country observation list ──
+    for p in doc.paragraphs:
+        if p.text.strip() == "Jordan":
+            # Insert Qatar paragraph after Jordan using same formatting
+            jordan_el = p._element
+            from copy import deepcopy
+            qatar_el = deepcopy(jordan_el)
+            # Replace text in the copy
+            for t_el in qatar_el.iter(f"{{{ns_w}}}t"):
+                if t_el.text and "Jordan" in t_el.text:
+                    t_el.text = t_el.text.replace("Jordan", "Qatar")
+            jordan_el.addnext(qatar_el)
             break
 
     # ── Step 2: Find markers ──
@@ -2436,19 +2467,47 @@ def _generate_blocklist_report():
 
 @app.route("/api/blocklist/report")
 def api_blocklist_report():
-    """Generate and download ScanWave SOC Client Advisory DOCX."""
+    """Generate and download ScanWave SOC Client Advisory as PDF."""
     try:
         buf = _generate_blocklist_report()
         now = datetime.now(timezone.utc)
-        fname = f"ScanWave_SOC_Client_Advisory_{now.strftime('%d_%B%Y')}.docx"
-        return Response(
-            buf.getvalue(),
-            mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            headers={"Content-Disposition": f"attachment;filename={fname}"}
-        )
+        base = f"ScanWave_SOC_Client_Advisory_{now.strftime('%d_%B%Y')}"
+
+        # Write DOCX to temp file, convert to PDF via LibreOffice
+        import tempfile, subprocess
+        with tempfile.TemporaryDirectory() as tmpdir:
+            docx_path = os.path.join(tmpdir, f"{base}.docx")
+            with open(docx_path, "wb") as f:
+                f.write(buf.getvalue())
+
+            try:
+                result = subprocess.run(
+                    ["libreoffice", "--headless", "--convert-to", "pdf",
+                     "--outdir", tmpdir, docx_path],
+                    capture_output=True, timeout=120
+                )
+                pdf_path = os.path.join(tmpdir, f"{base}.pdf")
+                if os.path.exists(pdf_path):
+                    with open(pdf_path, "rb") as f:
+                        pdf_bytes = f.read()
+                    return Response(
+                        pdf_bytes,
+                        mimetype="application/pdf",
+                        headers={"Content-Disposition": f"attachment;filename={base}.pdf"}
+                    )
+                print(f"[REPORT] PDF conversion failed: {result.stderr.decode()}", flush=True)
+            except (FileNotFoundError, subprocess.TimeoutExpired) as conv_err:
+                print(f"[REPORT] LibreOffice not available, falling back to DOCX: {conv_err}", flush=True)
+
+            # Fallback to DOCX if LibreOffice not available
+            return Response(
+                buf.getvalue(),
+                mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                headers={"Content-Disposition": f"attachment;filename={base}.docx"}
+            )
     except Exception as e:
         import traceback
-        traceback.print_exc(flush=True)
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
@@ -2532,27 +2591,28 @@ NETWORK_FILE          = OUTPUT_DIR / "channel_network.json"
 
 # ── Critical Subtype Classification (mirrors telegram_monitor.py) ─────────────
 _CYBER_SIGNALS = {
-    # Attack types
+    # Attack types (unambiguous cyber terms only)
     "ddos", "d-dos", "defacement", "defaced", "data leak", "data breach", "databreach",
     "ransomware", "ransom", "malware", "trojan", "botnet", "exploit", "sql injection",
-    "sqlmap", "webshell", "shell", "backdoor", "rootkit", "c2",
-    "brute force", "credential", "hacked", "hacking", "hack", "pwned", "owned",
-    "breach", "breached", "leak", "dump", "wiper", "destroy",
-    "root access", "full access",
-    # Arabic cyber terms
-    "اختراق", "تسريب", "بيانات", "قرصنة", "هاكر", "فيروس", "هجوم",
-    "دي دوس", "برامج خبيثة", "رانسوم", "فدية", "مسح",
+    "sqlmap", "webshell", "backdoor", "rootkit", "c2", "c&c", "command and control",
+    "brute force", "credential stuffing", "credential dump",
+    "pwned", "owned",
+    "data breach", "breached", "data dump", "database dump", "wiper", "zero-day", "0day",
+    "root access", "full access", "rce", "remote code execution",
+    "phishing", "spear phishing", "xss", "cross-site",
+    # Arabic cyber terms (specific — no generic words)
+    "تسريب بيانات", "تسريب معلومات", "قرصنة", "هاكر", "هاكرز",
+    "فيروس", "هجوم سيبراني", "هجوم الكتروني", "هجوم إلكتروني",
+    "دي دوس", "برامج خبيثة", "رانسوم", "فدية",
+    "تم اختراق", "تم قرصنة", "تهكير",
     # Jordan domain targets (domain targeting = cyber)
     ".jo", ".gov.jo", ".com.jo", ".edu.jo", ".org.jo",
     # DDoS tools / indicators
     "check-host", "dienet", "connection timed out", "connection refused",
     "layer7", "layer4", "http flood",
-    # Critical infrastructure (attacks on infra = cyber)
-    "bank", "بنك", "مصرف", "arab bank", "البنك العربي", "housing bank",
-    "cairo amman", "القاهرة عمان", "jordan bank", "البنك الاردني", "financial", "مالي",
-    "telecom", "اتصالات", "nepco", "jepco", "miyahuna", "مياهنا",
-    "water authority", "electric power", "كهرباء",
 }
+# Terms that mean CYBER in hacking context but also appear in military context
+_AMBIGUOUS_CYBER = {"اختراق", "hacked", "hacking", "hack"}
 _NATIONAL_SIGNALS = {
     # Iranian/IRGC
     "irgc", "iranian", "khamenei", "خامنئي", "حرس الثوري", "فاطميون",
@@ -2573,14 +2633,35 @@ _NATIONAL_SIGNALS = {
     "strike", "عملية عسكرية", "military operation",
 }
 
-def _compute_critical_subtype(keyword_hits):
-    """Classify a CRITICAL message by subtype using substring matching against stored keyword_hits."""
+def _compute_critical_subtype(keyword_hits, text=""):
+    """Classify a CRITICAL message by subtype.
+
+    Checks keyword_hits first, then scans full message text for additional
+    context.  Ambiguous terms (like اختراق which means both 'hack' and
+    'military penetration') are only counted as CYBER when the message
+    has no national-security context.
+    """
     if not keyword_hits:
         return "GENERAL"
     hits = [kw.lower() for kw in keyword_hits]
-    # Substring match: signal keyword contained within the hit phrase (handles multi-word hits)
-    is_cyber    = any(sig in hit for hit in hits for sig in _CYBER_SIGNALS)
+    txt = text.lower() if text else ""
+
+    # Strong (unambiguous) cyber match from keyword hits
+    strong_cyber = any(sig in hit for hit in hits for sig in _CYBER_SIGNALS)
+    # Ambiguous cyber match (could be military)
+    ambig_cyber = any(sig in hit for hit in hits for sig in _AMBIGUOUS_CYBER)
+    # National match from keyword hits
     is_national = any(sig in hit for hit in hits for sig in _NATIONAL_SIGNALS)
+
+    # Also scan full message text for national context (catches حزب الله, صاروخ etc.)
+    if not is_national and txt:
+        is_national = any(sig in txt for sig in _NATIONAL_SIGNALS)
+
+    is_cyber = strong_cyber  # start with unambiguous signals
+    if ambig_cyber and not is_national:
+        # Ambiguous term + no national context → count as cyber
+        is_cyber = True
+
     if is_cyber and is_national: return "BOTH"
     if is_cyber:    return "CYBER"
     if is_national: return "NATIONAL"
@@ -3612,20 +3693,42 @@ SEARCH STRATEGY:
 RESPONSE MODES:
 1. **Q&A mode** (default): Brief, factual, precise. Cite [REF:N] inline.
 2. **Report mode** (when asked for "report", "full report", "all", "everything", "summarize", "name all"):
+   Produce a DETAILED, COMPREHENSIVE intelligence report. Be thorough — this is for senior decision-makers.
+   Name SPECIFIC organizations, companies, banks, domains — be precise, not vague.
+
    # Report Title
-   **Date:** {today} | **Scope:** [describe]
+   **Date:** {today} | **Scope:** [describe] | **Classification:** TLP:AMBER
+
    ## Executive Summary
-   [2-3 sentence overview]
-   ## Key Findings
-   [Group by sector or attack type, bullet points, cite [REF:N] for every claim]
+   [3-5 sentence high-level overview: total incidents, top threat actors, most targeted sectors, overall threat level]
+
+   ## Threat Actor Overview
+   | Threat Actor | Incidents | Primary Attack Types | Key Targets |
+   [Table of ALL active threat groups with their activity summary]
+
+   ## Incident Analysis by Sector
+   For EACH sector with incidents, provide a detailed subsection:
+   ### [Sector Name] ([N] incidents)
+   - List every incident with: date, threat actor, attack type, specific target, impact
+   - Cite [REF:N] for every claim
+   - Note any patterns or escalation trends
+
+   ## Attack Timeline
+   Chronological timeline of major incidents showing escalation patterns and campaign waves.
+
    ## Indicators of Compromise
-   | Type | Value | Source |
-   |------|-------|--------|
-   [table rows from context]
-   ## Risk Assessment
-   [Brief risk analysis]
+   | Type | Value | Context | Threat Actor |
+   |------|-------|---------|-------------|
+   [Extract ALL domains, IPs, URLs, hashes mentioned in the intelligence. Be thorough.]
+
+   ## Threat Assessment
+   - Current threat level and justification
+   - Most at-risk sectors and why
+   - Threat actor capability assessment
+   - Likelihood of escalation
+
    ## Recommendations
-   [Actionable points]
+   [Specific, actionable recommendations per sector — not generic advice]
 
 Rules:
 - Cite [REF:N] tags for EVERY factual claim. Multiple refs encouraged.
@@ -3790,35 +3893,29 @@ def api_chat_stream():
 
     # --- Map-Reduce prompts ---
     _MAP_EXTRACT_PROMPT = (
-        "You are a cybersecurity incident extractor. Analyze Telegram channel messages and extract EVERY cyber attack or threat targeting JORDAN.\n\n"
-        "OUTPUT FORMAT — one line per incident:\n"
-        "[REF:N] | DATE | @CHANNEL | ATTACK_TYPE | TARGET_DOMAIN_OR_ORG | BRIEF_DETAILS\n\n"
-        "ATTACK_TYPE categories:\n"
-        "- DDoS: website/service taken down, knocked offline, overloaded\n"
-        "- Defacement: website content changed/replaced\n"
-        "- Data Breach: stolen data, leaked credentials, dumped databases\n"
-        "- Data Leak: personal info published (names, phones, emails)\n"
-        "- Hack: unauthorized access, system compromise, infiltration\n"
-        "- Threat/Warning: explicit announcement of planned attack on Jordan\n\n"
-        "JORDAN TARGETS TO WATCH FOR (extract ALL, not just these):\n"
-        "Government: jordan.gov.jo, moe.gov.jo, moj.gov.jo, psd.gov.jo, petra.gov.jo, mof.gov.jo, jhr.gov.jo, ncsc.jo, form.jordan.gov.jo, govreform.jo\n"
-        "Military: rjaf.mil.jo, any military base in Jordan\n"
-        "Banking: jkb.com, bankofjordan.com, jcbank.com.jo, capitalbank.jo, arabbank.jo, housing-bank.com\n"
-        "Telecom: orange.jo, zain.com, umniah.com\n"
-        "Aviation: rj.com (Royal Jordanian), jac.jo (Jordan Airports)\n"
-        "Energy: jordanenergy.jo, nepco.com.jo\n"
-        "Education: jmi.edu.jo, any .edu.jo domain\n"
-        "Media: jordantimes.com, jordannews.jo\n"
-        "Tax/Finance: Income & Sales Tax Department, any government financial system\n\n"
-        "CRITICAL RULES:\n"
-        "1. Extract EVERY incident — do NOT skip small or less prominent attacks\n"
-        "2. Look for .jo domains, Arabic mentions of Jordan (الاردن), and named Jordanian orgs\n"
-        "3. If the same target is attacked by DIFFERENT actors or on DIFFERENT dates, list each separately\n"
-        "4. Data breaches/leaks are HIGH VALUE — never skip these even if brief\n"
-        "5. Distinguish CYBER attacks from KINETIC/military actions (missiles, explosions = skip)\n"
-        "6. Include the threat ACTOR name if visible (group name, channel name)\n\n"
-        "SKIP: General news, political commentary, non-Jordan targets, kinetic military operations, messages just sharing news without attack claims.\n\n"
-        "Output ONLY incident lines. If no Jordan cyber incidents found: NO_JORDAN_INCIDENTS"
+        "You are an elite cybersecurity incident extractor. "
+        "Extract EVERY cyber attack from these Telegram messages.\n\n"
+        "OUTPUT — one line per incident:\n"
+        "[REF:N] | DATE | THREAT_ACTOR | @CHANNEL | ATTACK_TYPE | TARGET | SECTOR | DETAILS_AND_IOCS\n\n"
+        "ATTACK_TYPE: DDoS, Defacement, Data Breach, Data Leak, Hack, Ransomware, Phishing, Wiper/Malware, Threat/Warning, Reconnaissance\n"
+        "SECTOR: Government, Military, Banking/Finance, Telecom, Aviation, Energy, Education, Media, Healthcare, Transportation, Private Sector\n\n"
+        "RULES:\n"
+        "1. Extract EVERY cyber incident. Do NOT skip any.\n"
+        "2. THREAT_ACTOR = the hacker GROUP name (DieNet, Arabian Ghosts, Fatemiyoun, OpIsrael, etc.), NOT the Telegram channel name.\n"
+        "3. Be SPECIFIC with targets: exact domain (mof.gov.jo), exact org name (Central Bank of Jordan), NOT generic 'government'.\n"
+        "4. In DETAILS_AND_IOCS include: domains targeted, check-host proof URLs, IPs, data volume, downtime, any technical IOCs.\n"
+        "5. Different actors on same target = separate lines. Same actor different dates = separate lines.\n\n"
+        "ABSOLUTE EXCLUSIONS — do NOT extract these (they are NOT cyber attacks):\n"
+        "- Missiles, rockets, drones hitting physical targets\n"
+        "- Tank battles, ground operations, armed clashes\n"
+        "- Building fires, explosions, physical destruction\n"
+        "- Military equipment destroyed (THAAD, radar, vehicles)\n"
+        "- Troop deployments, military exercises\n"
+        "- Political statements, speeches, press releases\n"
+        "- Protests, demonstrations\n"
+        "- News commentary without attack claims\n"
+        "A cyber attack involves COMPUTERS, NETWORKS, WEBSITES, DATA. If it involves bullets, bombs, or missiles = SKIP.\n\n"
+        "Output ONLY incident lines. If none found: NO_INCIDENTS"
     )
 
     _REDUCE_REPORT_PROMPT = _CHAT_SYSTEM_TEMPLATE_V3.format(
@@ -3846,16 +3943,56 @@ def api_chat_stream():
         kw = m.get("keyword_hits") or []
         return f"[REF:{idx}] [{pri}] {ts} @{uname} | {text} | KW:{','.join(kw[:4])}"
 
+    def _format_cyber_detail(idx, m):
+        """Richer format for cyber incidents — includes full text for domain/IOC extraction."""
+        ts = (m.get("timestamp_utc") or "")[:10]
+        uname = m.get("channel_username", "?")
+        kw = m.get("keyword_hits") or []
+        # Use full text_preview (not truncated) so GPT can see domains, IPs, targets
+        text = (m.get("text_preview") or m.get("text") or "")[:500].replace("\n", " ")
+        ae = m.get("ai_enrichment") or {}
+        summary = (ae.get("summary") or "")[:200]
+        parts = [f"[REF:{idx}] {ts} @{uname}"]
+        if summary:
+            parts.append(f"SUMMARY: {summary}")
+        parts.append(f"TEXT: {text}")
+        if kw:
+            parts.append(f"KW: {','.join(kw[:6])}")
+        return " | ".join(parts)
+
     def generate():
         nonlocal messages
         start_time = time.time()
 
         if is_comprehensive:
-            # ── MAP-REDUCE: process CRITICAL + MEDIUM messages in chunks ──
-            target_msgs = [m for m in all_msgs if m.get("priority") in ("CRITICAL", "MEDIUM")]
+            # ── MAP-REDUCE: process CYBER-classified messages for cyber reports ──
+            # Detect if query is cyber-focused (default) vs national security
+            _cyber_query = any(kw in user_msg.lower() for kw in (
+                "cyber", "ddos", "hack", "breach", "defac", "attack", "ioc",
+                "malware", "ransomware", "phishing", "blocklist", "threat actor"))
+            _natsec_query = any(kw in user_msg.lower() for kw in (
+                "national security", "military", "missile", "rocket", "kinetic",
+                "geopolitical", "natsec", "armed forces"))
+
+            if _natsec_query and not _cyber_query:
+                # NatSec report: use NATIONAL + BOTH subtypes
+                target_msgs = [m for m in all_msgs if m.get("critical_subtype") in ("NATIONAL", "BOTH")]
+                report_scope = "national security"
+            elif _cyber_query or not _natsec_query:
+                # Cyber report (default): use CYBER + BOTH subtypes
+                target_msgs = [m for m in all_msgs if m.get("critical_subtype") in ("CYBER", "BOTH")]
+                report_scope = "cybersecurity"
+            else:
+                # General: all CRITICAL + MEDIUM
+                target_msgs = [m for m in all_msgs if m.get("priority") in ("CRITICAL", "MEDIUM")]
+                report_scope = "all intelligence"
+
             target_msgs.sort(key=lambda m: m.get("timestamp_utc", ""))
 
-            chunk_size = 150
+            # For cyber reports, use richer formatting with more text context
+            is_cyber_report = report_scope == "cybersecurity"
+            # Larger chunks since we have fewer, more relevant messages
+            chunk_size = 80 if is_cyber_report else 150
             chunks = [target_msgs[i:i+chunk_size] for i in range(0, len(target_msgs), chunk_size)]
 
             # Pre-assign REF IDs for all messages (needed before parallel calls)
@@ -3868,10 +4005,13 @@ def api_chat_stream():
                         ref_idx = len(all_ref_msgs)
                         all_ref_msgs.append(m)
                         seen_ids.add(mid)
-                        formatted_lines.append(_format_ultracompact(ref_idx, m))
+                        if is_cyber_report:
+                            formatted_lines.append(_format_cyber_detail(ref_idx, m))
+                        else:
+                            formatted_lines.append(_format_ultracompact(ref_idx, m))
                 chunk_contexts.append("\n".join(formatted_lines))
 
-            yield f"data: {json.dumps({'type':'status','message':f'Launching {len(chunks)} parallel agents to analyze {len(target_msgs)} CRITICAL+MEDIUM messages...'})}\n\n"
+            yield f"data: {json.dumps({'type':'status','message':f'Analyzing {len(target_msgs)} {report_scope} messages across {len(chunks)} parallel agents...'})}\n\n"
 
             # ── PARALLEL MAP: all agents run simultaneously ──
             def _run_map_agent(agent_idx, context_text):
@@ -3880,12 +4020,12 @@ def api_chat_stream():
                     return agent_idx, ""
                 try:
                     resp = client.chat.completions.create(
-                        model="gpt-4o-mini",
+                        model="gpt-4o",
                         messages=[
                             {"role": "system", "content": _MAP_EXTRACT_PROMPT},
                             {"role": "user", "content": context_text}
                         ],
-                        max_tokens=2000,
+                        max_tokens=4000,
                         temperature=0,
                     )
                     return agent_idx, resp.choices[0].message.content.strip()
@@ -3901,54 +4041,61 @@ def api_chat_stream():
                 for future in as_completed(futures):
                     agent_idx, result = future.result()
                     yield f"data: {json.dumps({'type':'status','message':f'Agent {agent_idx+1}/{len(chunks)} done'})}\n\n"
-                    if result and "NO_JORDAN_INCIDENTS" not in result and not result.startswith("ERROR:"):
+                    if result and "NO_INCIDENTS" not in result and "NO_JORDAN" not in result and not result.startswith("ERROR:"):
                         all_findings.append(result)
 
-            # ── DEDUP: merge duplicate incidents by target domain ──
+            # ── DEDUP: merge duplicate incidents by actor+target+date ──
             import re as _re
             incident_lines = []
             for f in all_findings:
                 incident_lines.extend([l.strip() for l in f.split("\n") if l.strip() and l.strip().startswith("[")])
             raw_count = len(incident_lines)
 
-            # Parse each line: [REF:N] | DATE | @CHANNEL | TYPE | TARGET | DETAILS
-            dedup = {}  # key = normalized target → merged incident
+            # Parse each line: [REF:N] | DATE | ACTOR | @CHANNEL | TYPE | TARGET | SECTOR | DETAILS
+            dedup = {}
             for line in incident_lines:
                 parts = [p.strip() for p in line.split("|")]
                 if len(parts) < 5:
                     continue
                 refs = _re.findall(r'\[REF:(\d+)\]', parts[0])
-                date = parts[1].strip() if len(parts) > 1 else ""
+                date = parts[1].strip()[:10] if len(parts) > 1 else ""
                 actor = parts[2].strip() if len(parts) > 2 else ""
-                atype = parts[3].strip() if len(parts) > 3 else ""
-                target = parts[4].strip() if len(parts) > 4 else ""
-                details = parts[5].strip() if len(parts) > 5 else ""
+                channel = parts[3].strip() if len(parts) > 3 else ""
+                atype = parts[4].strip() if len(parts) > 4 else ""
+                target = parts[5].strip() if len(parts) > 5 else ""
+                sector = parts[6].strip() if len(parts) > 6 else ""
+                details = parts[7].strip() if len(parts) > 7 else ""
 
-                # Normalize target for grouping: lowercase, strip www., extract domain
-                key = target.lower().strip()
-                key = _re.sub(r'^(https?://)?www\.', '', key)
-                key = _re.sub(r'[/\s]+$', '', key)
-                # Also extract .jo domain if present
-                domain_match = _re.search(r'[\w.-]+\.jo\b', key)
-                if domain_match:
-                    key = domain_match.group(0)
+                # Normalize target
+                norm_target = target.lower().strip()
+                norm_target = _re.sub(r'^(https?://)?www\.', '', norm_target)
+                norm_target = _re.sub(r'[/\s]+$', '', norm_target)
 
-                if not key or len(key) < 3:
+                if not norm_target or len(norm_target) < 3:
                     continue
+
+                # Dedup key: actor + target + date (different actors on same target = separate incidents)
+                norm_actor = actor.lower().strip().lstrip("@")
+                key = f"{norm_actor}|{norm_target}|{date}"
 
                 if key not in dedup:
                     dedup[key] = {
                         "target": target, "refs": set(), "dates": set(),
-                        "actors": set(), "types": set(), "details": []
+                        "actors": set(), "channels": set(), "types": set(),
+                        "sectors": set(), "details": []
                     }
                 for r in refs:
                     dedup[key]["refs"].add(int(r))
                 if date:
-                    dedup[key]["dates"].add(date[:10])
+                    dedup[key]["dates"].add(date)
                 if actor:
                     dedup[key]["actors"].add(actor)
+                if channel:
+                    dedup[key]["channels"].add(channel)
                 if atype:
                     dedup[key]["types"].add(atype)
+                if sector:
+                    dedup[key]["sectors"].add(sector)
                 if details and details not in dedup[key]["details"]:
                     dedup[key]["details"].append(details)
 
@@ -3959,38 +4106,73 @@ def api_chat_stream():
                 ref_str = ", ".join(f"[REF:{r}]" for r in sorted(d["refs"])[:8])
                 dates = ", ".join(sorted(d["dates"])[:3])
                 actors = ", ".join(sorted(d["actors"])[:3])
+                channels = ", ".join(sorted(d["channels"])[:2])
                 types = " / ".join(sorted(d["types"]))
-                detail = d["details"][0][:120] if d["details"] else ""
-                dedup_lines.append(f"{ref_str} | {dates} | {actors} | {types} | {d['target']} | {detail}")
+                sectors = ", ".join(sorted(d["sectors"])[:2])
+                detail = d["details"][0][:150] if d["details"] else ""
+                dedup_lines.append(
+                    f"{ref_str} | {dates} | {actors} | {channels} | {types} | {d['target']} | {sectors} | {detail}"
+                )
 
             unique_count = len(dedup_lines)
             combined_dedup = "\n".join(dedup_lines)
 
-            yield f"data: {json.dumps({'type':'status','message':f'Found {raw_count} raw → {unique_count} unique incidents. Generating report...'})}\n\n"
+            yield f"data: {json.dumps({'type':'status','message':f'Found {raw_count} raw → {unique_count} unique incidents. Synthesizing report...'})}\n\n"
 
             # ── REDUCE: final GPT-4o synthesizes the report ──
+            # Build a dedicated reduce system prompt that aggressively demands length
+            _reduce_system = (
+                "You are a senior cyber threat intelligence analyst writing a FULL-LENGTH classified report.\n"
+                "You NEVER write short summaries. You ALWAYS write exhaustive, detailed reports.\n"
+                "Your reports are typically 4000-6000 words. Anything under 2000 words is a FAILURE.\n\n"
+                "WRITING RULES:\n"
+                "- In the Incident Analysis sections, list EVERY SINGLE incident on its own bullet point.\n"
+                "  If there are 50 government incidents, write 50 bullet points — do NOT summarize.\n"
+                "- In the IOC table, list EVERY domain, IP, and URL from the data — aim for 20-40 rows.\n"
+                "- In the Timeline, provide a month-by-month table with counts and key events.\n"
+                "- After completing each section, ask yourself: 'Did I cover ALL incidents?' If not, keep writing.\n"
+                "- NEVER use phrases like 'and many more', 'etc.', 'among others', or 'additional attacks'.\n"
+                "  These are LAZY shortcuts. List every single item explicitly.\n"
+                "- NEVER end a section early. ALWAYS be thorough.\n\n"
+                + _REDUCE_REPORT_PROMPT
+            )
+
             reduce_messages = [
-                {"role": "system", "content": _REDUCE_REPORT_PROMPT},
-                {"role": "system", "content": (
-                    f"=== DEDUPLICATED FINDINGS: {unique_count} unique cyber incidents (from {raw_count} raw extractions) ===\n"
-                    f"Format: REFS | DATES | ACTORS | ATTACK_TYPE | TARGET | DETAILS\n\n"
-                    f"{combined_dedup}\n\n=== END FINDINGS ===\n\n"
-                    f"IMPORTANT: Your report MUST include ALL {unique_count} incidents listed above. "
-                    f"Do NOT summarize or skip any. Present every single one in the report with its [REF:N] citations. "
-                    f"Include a comprehensive incident table with ALL entries."
+                {"role": "system", "content": _reduce_system},
+                {"role": "user", "content": (
+                    f"Here are {unique_count} extracted cyber incidents (from {raw_count} raw findings):\n\n"
+                    f"Format: REFS | DATE | THREAT_ACTOR | CHANNEL | ATTACK_TYPE | TARGET | SECTOR | DETAILS\n\n"
+                    f"{combined_dedup}\n\n"
+                    f"Write a FULL-LENGTH intelligence report covering ALL {unique_count} incidents above.\n"
+                    f"I need a report that is AT LEAST 3000 words. Do NOT truncate or abbreviate.\n\n"
+                    f"MANDATORY SECTIONS:\n"
+                    f"1. EXECUTIVE SUMMARY (5-8 sentences)\n"
+                    f"2. THREAT ACTOR OVERVIEW TABLE (every actor, with Incidents/Attack Types/Targets/Capability columns)\n"
+                    f"3. INCIDENT ANALYSIS BY SECTOR — for each sector, list EVERY incident individually:\n"
+                    f"   - Date | Actor | Attack Type | Specific Target (domain/org) | Impact [REF:N]\n"
+                    f"   - If a sector has 50 incidents, list all 50. No summarizing.\n"
+                    f"4. ATTACK TIMELINE — month-by-month table showing escalation:\n"
+                    f"   | Month | Incident Count | Key Events |\n"
+                    f"5. INDICATORS OF COMPROMISE TABLE — extract EVERY domain, IP, URL from findings:\n"
+                    f"   | Type | Value | Context | Threat Actor |\n"
+                    f"   Target: 20-40 rows. List every .jo, .il, .qa domain. Every IP. Every URL.\n"
+                    f"6. THREAT ASSESSMENT (threat level, at-risk sectors, actor capabilities, escalation likelihood)\n"
+                    f"7. RECOMMENDATIONS (sector-specific, reference actual incidents)\n\n"
+                    f"Name SPECIFIC organizations and domains. Cite [REF:N] for every claim.\n"
+                    f"START WRITING NOW. Do not stop until every incident is covered."
                 )},
             ]
+            # Append conversation history for context
             for h in history[-10:]:
                 if h.get("role") in ("user", "assistant") and h.get("content"):
                     reduce_messages.append({"role": h["role"], "content": str(h["content"])[:2000]})
-            reduce_messages.append({"role": "user", "content": user_msg})
 
             try:
                 stream = client.chat.completions.create(
                     model="gpt-4o",
                     messages=reduce_messages,
-                    max_tokens=6000,
-                    temperature=0.2,
+                    max_tokens=16000,
+                    temperature=0.4,
                     stream=True,
                 )
                 full_content = ""
@@ -4045,7 +4227,7 @@ def api_chat_stream():
                 stream = client.chat.completions.create(
                     model="gpt-4o",
                     messages=messages,
-                    max_tokens=4096,
+                    max_tokens=12000,
                     temperature=0.15,
                     stream=True,
                 )
@@ -4077,7 +4259,7 @@ def api_chat_stream():
                     model="gpt-4o",
                     messages=messages,
                     tools=[_SEARCH_INTEL_TOOL],
-                    max_tokens=4096,
+                    max_tokens=12000,
                     temperature=0.2,
                     stream=True,
                 )
@@ -8856,7 +9038,7 @@ async function generateReport(btn) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = resp.headers.get('Content-Disposition')?.split('filename=')[1] || 'ScanWave_Report.docx';
+    a.download = resp.headers.get('Content-Disposition')?.split('filename=')[1] || 'ScanWave_Report.pdf';
     document.body.appendChild(a);
     a.click();
     a.remove();

@@ -2,9 +2,9 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# System deps: curl for healthcheck, ca-certs for TLS to Telegram + OpenAI
+# System deps: curl for healthcheck, ca-certs for TLS, libreoffice for PDF conversion
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates && rm -rf /var/lib/apt/lists/*
+    curl ca-certificates libreoffice-writer && rm -rf /var/lib/apt/lists/*
 
 # Python deps (separate layer for caching)
 COPY requirements.txt .
