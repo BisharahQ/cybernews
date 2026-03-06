@@ -49,6 +49,19 @@ PHONE = os.environ.get("TG_PHONE", "+962791896483")
 OUTPUT_DIR = Path("./telegram_intel")
 OUTPUT_DIR.mkdir(exist_ok=True)
 
+# ── SQLite Database Layer ────────────────────────────────────────────────────
+import sys as _sys2
+_sys2.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from app.database import init_db
+    from app.config import DB_PATH
+    from app import models as _db
+    init_db(DB_PATH)
+    _SQLITE_OK = True
+except Exception as _e:
+    logging.warning(f"SQLite init failed, falling back to JSONL: {_e}")
+    _SQLITE_OK = False
+
 # Log configuration
 LOG_FILE = OUTPUT_DIR / "monitor.log"
 import sys as _sys
@@ -1123,9 +1136,15 @@ class TelegramMonitor:
         return priority, critical_hits + medium_hits, critical_subtype
 
     def _write_jsonl(self, filepath, data):
-        """Append a JSON line to a file"""
+        """Append a JSON line to file AND insert to SQLite."""
         with open(filepath, "a", encoding="utf-8") as f:
             f.write(json.dumps(data, ensure_ascii=False, default=str) + "\n")
+        # Also insert into SQLite messages table
+        if _SQLITE_OK and filepath == self.message_log and data.get("channel_username"):
+            try:
+                _db.insert_message(data)
+            except Exception:
+                pass
 
     async def _process_message(self, event):
         """Process incoming message from monitored channel"""
@@ -1486,8 +1505,12 @@ class TelegramMonitor:
                 log.error(f"Auto-join error: {e}")
 
     def _compact_messages(self):
-        """Deduplicate messages.jsonl in-place. Runs after gap-fill to remove duplicates."""
+        """Deduplicate messages — uses SQLite for dedup, also compacts JSONL."""
         try:
+            if _SQLITE_OK:
+                result = _db.compact_messages()
+                log.info(f"[COMPACT] SQLite: {result['remaining']} unique ({result['deleted']} dupes removed)")
+            # Also compact JSONL file for backward compat
             lines = self.message_log.read_text(encoding="utf-8").splitlines()
             seen, msgs = {}, []
             for line in lines:
@@ -1507,7 +1530,7 @@ class TelegramMonitor:
                 "\n".join(json.dumps(m, ensure_ascii=False) for m in msgs) + "\n",
                 encoding="utf-8"
             )
-            log.info(f"[COMPACT] {len(msgs)} unique messages (removed {len(lines)-len(msgs)} duplicates)")
+            log.info(f"[COMPACT] JSONL: {len(msgs)} unique messages")
         except Exception as e:
             log.warning(f"[COMPACT] Error during compaction: {e}")
 

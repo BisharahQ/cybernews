@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Application code
 COPY *.py ./
+COPY app/ app/
 
 # Report template and branding assets
 COPY scanwave_report_template.docx ./
@@ -32,4 +33,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
     CMD curl -f http://localhost:5000/ || exit 1
 
-CMD ["python", "orchestrator.py"]
+# Run migration (idempotent) then start the platform
+CMD ["sh", "-c", "python migrate.py && python orchestrator.py"]

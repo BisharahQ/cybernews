@@ -2,7 +2,11 @@ __pycache__/
 *.pyc
 *.pyo
 .git/
+.env
 telegram_intel/*.log
 telegram_intel/backfill_*.log
 telegram_intel/media/
+telegram_intel/intel.db
+telegram_intel/intel.db-wal
+telegram_intel/intel.db-shm
 WORKLOG.txt

@@ -83,6 +83,18 @@ try:
 except Exception:
     pass
 
+# ── SQLite Database Layer ────────────────────────────────────────────────────
+import sys as _sys_db
+_sys_db.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from app.database import init_db
+    from app.config import DB_PATH
+    from app import models as _db
+    init_db(DB_PATH)
+    _SQLITE_OK = True
+except Exception as _db_err:
+    _SQLITE_OK = False
+
 # ── Paths ───────────────────────────────────────────────────────────────────────
 OUTPUT_DIR           = Path("./telegram_intel")
 MESSAGES_FILE        = OUTPUT_DIR / "messages.jsonl"
@@ -176,6 +188,11 @@ def _chat(messages_payload, model="gpt-4o-mini", max_tokens=800, json_mode=True)
 
 # ── File helpers ───────────────────────────────────────────────────────────────
 def _load_keywords():
+    if _SQLITE_OK:
+        try:
+            return _db.get_keywords()
+        except Exception:
+            pass
     if not KEYWORDS_FILE.exists():
         return {"critical": [], "medium": []}
     try:
@@ -184,11 +201,37 @@ def _load_keywords():
         return {"critical": [], "medium": []}
 
 def _save_keywords(kw):
+    if _SQLITE_OK:
+        try:
+            _db.save_keywords(kw)
+        except Exception:
+            pass
+    # Also write JSON file for backward compat
     KEYWORDS_FILE.write_text(
         json.dumps(kw, indent=2, ensure_ascii=False), encoding="utf-8")
 
 def _load_messages(hours=2):
-    """Load messages from last N hours."""
+    """Load messages from last N hours — uses SQLite indexed query."""
+    if _SQLITE_OK:
+        try:
+            rows = _db.get_messages_since(hours)
+            # Convert SQLite rows to match JSONL format
+            msgs = []
+            for r in rows:
+                if r.get("raw_json"):
+                    try:
+                        m = json.loads(r["raw_json"])
+                        if r.get("critical_subtype"):
+                            m["critical_subtype"] = r["critical_subtype"]
+                        msgs.append(m)
+                        continue
+                    except Exception:
+                        pass
+                msgs.append(dict(r))
+            return msgs
+        except Exception:
+            pass
+    # Fallback to JSONL scan
     if not MESSAGES_FILE.exists():
         return []
     cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
@@ -210,6 +253,11 @@ def _load_messages(hours=2):
     return msgs
 
 def _load_discovery():
+    if _SQLITE_OK:
+        try:
+            return _db.get_discovered_channels()
+        except Exception:
+            pass
     if not DISCOVERY_FILE.exists():
         return {}
     try:
@@ -218,12 +266,31 @@ def _load_discovery():
         return {}
 
 def _save_discovery(data):
+    if _SQLITE_OK:
+        try:
+            for username, info in data.items():
+                if isinstance(info, dict):
+                    _db.upsert_discovered_channel(username, **info)
+        except Exception:
+            pass
+    # Also write JSON file for backward compat
     DISCOVERY_FILE.write_text(
         json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
 def _append_enriched(record):
+    # Write to JSONL file
     with open(ENRICHED_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    # Also write to SQLite
+    if _SQLITE_OK:
+        try:
+            ch = record.get("channel_username", "")
+            mid = record.get("message_id", 0)
+            enrichment = record.get("ai_enrichment", {})
+            if ch and mid:
+                _db.upsert_enrichment(ch, mid, enrichment)
+        except Exception:
+            pass
 
 def _queue_for_monitoring(username):
     """Add a channel to the monitor's pending file."""
