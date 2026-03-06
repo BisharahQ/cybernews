@@ -2,7 +2,7 @@
 """
 AI INTELLIGENCE AGENT — Jordan Cyber Intel Platform
 =====================================================
-Autonomous daemon that runs 4 parallel loops, each adding real value:
+Autonomous daemon that runs 8 parallel loops, each adding real value:
 
 LOOP 1 — CRITICAL MESSAGE ENRICHMENT (near-real-time, ~30s lag)
   Watches messages.jsonl for new CRITICAL messages.
@@ -441,12 +441,20 @@ Respond ONLY with valid JSON:
   "analysis_note": "brief summary of what you observed in this message set"
 }"""
 
-HUNT_TERMS_SYSTEM = """You are extracting intelligence leads from Telegram hacktivist messages.
-Extract entities that could lead to finding NEW hacktivist channels:
-1. Telegram channel/group USERNAMES mentioned (@X or t.me/X)
-2. NEW hacktivist GROUP NAMES not already well-known
-3. OPERATION NAMES (Op X, #OpJordan, عملية style codenames)
-4. TOOL/MALWARE names that hint at related channels
+HUNT_TERMS_SYSTEM = """You are extracting intelligence leads from Telegram hacktivist messages monitoring Jordan threats.
+Be AGGRESSIVE — extract EVERYTHING that could lead to finding new threat channels.
+
+Extract:
+1. Telegram channel/group USERNAMES (@X, t.me/X, or any handle mentioned)
+2. ALL hacktivist GROUP NAMES (even minor ones, even if well-known — we need their handles)
+3. OPERATION NAMES (Op X, #OpJordan, عملية codenames, campaign hashtags)
+4. TOOL/MALWARE names (DDoS tools, RATs, exploit kits — their channels often exist on Telegram)
+5. PERSON handles/aliases (group leaders, hackers mentioned by name)
+6. Arabic/Persian/Urdu group names (transliterate + original script)
+7. Hashtags used for coordination (#OpJordan, #FreePalestine, #CyberJihad etc.)
+
+Generate search terms that would find these channels on Telegram Search.
+Include BOTH English and Arabic/Persian variants of each term.
 
 Respond ONLY valid JSON:
 {
@@ -458,7 +466,8 @@ Respond ONLY valid JSON:
     {"term": "telegram_search_term", "language": "ar|en|fa", "confidence": 0-100}
   ]
 }
-Only include items with confidence >= 60. username must be the raw @handle without @."""
+Include items with confidence >= 50. username must be the raw @handle without @.
+Generate at LEAST 5 search terms per call. Think about what a hacktivist would search for."""
 
 
 def _load_discovery_terms():
@@ -493,7 +502,7 @@ def _extract_discovery_entities(msgs, lines):
         for item in result.get("new_search_terms", []):
             term = str(item.get("term", "")).strip()
             conf = int(item.get("confidence", 0))
-            if term and conf >= 60 and term.lower() not in existing_terms:
+            if term and conf >= 50 and term.lower() not in existing_terms:
                 data.setdefault("terms", []).append({
                     "term": term,
                     "added_at": now,
@@ -508,7 +517,7 @@ def _extract_discovery_entities(msgs, lines):
             uname = str(item.get("username") or "").strip().lstrip("@")
             name  = str(item.get("name", "")).strip()
             conf  = int(item.get("confidence", 0))
-            if conf < 60:
+            if conf < 50:
                 continue
             key = uname.lower() if uname else name.lower()
             if key and key not in existing_leads:
@@ -523,8 +532,8 @@ def _extract_discovery_entities(msgs, lines):
                 existing_leads.add(key)
                 added_leads += 1
 
-                # Auto-add high-confidence channel leads to discovery pipeline
-                if uname and conf >= 75:
+                # Auto-add channel leads to discovery pipeline
+                if uname and conf >= 60:
                     disc = _load_discovery()
                     if uname not in disc:
                         disc[uname] = {
@@ -668,13 +677,26 @@ VET_SYSTEM = """You are vetting a candidate Telegram channel for a Jordan cyber 
 You will receive the channel username, discovery reason, channel metadata (if available),
 and a sample of its messages from our database.
 
-Decide: should this channel be APPROVED for active monitoring, or DISMISSED as noise?
+Decide: should this channel be APPROVED for active monitoring, or DISMISSED as irrelevant?
 
-APPROVE if: clear hacktivist activity, attacks on Arab/Jordanian targets, IOC sharing,
-            DDoS coordination, data leaks, malware distribution, Iranian/Palestinian resistance context
+You MUST be DECISIVE. Do NOT use UNCERTAIN unless the channel name is truly random characters
+with zero cyber/hacktivist/political indicators. When in doubt, lean toward APPROVE — it is
+better to monitor a borderline channel than miss a real threat.
 
-DISMISS if: regular news channel, personal posts, unrelated content, spam, empty.
-            IMMEDIATELY DISMISS if the channel description contains scam/fraud indicators.
+APPROVE if ANY of these apply:
+- Channel name contains hack, cyber, attack, ddos, anon, leak, breach, deface, exploit, or similar
+- Channel discusses attacks on Arab/Middle Eastern targets
+- IOC sharing, DDoS coordination, data leaks, malware, or defacement proof
+- Iranian, Palestinian, or Islamic resistance context
+- The channel was discovered via forwarded messages from a known threat channel
+- The discovery reason includes "forwarded_from" or "mentioned_in_message" from a monitored channel
+- Channel has "team", "army", "force", "crew", "squad" combined with cyber/hack terms
+
+DISMISS ONLY if:
+- Clearly a regular news aggregator with no hacktivist content
+- Personal blog, food, sports, entertainment
+- Scam/fraud channel (not hacktivist)
+- Completely empty with a generic non-cyber name
 
 Respond ONLY with valid JSON:
 {
@@ -686,7 +708,7 @@ Respond ONLY with valid JSON:
   "suggested_threat_level": "CRITICAL" | "HIGH" | "MEDIUM" | "LOW"
 }
 
-Only APPROVE if confidence >= 70. Otherwise use UNCERTAIN."""
+Be aggressive with APPROVE — confidence 50+ is sufficient for channels with ANY cyber indicators."""
 
 def _get_channel_messages_from_db(username, limit=15):
     """Get recent messages from our DB for a specific channel."""
@@ -768,7 +790,7 @@ def loop_channel_vetting(state):
                             f"{meta_str}\n"
                             f"Sample messages from DB ({len(db_msgs)}):\n{samples}"
                         )
-                        approve_threshold = 70
+                        approve_threshold = 50  # Lowered from 70 — be more aggressive
                     else:
                         # No messages in DB — vet on channel name + reason + metadata
                         user_content = (
@@ -776,13 +798,13 @@ def loop_channel_vetting(state):
                             f"Discovery reason: {info.get('reason','?')}\n"
                             f"Discovery score: {info.get('score', 0)}\n"
                             f"{meta_str}\n"
-                            f"No messages yet. Judge strictly by the channel username, description, and discovery reason.\n"
-                            f"Examples that should APPROVE: channels with 'hack', 'cyber', 'anon', 'ddos', "
-                            f"'attack', 'resistance', 'jihad', 'palestine', 'aqsa', 'shahid' in the name.\n"
-                            f"Examples that should DISMISS: news aggregators, personal channels, sport/food/general topics.\n"
-                            f"Be decisive — only use UNCERTAIN if the name is truly cryptic and gives zero clues."
+                            f"No messages yet. Judge by the channel username, description, and discovery reason.\n"
+                            f"APPROVE if the name contains ANY cyber/hack/attack/resistance indicators.\n"
+                            f"APPROVE if discovered via forwarded_from or mentioned_in a known threat channel.\n"
+                            f"Only DISMISS if clearly non-cyber (news, personal, food, sports, entertainment).\n"
+                            f"Do NOT use UNCERTAIN — force a decision. APPROVE or DISMISS only."
                         )
-                        approve_threshold = 55  # Lower bar — name alone is sufficient signal
+                        approve_threshold = 40  # Lowered from 55 — name alone is enough
 
                     result = _chat([
                         {"role": "system", "content": VET_SYSTEM},
@@ -1071,14 +1093,14 @@ def loop_threat_hunter(state):
                 conf  = int(lead.get("confidence", 0))
                 name  = str(lead.get("name", "")).strip()
                 uname = str(lead.get("username") or "").strip().lstrip("@")
-                if not name or conf < 60:
+                if not name or conf < 50:
                     continue
                 if name.lower() not in existing_names:
                     hl["group_leads"].append({**lead, "found_at": now, "source": "loop5"})
                     existing_names.add(name.lower())
                     new_groups += 1
-                    # Auto-queue high-confidence channel leads for vetting
-                    if uname and conf >= 75:
+                    # Auto-queue channel leads for vetting
+                    if uname and conf >= 60:
                         disc = _load_discovery()
                         if uname not in disc:
                             disc[uname] = {
@@ -1394,35 +1416,231 @@ def loop_network_graph(state):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# MAIN: RUN ALL LOOPS IN PARALLEL THREADS
+# LOOP 8: PROACTIVE SEARCH TERM EXPANSION
+# ══════════════════════════════════════════════════════════════════════════════
+
+TERM_EXPAND_SYSTEM = """You are a cyber threat intelligence analyst expanding search terms for a Telegram
+monitoring platform focused on hacktivist threats against Jordan and the Middle East.
+
+You will receive:
+1. Currently monitored channels and their threat groups
+2. Currently known search terms
+3. Recent intelligence context
+
+Your job: generate NEW search terms and channel leads that we're NOT already searching for.
+Think like an OSINT analyst — what would you search to find:
+- Backup/alt channels of known groups (groups often get banned and recreate)
+- Affiliated groups and alliances
+- Tool/malware distribution channels
+- Coordination/planning channels
+- Regional hacktivist groups that might pivot to Jordan targeting
+- Arabic, Persian, Urdu, Turkish, Malay, Indonesian terms
+- Leetspeak and creative spelling variations (3 for e, 0 for o, etc.)
+- Channels using coded language to avoid detection
+
+Respond ONLY valid JSON:
+{
+  "new_search_terms": [
+    {"term": "search term", "language": "ar|en|fa|tr|id|ur", "confidence": 50-100,
+     "rationale": "why this term would find threat channels"}
+  ],
+  "new_channel_leads": [
+    {"username": "handle_without_at", "name": "group name",
+     "confidence": 50-100, "reason": "why we should monitor this"}
+  ],
+  "expansion_notes": "brief summary of expansion strategy used"
+}
+Generate at LEAST 10 new search terms and 3 channel leads per call.
+Focus on terms we're NOT already searching. Be creative with spelling variations."""
+
+
+def loop_search_term_expansion(state):
+    """
+    LOOP 8: Every 4 hours, proactively expand search terms using AI.
+    Analyzes current channel config + known terms to find gaps in coverage.
+    """
+    log.info("[LOOP8] Search term expansion loop started")
+    INTERVAL = 14400  # 4 hours
+
+    while True:
+        last = state.get("last_term_expand_run")
+        if last:
+            elapsed = (datetime.now(timezone.utc) -
+                       datetime.fromisoformat(last)).total_seconds()
+            if elapsed < INTERVAL:
+                time.sleep(120)
+                continue
+
+        try:
+            # Build context: current channels + current search terms
+            channels_file = OUTPUT_DIR / "channels_config.json"
+            if channels_file.exists():
+                try:
+                    cfg = json.loads(channels_file.read_text(encoding="utf-8"))
+                except Exception:
+                    cfg = {}
+            else:
+                cfg = {}
+
+            channel_summary = []
+            for uname, info in cfg.items():
+                label = info.get("label", uname)
+                tier = info.get("tier", "?")
+                threat = info.get("threat", "?")
+                status = info.get("status", "active")
+                channel_summary.append(f"@{uname} | T{tier} {threat} | {label} | {status}")
+
+            # Current search terms
+            dt = _load_discovery_terms()
+            current_terms = [t["term"] for t in dt.get("terms", [])]
+            current_leads = [c.get("username", "") for c in dt.get("channel_leads", []) if c.get("username")]
+
+            # Get recent messages for context
+            msgs = _load_messages(hours=24)
+            msg_channels = set()
+            msg_groups_mentioned = set()
+            for m in msgs[:200]:
+                ch = m.get("channel_username", "")
+                if ch:
+                    msg_channels.add(ch)
+                text = m.get("text_preview", "")
+                # Extract @mentions and t.me links
+                for mention in re.findall(r'@([a-zA-Z]\w{3,})', text):
+                    msg_groups_mentioned.add(mention)
+                for link in re.findall(r't\.me/([a-zA-Z]\w{3,})', text):
+                    msg_groups_mentioned.add(link)
+
+            user_content = (
+                f"CURRENTLY MONITORED ({len(cfg)} channels):\n"
+                + "\n".join(channel_summary[:80]) + "\n\n"
+                f"CURRENT SEARCH TERMS ({len(current_terms)}):\n"
+                + ", ".join(current_terms[:60]) + "\n\n"
+                f"CURRENT CHANNEL LEADS ({len(current_leads)}):\n"
+                + ", ".join(current_leads[:30]) + "\n\n"
+                f"RECENTLY ACTIVE CHANNELS: {', '.join(list(msg_channels)[:30])}\n"
+                f"GROUPS MENTIONED IN MESSAGES: {', '.join(list(msg_groups_mentioned)[:30])}\n\n"
+                "Generate NEW search terms and channel leads that would help us find "
+                "ADDITIONAL hacktivist channels we're NOT already monitoring. "
+                "Focus on: backup channels of banned groups, affiliated groups, "
+                "regional groups that target Jordan/Middle East, "
+                "and Arabic/Persian/Turkish/Indonesian variations of known terms."
+            )
+
+            log.info(f"[LOOP8] Expanding search terms (analyzing {len(cfg)} channels, "
+                     f"{len(current_terms)} existing terms)...")
+            result = _chat([
+                {"role": "system", "content": TERM_EXPAND_SYSTEM},
+                {"role": "user",   "content": user_content},
+            ], max_tokens=1500)
+
+            if not result:
+                state["last_term_expand_run"] = datetime.now(timezone.utc).isoformat()
+                _save_state(state)
+                time.sleep(120)
+                continue
+
+            now = datetime.now(timezone.utc).isoformat()
+            data = _load_discovery_terms()
+            existing_terms = {t["term"].lower() for t in data.get("terms", [])}
+            existing_leads = {c.get("username", "").lower() for c in data.get("channel_leads", [])}
+            added_terms, added_leads = 0, 0
+
+            for item in result.get("new_search_terms", []):
+                term = str(item.get("term", "")).strip()
+                conf = int(item.get("confidence", 0))
+                if term and conf >= 50 and term.lower() not in existing_terms:
+                    data.setdefault("terms", []).append({
+                        "term": term,
+                        "added_at": now,
+                        "confidence": conf,
+                        "source": "loop8_expand",
+                        "language": item.get("language", "en"),
+                        "rationale": item.get("rationale", ""),
+                    })
+                    existing_terms.add(term.lower())
+                    added_terms += 1
+
+            for item in result.get("new_channel_leads", []):
+                uname = str(item.get("username") or "").strip().lstrip("@")
+                name  = str(item.get("name", "")).strip()
+                conf  = int(item.get("confidence", 0))
+                if conf < 50:
+                    continue
+                key = uname.lower() if uname else name.lower()
+                if key and key not in existing_leads:
+                    data.setdefault("channel_leads", []).append({
+                        "username": uname or None,
+                        "name": name,
+                        "added_at": now,
+                        "confidence": conf,
+                        "reason": item.get("reason", ""),
+                        "source": "loop8_expand",
+                    })
+                    existing_leads.add(key)
+                    added_leads += 1
+
+                    # Auto-add to discovery pipeline
+                    if uname and conf >= 60:
+                        disc = _load_discovery()
+                        if uname.lower() not in disc:
+                            disc[uname.lower()] = {
+                                "username": uname,
+                                "status": "pending_review",
+                                "score": conf,
+                                "reason": f"loop8_expand: {item.get('reason', '')}",
+                                "discovered_at": now,
+                                "source": "loop8",
+                            }
+                            _save_discovery(disc)
+                            log.info(f"[LOOP8] Auto-queued @{uname} (conf={conf}%) for vetting")
+
+            DISCOVERY_TERMS_FILE.write_text(
+                json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+            notes = result.get("expansion_notes", "")
+            state["last_term_expand_run"] = now
+            state["terms_expanded"] = state.get("terms_expanded", 0) + added_terms
+            _save_state(state)
+            log.info(f"[LOOP8] Search term expansion: +{added_terms} terms, "
+                     f"+{added_leads} channel leads | {notes[:100]}")
+
+        except Exception as e:
+            log.error(f"[LOOP8] Error: {e}")
+
+        time.sleep(120)
+
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 
 def main():
     state = _load_state()
     log.info("=" * 60)
-    log.info("AI INTELLIGENCE AGENT — STARTING (7 loops)")
+    log.info("AI INTELLIGENCE AGENT — STARTING (8 loops)")
     log.info(f"State: {state.get('enrichments_done',0)} enrichments, "
              f"{state.get('keywords_added',0)} keywords added, "
              f"{state.get('channels_autoapproved',0)} channels approved, "
              f"{state.get('hunt_leads_found',0)} hunt leads, "
-             f"{state.get('escalation_alerts',0)} escalation alerts")
+             f"{state.get('escalation_alerts',0)} escalation alerts, "
+             f"{state.get('terms_expanded',0)} terms expanded")
     log.info("=" * 60)
 
     threads = [
-        threading.Thread(target=loop_enrich_critical,    args=(state,), name="L1-Enrich",     daemon=True),
-        threading.Thread(target=loop_keyword_learning,   args=(state,), name="L2-Keywords",    daemon=True),
-        threading.Thread(target=loop_channel_vetting,    args=(state,), name="L3-Vetting",     daemon=True),
-        threading.Thread(target=loop_threat_brief,       args=(state,), name="L4-Brief",       daemon=True),
-        threading.Thread(target=loop_threat_hunter,      args=(state,), name="L5-Hunter",      daemon=True),
-        threading.Thread(target=loop_escalation_detector,args=(state,), name="L6-Escalation",  daemon=True),
-        threading.Thread(target=loop_network_graph,      args=(state,), name="L7-Network",     daemon=True),
+        threading.Thread(target=loop_enrich_critical,       args=(state,), name="L1-Enrich",     daemon=True),
+        threading.Thread(target=loop_keyword_learning,      args=(state,), name="L2-Keywords",    daemon=True),
+        threading.Thread(target=loop_channel_vetting,       args=(state,), name="L3-Vetting",     daemon=True),
+        threading.Thread(target=loop_threat_brief,          args=(state,), name="L4-Brief",       daemon=True),
+        threading.Thread(target=loop_threat_hunter,         args=(state,), name="L5-Hunter",      daemon=True),
+        threading.Thread(target=loop_escalation_detector,   args=(state,), name="L6-Escalation",  daemon=True),
+        threading.Thread(target=loop_network_graph,         args=(state,), name="L7-Network",     daemon=True),
+        threading.Thread(target=loop_search_term_expansion, args=(state,), name="L8-TermExpand",  daemon=True),
     ]
 
     for t in threads:
         t.start()
         log.info(f"Started thread: {t.name}")
 
-    log.info("\nAll 7 loops running. Press Ctrl+C to stop.\n")
+    log.info("\nAll 8 loops running. Press Ctrl+C to stop.\n")
     try:
         while True:
             time.sleep(60)
@@ -1434,7 +1652,8 @@ def main():
                 f"ch_dismissed={state.get('channels_autodismissed',0)} | "
                 f"briefs={state.get('briefs_generated',0)} | "
                 f"hunt_leads={state.get('hunt_leads_found',0)} | "
-                f"escalation_alerts={state.get('escalation_alerts',0)}"
+                f"escalation_alerts={state.get('escalation_alerts',0)} | "
+                f"terms_expanded={state.get('terms_expanded',0)}"
             )
     except KeyboardInterrupt:
         log.info("Shutting down AI agent...")

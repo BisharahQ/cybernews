@@ -544,5 +544,257 @@
     "tier": 3,
     "threat": "MEDIUM",
     "status": "active"
+  },
+  "DIeNlt": {
+    "tier": 1,
+    "label": "DieNet Main (targets Jordan directly)",
+    "threat": "CRITICAL",
+    "status": "active"
+  },
+  "dienet1": {
+    "tier": 1,
+    "label": "DieNet Backup",
+    "threat": "CRITICAL",
+    "status": "active"
+  },
+  "dnsupportbot": {
+    "tier": 2,
+    "label": "DieNet Support Bot",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "rippersecgroup": {
+    "tier": 2,
+    "label": "RipperSec Community",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "RipperSec1337": {
+    "tier": 2,
+    "label": "RipperSec 1337",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "handala_hack2": {
+    "tier": 2,
+    "label": "Handala Hack (Current Active)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "Handala_Backup": {
+    "tier": 2,
+    "label": "Handala Backup Channel",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "Handala_Leak": {
+    "tier": 2,
+    "label": "Handala Leak Channel",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "SylhetGangSG1": {
+    "tier": 2,
+    "label": "Sylhet Gang SG (Secondary)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "SG2Backup": {
+    "tier": 2,
+    "label": "Sylhet Gang Backup",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "noname05716engver": {
+    "tier": 3,
+    "label": "NoName057(16) EN v2",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "noname05716_reserve": {
+    "tier": 3,
+    "label": "NoName057(16) Reserve",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "Mhwear100": {
+    "tier": 2,
+    "label": "Cyber Islamic Resistance (100)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "Mehwar99": {
+    "tier": 2,
+    "label": "Cyber Islamic Resistance (99)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "RipperSecIO": {
+    "tier": 2,
+    "label": "RipperSec IO (Secondary)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "rippersecchat": {
+    "tier": 3,
+    "label": "RipperSec Community Chat",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "MegaMedusaLog": {
+    "tier": 2,
+    "label": "MegaMedusa DDoS Tool Logs",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "TheRipperSecChat": {
+    "tier": 3,
+    "label": "RipperSec International Chat",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "fattah_iriii": {
+    "tier": 2,
+    "label": "Cyber Fattah (Alt Handle)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "haj3imad": {
+    "tier": 2,
+    "label": "Cyber Fattah Network (Forwarded Source)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "FastAttackerOrg": {
+    "tier": 2,
+    "label": "FastAttacker (Iran Cyber Resistance)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "BQTlock313": {
+    "tier": 1,
+    "label": "BQTLock Ransomware (Fattah/Liwaa Ops)",
+    "threat": "CRITICAL",
+    "status": "active"
+  },
+  "BQTlock_raas": {
+    "tier": 2,
+    "label": "BQTLock RaaS Affiliate",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "realLulzSec": {
+    "tier": 2,
+    "label": "LulzSec Black (Real)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "CyberToufan": {
+    "tier": 2,
+    "label": "Cyber Toufan Al-Aqsa (Iran-linked)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "CyberToufan01": {
+    "tier": 2,
+    "label": "Cyber Toufan (Alt 1)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "CyberToufanBackup": {
+    "tier": 2,
+    "label": "Cyber Toufan Backup",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "h0lyleague": {
+    "tier": 2,
+    "label": "Holy League Coalition (90+ groups)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "user_sec": {
+    "tier": 3,
+    "label": "UserSec (Pro-Russia/Palestine crossover)",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "z_alliance": {
+    "tier": 3,
+    "label": "Z-Pentest Alliance (OT/ICS targeting)",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "ServerKillers": {
+    "tier": 3,
+    "label": "Server Killers (Pro-Russia DDoS)",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "MysteriousTeam0": {
+    "tier": 2,
+    "label": "Mysterious Team Bangladesh",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "eaglecyberwashere": {
+    "tier": 3,
+    "label": "Eagle Cyber Crew (Malaysia)",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "Team_insane_Pakistan2": {
+    "tier": 3,
+    "label": "Team Insane Pakistan",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "GhostSecc": {
+    "tier": 3,
+    "label": "GhostSec (Anonymous-affiliated)",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "ARABIAN_GHOSTS": {
+    "tier": 2,
+    "label": "Arabian Ghosts (Main)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "ARABIAN_GHOSTS_DB": {
+    "tier": 2,
+    "label": "Arabian Ghosts Database",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "turkhckteam": {
+    "tier": 3,
+    "label": "Turk Hack Team",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "l1915l": {
+    "tier": 3,
+    "label": "1915 Team",
+    "threat": "MEDIUM",
+    "status": "active"
+  },
+  "DarkStormTeam3": {
+    "tier": 2,
+    "label": "Dark Storm Team (v3)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "hamzamr2": {
+    "tier": 2,
+    "label": "Mr Hamza (Leader Account)",
+    "threat": "HIGH",
+    "status": "active"
+  },
+  "Mhwear99": {
+    "tier": 2,
+    "label": "Cyber Islamic Resistance (99 backup)",
+    "threat": "HIGH",
+    "status": "active"
   }
 }

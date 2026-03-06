@@ -1,0 +1,43 @@
+{
+  "terms": [
+    {"term": "rippersec megamedusa", "confidence": 90},
+    {"term": "cyber fattah iran", "confidence": 90},
+    {"term": "dienet ddos jordan", "confidence": 95},
+    {"term": "handala hack israel", "confidence": 90},
+    {"term": "holy league hacktivist", "confidence": 85},
+    {"term": "313 team cyber", "confidence": 85},
+    {"term": "fatemiyoun cyber team", "confidence": 90},
+    {"term": "dark storm ddos", "confidence": 85},
+    {"term": "cyber av3ngers irgc", "confidence": 90},
+    {"term": "bqtlock ransomware", "confidence": 80},
+    {"term": "mohamed brigade liwaa", "confidence": 80},
+    {"term": "cyber isnaad front", "confidence": 85},
+    {"term": "eagle cyber crew", "confidence": 75},
+    {"term": "z-pentest team", "confidence": 75},
+    {"term": "server killers ddos", "confidence": 75},
+    {"term": "1915 team hacktivist", "confidence": 75},
+    {"term": "overflame ddos", "confidence": 70},
+    {"term": "denbots proof ddos", "confidence": 70},
+    {"term": "lazagrad hack", "confidence": 70},
+    {"term": "kalihunt hacktivist", "confidence": 70},
+    {"term": "anonsec ps", "confidence": 70},
+    {"term": "conquerors electronic army", "confidence": 75},
+    {"term": "nation of saviors cyber", "confidence": 75},
+    {"term": "pyroxy forum", "confidence": 70},
+    {"term": "tharallah brigade cyber", "confidence": 80},
+    {"term": "اختراق اسرائيل", "confidence": 85},
+    {"term": "هجوم سيبراني اردن", "confidence": 90},
+    {"term": "تسريب بيانات اردن", "confidence": 90},
+    {"term": "هاكتيفيزم فلسطين", "confidence": 85}
+  ],
+  "channel_leads": [
+    {"username": "DIeNlt", "confidence": 95},
+    {"username": "dienet1", "confidence": 90},
+    {"username": "RipperSecIO", "confidence": 85},
+    {"username": "MegaMedusaLog", "confidence": 85},
+    {"username": "handala_hack2", "confidence": 90},
+    {"username": "PyRoxyForum", "confidence": 75}
+  ],
+  "updated_at": "2026-03-07T00:00:00Z",
+  "source": "manual_deep_search"
+}

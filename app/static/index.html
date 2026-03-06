@@ -2256,7 +2256,7 @@ loadChannels().then(() => {
   selectAllChannels(document.getElementById('all-ch-btn'));
 });
 updateLiveRate();
-setInterval(refreshLoop, 15000);
+setInterval(refreshLoop, 30000);
 
 async function refreshLoop() {
   await loadChannels();
@@ -2343,32 +2343,38 @@ async function loadChannels() {
 async function checkNewMessages() {
   if (!currentCh) return;
   const priority = document.getElementById('f-priority').value;
-  const since    = document.getElementById('f-since').value;
-  let url = currentCh === '__ALL__'
-    ? `/api/messages/all?limit=5000&priority=${priority}`
-    : `/api/messages/${encodeURIComponent(currentCh)}?priority=${priority}`;
-  if (since) url += `&since=${since}`;
-  const r = await fetch(url).catch(()=>null);
+  // Find the newest timestamp we already have
+  const newestKnown = allMsgs.reduce((best, m) => {
+    const ts = m.timestamp_utc || '';
+    return ts > best ? ts : best;
+  }, '');
+  if (!newestKnown) return; // No messages loaded yet — skip poll
+
+  // Use lightweight poll endpoint — only fetches messages NEWER than what we have
+  let url = `/api/messages/poll?after=${encodeURIComponent(newestKnown)}&limit=200`;
+  if (priority !== 'ALL') url += `&priority=${priority}`;
+  const r = await fetch(url).catch(() => null);
   if (!r) return;
-  const msgs = await r.json();
-  // Compare only non-backfill messages to detect genuinely new live messages
-  const liveMsgs = arr => arr.filter(m => !m.backfill);
-  const newestTs = arr => arr.reduce((best,m) => (m.timestamp_utc||'') > best ? m.timestamp_utc : best, '');
-  const oldLive = liveMsgs(allMsgs), newLive = liveMsgs(msgs);
-  const hasNew = newLive.length > oldLive.length || newestTs(newLive) > newestTs(oldLive);
-  if (hasNew) {
-    const diff = newLive.length - oldLive.length;
-    allMsgs = msgs;
-    renderMessages(applyLocalFilters(allMsgs), 'msgs');
-    const label = currentCh === '__ALL__' ? 'all channels' : `@${currentCh}`;
-    const newCount = diff > 0 ? `+${diff}` : 'new';
-    showToast(`${newCount} message${diff!==1?'s':''} from ${label}`, false);
-    if (currentCh === '__ALL__') {
-      document.getElementById('all-ch-btn').textContent =
-        `🌐 ALL CHANNELS — ${msgs.length} messages`;
-    }
-    scrollBottom();
+  const data = await r.json();
+  if (!data.new_count) return; // No new messages
+
+  // Merge new messages into allMsgs, dedup by channel+message_id
+  const existingIds = new Set(allMsgs.map(m => `${m.channel_username||m.channel}:${m.message_id}`));
+  const genuinelyNew = data.messages.filter(m =>
+    !existingIds.has(`${m.channel_username||m.channel}:${m.message_id}`)
+  );
+  if (!genuinelyNew.length) return;
+
+  // Insert into allMsgs maintaining sort order (newest last for rendering)
+  allMsgs = [...allMsgs, ...genuinelyNew];
+  renderMessages(applyLocalFilters(allMsgs), 'msgs');
+  const label = currentCh === '__ALL__' ? 'all channels' : `@${currentCh}`;
+  showToast(`+${genuinelyNew.length} message${genuinelyNew.length!==1?'s':''} from ${label}`, false);
+  if (currentCh === '__ALL__') {
+    document.getElementById('all-ch-btn').textContent =
+      `ALL CHANNELS — ${allMsgs.length} messages`;
   }
+  scrollBottom();
 }
 
 const TIER_COLORS = {1:'var(--critical)', 2:'var(--medium-text)', 3:'var(--green)', 0:'var(--text-disabled)'};
@@ -2449,7 +2455,7 @@ async function selectAllChannels(btn) {
   document.getElementById('msgs').innerHTML = '<div class="loading-msg">Loading all messages…</div>';
   const priority = document.getElementById('f-priority').value;
   const since    = document.getElementById('f-since').value;
-  let url = `/api/messages/all?limit=5000&priority=${priority}`;
+  let url = `/api/messages/all?limit=500&priority=${priority}`;
   if (since) url += `&since=${since}`;
   try {
     const r = await fetch(url);
@@ -3736,7 +3742,7 @@ async function loadTimeline(silent = false) {
     tlMsgCache = [];
   }
 
-  let url = `/api/messages/all?limit=2000`;
+  let url = `/api/messages/all?limit=500`;
   if (priority !== 'ALL') url += `&priority=${priority}`;
   if (since)   url += `&since=${since}`;
   if (until)   url += `&until=${until}`;
@@ -3768,16 +3774,10 @@ async function loadTimeline(silent = false) {
 }
 
 function prependTimelineItems(newMsgs) {
-  const el = document.getElementById('tl-feed');
-  const empty = el.querySelector('.empty');
-  if (empty) el.innerHTML = '';
-  // Sort newest-first (same order as renderTimeline)
-  const sorted = [...newMsgs].sort((a,b)=>(a.timestamp_utc||'')>(b.timestamp_utc||'')?-1:1);
-  let html = `<div class="tl-day" style="color:var(--green);border-color:var(--green)">↑ ${sorted.length} new message${sorted.length>1?'s':''}</div>`;
-  sorted.forEach(m=>{ html += buildTLItemHtml(m); });
-  el.insertAdjacentHTML('afterbegin', html);
-  // Observe media containers for lazy loading
-  el.querySelectorAll('.media-container[data-media-ch]').forEach(mc => _mediaObserver.observe(mc));
+  // Instead of blindly prepending, do a full re-render with the merged+sorted cache
+  // This ensures messages appear in correct chronological order regardless of when they arrived
+  showToast(`+${newMsgs.length} new timeline message${newMsgs.length>1?'s':''}`, false);
+  renderTimeline(tlMsgCache);
 }
 
 function renderTimeline(msgs) {

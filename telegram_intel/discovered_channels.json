@@ -4,55 +4,55 @@
     "score": 35,
     "reason": "periodic_search:هجوم سيبراني",
     "discovered_at": "2026-03-03T12:53:23.937498+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential cyber attack activity, but without messages to confirm intent, it's ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "iraqdatam": {
     "username": "iraqdatam",
     "score": 55,
     "reason": "periodic_search:تسريب بيانات",
     "discovered_at": "2026-03-03T12:53:27.381940+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential data leaks, but without messages to confirm hacktivist activity, the context remains ambiguous.",
-    "ai_confidence": 55
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "x1xr2": {
     "username": "x1xr2",
     "score": 55,
     "reason": "periodic_search:تسريب بيانات",
     "discovered_at": "2026-03-03T12:53:27.387133+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username and discovery reason suggest potential data leaks, but without messages to confirm hacktivist activity, the decision remains ambiguous.",
-    "ai_confidence": 55
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "databasetestbank": {
     "username": "databasetestbank",
     "score": 55,
     "reason": "periodic_search:تسريب بيانات",
     "discovered_at": "2026-03-03T12:53:27.392839+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential data leak activity, but without messages to confirm context, it's ambiguous.",
-    "ai_confidence": 55
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "zgfdesadses": {
     "username": "zgfdesadses",
     "score": 55,
     "reason": "periodic_search:تسريب بيانات",
     "discovered_at": "2026-03-03T12:53:27.399844+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The discovery reason indicates potential data leaks, but the lack of messages makes it unclear if this channel is actively engaged in hacktivist activities.",
-    "ai_confidence": 55
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "reportforce2": {
     "username": "ReportForce2",
@@ -61,9 +61,9 @@
     "discovered_at": "2026-03-03T12:53:33.899432+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential hacktivist activity, but without messages to confirm intent, the assessment remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "syri8122025": {
     "username": "syri8122025",
@@ -72,20 +72,20 @@
     "discovered_at": "2026-03-03T12:53:33.903508+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a potential connection to electronic army activities, but without any messages or further context, it's unclear if it represents genuine threat activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "alnasr2022a": {
     "username": "alnasr2022a",
     "score": 20,
     "reason": "periodic_search:الجيش الإلكتروني",
     "discovered_at": "2026-03-03T12:53:33.906512+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests potential hacktivist activity, but without any messages or further context, it's unclear if it will be relevant.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "reportforce": {
     "username": "ReportForce",
@@ -94,9 +94,9 @@
     "discovered_at": "2026-03-03T12:53:33.910935+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a potential link to hacktivist activity, but there are no messages to confirm this.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "uaehucker": {
     "username": "uaeHucker",
@@ -105,9 +105,9 @@
     "discovered_at": "2026-03-03T12:53:33.913865+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential hacktivist activity, but without any messages to confirm intent, it remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "reportforcechat": {
     "username": "ReportForcechat",
@@ -116,9 +116,9 @@
     "discovered_at": "2026-03-03T12:53:33.919266+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a potential link to hacktivist activity, but there is no message data to confirm this.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "iraqi_shiites": {
     "username": "Iraqi_Shiites",
@@ -127,9 +127,9 @@
     "discovered_at": "2026-03-03T12:53:37.542846+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential hacktivist activity, but without any messages to confirm this, the intent remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "powiwoo": {
     "username": "powiwoo",
@@ -138,9 +138,9 @@
     "discovered_at": "2026-03-03T12:53:37.551499+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential hacktivist activity, but without any messages to confirm this, the assessment remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "mkyt313": {
     "username": "mkyt313",
@@ -149,31 +149,31 @@
     "discovered_at": "2026-03-03T12:53:43.897104+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest a potential focus on cyber activities, but without any messages to confirm hacktivist or threat activity, it remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "vbvb331": {
     "username": "vbvb331",
     "score": 35,
     "reason": "periodic_search:hack jordan",
     "discovered_at": "2026-03-03T12:53:50.314354+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username and discovery reason suggest potential hacktivist activity, but there is no message data to confirm this.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "chetohackjordan1": {
     "username": "chetohackjordan1",
     "score": 30,
     "reason": "periodic_search:hack jordan",
     "discovered_at": "2026-03-03T12:53:50.316348+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests potential hacktivist activity related to Jordan, but there is insufficient evidence to confirm this.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "jordan_bank_account": {
     "username": "Jordan_bank_account",
@@ -188,110 +188,110 @@
     "score": 35,
     "reason": "periodic_search:hack jordan",
     "discovered_at": "2026-03-03T12:53:50.322710+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential hacktivist activity, but without any messages to confirm this, the assessment remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "instagram_snapchet_ig_hacker": {
     "username": "Instagram_snapchet_ig_hacker",
     "score": 35,
     "reason": "periodic_search:hack jordan",
     "discovered_at": "2026-03-03T12:53:50.327975+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests potential hacking activity, but there is no message data to confirm its relevance or intent.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "tnxgg": {
     "username": "TNXGG",
     "score": 30,
     "reason": "periodic_search:hack jordan",
     "discovered_at": "2026-03-03T12:53:50.330984+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username and discovery reason suggest potential hacktivist activity, but there is no message data to confirm this.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "hackerjordan": {
     "username": "hackerjordan",
     "score": 30,
     "reason": "periodic_search:hack jordan",
     "discovered_at": "2026-03-03T12:53:50.336735+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a focus on hacking related to Jordan, but without any messages to assess, it's unclear if it represents genuine threat activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "jordancyberclub": {
     "username": "JordanCyberClub",
     "score": 30,
     "reason": "periodic_search:jordan cyber",
     "discovered_at": "2026-03-03T12:53:53.492131+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a focus on cyber activities related to Jordan, but there is no message data to confirm its relevance or intent.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "anonymous_palestine": {
     "username": "anonymous_palestine",
     "score": 44,
     "reason": "periodic_search:anonymous palestine",
     "discovered_at": "2026-03-03T12:53:59.861206+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a potential hacktivist context related to Palestine, but without any messages to assess, the threat level remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "liberationofalaqsa": {
     "username": "LiberationofAlAqsa",
     "score": 31,
     "reason": "periodic_search:anonymous palestine",
     "discovered_at": "2026-03-03T12:53:59.862714+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential hacktivist activity, but without any messages to confirm this, the assessment remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "anonymouspalestineofficial": {
     "username": "AnonymousPalestineOfficial",
     "score": 31,
     "reason": "periodic_search:anonymous palestine",
     "discovered_at": "2026-03-03T12:53:59.863815+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a potential hacktivist context related to Palestine, but without any messages to analyze, the intent remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "lock_anonymous_news": {
     "username": "lock_anonymous_news",
     "score": 31,
     "reason": "periodic_search:anonymous palestine",
     "discovered_at": "2026-03-03T12:53:59.867832+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a potential hacktivist context related to Palestine, but without messages to confirm activity, the threat level is unclear.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "fdhhfhhggu": {
     "username": "fdhhfhhggu",
     "score": 31,
     "reason": "periodic_search:anonymous palestine",
     "discovered_at": "2026-03-03T12:53:59.871833+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username and discovery reason suggest a potential hacktivist context, but lack of messages makes it difficult to assess actual activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "sd_anonymous": {
     "username": "sd_anonymous",
@@ -300,9 +300,9 @@
     "discovered_at": "2026-03-03T12:54:03.081797+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a potential hacktivist connection, but there is insufficient evidence to confirm any specific threat activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "fuckanonymoussudan": {
     "username": "fuckanonymoussudan",
@@ -311,20 +311,20 @@
     "discovered_at": "2026-03-03T12:54:03.083436+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests potential hacktivist activity, but there is no message data to confirm its relevance or intent.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "official_empress_leaks": {
     "username": "OFFICIAL_EMPRESS_LEAKS",
     "score": 48,
     "reason": "periodic_search:anonymous sudan",
     "discovered_at": "2026-03-03T12:54:03.086435+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests potential hacktivist activity, but without any messages to confirm this, the context remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "aanonymoussudan": {
     "username": "aanonymoussudan",
@@ -333,9 +333,9 @@
     "discovered_at": "2026-03-03T12:54:03.088448+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a potential hacktivist context, but without any messages to confirm activity, the threat level is unclear.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "anonymoussudanfiles": {
     "username": "anonymoussudanfiles",
@@ -344,20 +344,20 @@
     "discovered_at": "2026-03-03T12:54:03.090505+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a potential hacktivist context, but without any messages to confirm activity, it remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "resistancetoast": {
     "username": "Resistancetoast",
     "score": 31,
     "reason": "periodic_search:cyber resistance",
     "discovered_at": "2026-03-03T12:54:06.361557+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a focus on resistance, but without any messages or further context, it's unclear if it involves hacktivist activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "resistanceband5555": {
     "username": "resistanceband5555",
@@ -366,9 +366,9 @@
     "discovered_at": "2026-03-03T12:54:06.363576+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential hacktivist activity, but without any messages to confirm this, the assessment remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "upcholkina_res": {
     "username": "upcholkina_res",
@@ -377,9 +377,9 @@
     "discovered_at": "2026-03-03T12:54:06.367572+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username and discovery reason suggest potential hacktivist activity, but there is insufficient evidence to make a definitive decision.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "cyberskunkintel": {
     "username": "CyberskunkIntel",
@@ -388,9 +388,9 @@
     "discovered_at": "2026-03-03T12:54:06.369581+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a focus on cyber intelligence, but without any messages to analyze, it's unclear if it engages in hacktivist activities.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "cyberskunkresistance": {
     "username": "CyberSkunkResistance",
@@ -399,9 +399,9 @@
     "discovered_at": "2026-03-03T12:54:06.369581+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a focus on resistance, but there is no message data to confirm active hacktivist activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "sis1337": {
     "username": "sis1337",
@@ -410,9 +410,9 @@
     "discovered_at": "2026-03-03T12:54:09.660258+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential hacktivist context, but there is no message data to confirm any actual activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "hackers_army_team": {
     "username": "HACKERS_ARMY_TEAM",
@@ -421,9 +421,9 @@
     "discovered_at": "2026-03-03T12:54:09.661990+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a hackers team, but there is no message data to confirm any specific threat activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "hackersteamofficial": {
     "username": "Hackersteamofficial",
@@ -432,9 +432,9 @@
     "discovered_at": "2026-03-03T12:54:09.664398+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a hacking group, but without any messages or context, it's unclear if it engages in relevant threat activities.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "teamlegionhackers": {
     "username": "TeamLegionHackers",
@@ -443,9 +443,9 @@
     "discovered_at": "2026-03-03T12:54:09.675057+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a hacking group, but there is no message data to confirm active threat activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "hackers_1973": {
     "username": "hackers_1973",
@@ -454,9 +454,9 @@
     "discovered_at": "2026-03-03T12:54:09.679475+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a hacking context, but there is no message data to confirm any actual threat activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "teamsvkchat": {
     "username": "TEAMSVKCHAT",
@@ -465,9 +465,9 @@
     "discovered_at": "2026-03-03T12:54:09.682738+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a hackers team, but there is no message data to confirm any specific threat activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "elitetradingchannel": {
     "username": "elitetradingchannel",
@@ -476,9 +476,9 @@
     "discovered_at": "2026-03-03T12:54:09.684749+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a trading focus, which does not clearly indicate hacktivist or threat activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "team_hackers7": {
     "username": "TeAm_HacKerS7",
@@ -487,9 +487,9 @@
     "discovered_at": "2026-03-03T12:54:09.686756+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a hackers team, but there is no evidence of hacktivist activity or threat context.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "hackers_team_1": {
     "username": "hackers_team_1",
@@ -498,9 +498,9 @@
     "discovered_at": "2026-03-03T12:54:09.689790+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests potential hacktivist activity, but there is no message data to confirm this.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "usersecc": {
     "username": "usersecc",
@@ -509,9 +509,9 @@
     "discovered_at": "2026-03-03T12:54:16.554886+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential hacktivist activity, but without any messages to confirm this, the assessment remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "wearekillnet_official": {
     "username": "WeAreKillnet_Official",
@@ -520,9 +520,9 @@
     "discovered_at": "2026-03-03T12:54:16.557889+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests potential hacktivist activity, but without any messages or context, it's unclear if it is genuinely related to threats.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "ssso_official": {
     "username": "SSSO_Official",
@@ -531,9 +531,9 @@
     "discovered_at": "2026-03-03T12:54:16.562655+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name and discovery reason suggest potential hacktivist activity, but without any messages to confirm intent, the assessment remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "killnetixlames": {
     "username": "killnetixlames",
@@ -542,9 +542,9 @@
     "discovered_at": "2026-03-03T12:54:16.564661+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests potential hacktivist activity, but without any messages to confirm intent, it remains ambiguous.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "killnet_collective": {
     "username": "killnet_collective",
@@ -592,9 +592,9 @@
     "discovered_at": "2026-03-03T12:54:16.574865+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential connection to hacktivism, but there are no messages to confirm its activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "sepah_cyberi_iran": {
     "username": "sepah_cyberi_iran",
@@ -629,9 +629,9 @@
     "discovered_at": "2026-03-03T12:54:23.118029+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential connection to cyber activities, but there is insufficient evidence to determine its relevance without any messages.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "cyber_defender_iran": {
     "username": "cyber_defender_iran",
@@ -653,9 +653,9 @@
     "discovered_at": "2026-03-03T12:54:23.138206+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a focus on cyber activities related to Iran, but there are no messages to confirm its relevance or intent.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "sepah_cyberi_iran2": {
     "username": "sepah_cyberi_iran2",
@@ -716,9 +716,9 @@
     "discovered_at": "2026-03-03T12:54:23.182263+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a focus on cyber activities related to Iran, but without any messages or further context, it's unclear if it will provide relevant threat information.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "muslim_cyber_army": {
     "username": "Muslim_Cyber_Army",
@@ -788,9 +788,9 @@
     "discovered_at": "2026-03-03T12:54:33.230560+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential connection to hacktivism, but there is insufficient information to make a definitive judgment.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "dragonforceesport": {
     "username": "DragonForceEsport",
@@ -810,9 +810,9 @@
     "discovered_at": "2026-03-03T12:54:33.265388+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential link to hacktivist activity, but there are no messages to confirm this.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "dragonforcemalysia": {
     "username": "dragonforcemalysia",
@@ -843,9 +843,9 @@
     "discovered_at": "2026-03-03T12:54:36.513201+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a focus on security, but there are no messages to confirm its relevance to cyber threats.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "threatsecbreaches": {
     "username": "threatsecbreaches",
@@ -876,9 +876,9 @@
     "discovered_at": "2026-03-03T12:54:36.532054+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a focus on threats, but there are no messages to confirm its relevance.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "threatsecc": {
     "username": "ThreatSecc",
@@ -887,9 +887,9 @@
     "discovered_at": "2026-03-03T12:54:36.534810+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a focus on security, but without any messages or clear context, it's difficult to assess its relevance.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "threatsecurity1": {
     "username": "threatsecurity1",
@@ -898,9 +898,9 @@
     "discovered_at": "2026-03-03T12:54:36.536812+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a focus on security, but there are no messages to confirm its relevance to cyber threats.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "rootkitcat": {
     "username": "rootkitcat",
@@ -909,9 +909,9 @@
     "discovered_at": "2026-03-03T12:54:39.852850+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential focus on hacking, but there are no messages to confirm its intent.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "rootkit0day": {
     "username": "rootkit0day",
@@ -920,9 +920,9 @@
     "discovered_at": "2026-03-03T12:54:39.855863+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential focus on hacking, but there are no messages to confirm its relevance.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "rootkitfinanceann": {
     "username": "rootkitfinanceann",
@@ -953,9 +953,9 @@
     "discovered_at": "2026-03-03T12:54:39.864038+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential focus on hacking, but there are no messages to confirm its intent.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "r00tkit911": {
     "username": "r00tkit911",
@@ -964,9 +964,9 @@
     "discovered_at": "2026-03-03T12:54:39.866041+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential focus on hacking, but there are no messages to confirm its intent.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "octalilyclaim": {
     "username": "octalilyclaim",
@@ -975,9 +975,9 @@
     "discovered_at": "2026-03-03T12:54:39.869040+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential focus on hacking or cyber activities, but there are no messages to confirm this intent.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "ghost_security_group": {
     "username": "Ghost_security_Group",
@@ -999,9 +999,9 @@
     "discovered_at": "2026-03-03T12:54:43.114281+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential hacktivist connection, but there are no messages to confirm activity.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "gsteam": {
     "username": "gsteam",
@@ -1010,9 +1010,9 @@
     "discovered_at": "2026-03-03T12:54:43.117648+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a possible connection to cyber activities, but there are no messages to confirm its relevance.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "ghostsect5": {
     "username": "ghostsect5",
@@ -1034,9 +1034,9 @@
     "discovered_at": "2026-03-03T12:54:49.527359+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name 'teaminsane' does not provide clear evidence of hacktivist activity or cyber threats.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "insanecdteam": {
     "username": "insanecdteam",
@@ -1045,9 +1045,9 @@
     "discovered_at": "2026-03-03T12:54:49.531623+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential hacktivist group, but without any messages or further context, it's difficult to assess its true nature.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "insaneteamm": {
     "username": "insaneteamm",
@@ -1056,9 +1056,9 @@
     "discovered_at": "2026-03-03T12:54:49.536822+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests potential hacktivist activity, but there is insufficient evidence to make a definitive judgment without any messages.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "insaneteamcodm": {
     "username": "insaneteamcodm",
@@ -1078,9 +1078,9 @@
     "discovered_at": "2026-03-03T12:54:49.541173+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username and discovery reason do not provide enough context to determine if it is related to hacktivist activity or cyber threats.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "teaminsanepkisback": {
     "username": "teaminsanepkisback",
@@ -1089,9 +1089,9 @@
     "discovered_at": "2026-03-03T12:54:49.544398+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests potential hacktivist activity, but there is no content to confirm its relevance.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "team_insane_pk1": {
     "username": "team_insane_pk1",
@@ -1100,9 +1100,9 @@
     "discovered_at": "2026-03-03T12:54:49.549457+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a potential hacktivist group, but there is no content to confirm its relevance.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "team_insane_op": {
     "username": "team_insane_op",
@@ -1111,9 +1111,9 @@
     "discovered_at": "2026-03-03T12:54:49.553394+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests potential hacktivist activity, but there are no messages to confirm intent or focus.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "m0roccan_black_cyberarmy": {
     "username": "M0roccan_Black_CyberArmy",
@@ -1135,9 +1135,9 @@
     "discovered_at": "2026-03-03T12:54:52.756466+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username suggests a focus on cyber attacks, but there are no messages to confirm its relevance or intent.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "moroccancyberforces1": {
     "username": "MoroccanCyberForces1",
@@ -1155,11 +1155,11 @@
     "score": 31,
     "reason": "periodic_search:moroccan cyber",
     "discovered_at": "2026-03-03T12:54:52.765182+00:00",
-    "status": "approved",
+    "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel name suggests a potential focus on cyber activities, but without any messages or further context, it's unclear if it aligns with hacktivist activities or threats.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   },
   "a_k_hel": {
     "username": "A_K_HEL",
@@ -1201,8 +1201,8 @@
     "discovered_at": "2026-03-03T16:30:45.862712+00:00",
     "status": "pending_review",
     "auto_added": false,
-    "ai_vet_decision": "UNCERTAIN",
-    "ai_vet_reason": "The channel username does not provide clear indicators of hacktivist activity or cyber threats.",
-    "ai_confidence": 50
+    "ai_vet_decision": null,
+    "ai_vet_reason": null,
+    "ai_confidence": null
   }
 }

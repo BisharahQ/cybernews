@@ -19,6 +19,7 @@ from io import StringIO, BytesIO
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from collections import defaultdict
+import gzip as _gzip
 from flask import Flask, jsonify, request, Response, send_file, abort
 
 try:
@@ -42,6 +43,27 @@ from app.logging_config import setup_logging
 log = setup_logging("viewer")
 
 app = Flask(__name__)
+
+@app.after_request
+def _compress_response(response):
+    """Gzip compress JSON responses > 1KB if client supports it."""
+    if (response.status_code < 200 or response.status_code >= 300
+            or response.direct_passthrough
+            or 'Content-Encoding' in response.headers
+            or 'gzip' not in request.headers.get('Accept-Encoding', '')):
+        return response
+    ct = response.content_type or ''
+    if not (ct.startswith('application/json') or ct.startswith('text/')):
+        return response
+    data = response.get_data()
+    if len(data) < 1024:
+        return response
+    compressed = _gzip.compress(data, compresslevel=6)
+    response.set_data(compressed)
+    response.headers['Content-Encoding'] = 'gzip'
+    response.headers['Content-Length'] = len(compressed)
+    response.headers['Vary'] = 'Accept-Encoding'
+    return response
 
 OUTPUT_DIR     = Path("./telegram_intel")
 SESSION        = str(Path("./jordan_cyber_intel"))
@@ -182,7 +204,7 @@ def load_enrichments():
     return result
 
 _msg_cache = {"data": None, "ts": 0, "count": 0}
-_MSG_CACHE_TTL = 15  # seconds
+_MSG_CACHE_TTL = 30  # seconds
 
 def load_messages():
     """Load messages from SQLite with 15s in-memory cache."""
@@ -576,6 +598,81 @@ def api_messages_all():
             }
         })
     return jsonify(result[:limit])
+
+
+@app.route("/api/messages/poll")
+def api_messages_poll():
+    """Lightweight polling endpoint: returns only messages newer than `after` timestamp.
+    Uses DB-level WHERE clause for speed — no full table scan.
+    Returns: {new_count, newest_ts, messages[]} where messages only includes new ones.
+    """
+    after    = request.args.get("after", "")
+    priority = request.args.get("priority", "ALL")
+    limit    = min(int(request.args.get("limit", 200)), 500)
+
+    if not after:
+        return jsonify({"new_count": 0, "newest_ts": "", "messages": []})
+
+    try:
+        conn = get_conn()
+        query = "SELECT raw_json, critical_subtype, backfill, media_path, has_media FROM messages WHERE timestamp_utc > ?"
+        params = [after]
+        if priority != "ALL":
+            query += " AND priority = ?"
+            params.append(priority)
+        query += " ORDER BY timestamp_utc DESC LIMIT ?"
+        params.append(limit)
+        rows = conn.execute(query, params).fetchall()
+
+        msgs = []
+        newest_ts = after
+        for row in rows:
+            try:
+                m = json.loads(row[0])
+                if m.get("priority") == "CRITICAL" and not m.get("critical_subtype"):
+                    m["critical_subtype"] = _compute_critical_subtype(
+                        m.get("keyword_hits", []),
+                        m.get("text_preview", "") or m.get("text", ""))
+                if row[2]:
+                    m["backfill"] = True
+                if row[3]:
+                    m["media_path"] = row[3]
+                if row[4]:
+                    m["has_media"] = True
+                ts = m.get("timestamp_utc", "")
+                if ts > newest_ts:
+                    newest_ts = ts
+                msgs.append(m)
+            except Exception:
+                pass
+
+        return jsonify({
+            "new_count": len(msgs),
+            "newest_ts": newest_ts,
+            "messages": msgs,
+        })
+    except Exception as e:
+        return jsonify({"new_count": 0, "newest_ts": after, "messages": [], "error": str(e)})
+
+
+@app.route("/api/messages/count")
+def api_messages_count():
+    """Ultra-lightweight: just return message count and newest timestamp.
+    Used by frontend to decide whether a full fetch is needed.
+    """
+    priority = request.args.get("priority", "ALL")
+    try:
+        conn = get_conn()
+        if priority != "ALL":
+            row = conn.execute(
+                "SELECT COUNT(*), MAX(timestamp_utc) FROM messages WHERE priority = ?",
+                (priority,)).fetchone()
+        else:
+            row = conn.execute(
+                "SELECT COUNT(*), MAX(timestamp_utc) FROM messages").fetchone()
+        return jsonify({"count": row[0] or 0, "newest_ts": row[1] or ""})
+    except Exception:
+        return jsonify({"count": 0, "newest_ts": ""})
 
 
 @app.route("/api/dashboard")

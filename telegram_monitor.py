@@ -270,6 +270,24 @@ HACKTIVIST_KEYWORDS = [
     "اختراق", "قرصنة", "هجوم", "سيبر", "إلكتروني", "مجاهد", "تيم",
     "فريق", "جيش", "حرب", "نار", "ظل", "سري", "operation", "عملية",
     "palestine", "فلسطين", "iran", "ايران", "islamic", "اسلامي",
+    "deface", "defaced", "botnet", "phish", "malware", "ransomware",
+    "wiper", "c2", "rat", "trojan", "0day", "zeroday",
+    "jihad", "mujahed", "resistance", "aqsa", "intifada",
+    "apt", "ioc", "cve", "payload", "backdoor", "stealer",
+]
+
+# Known threat actor group name fragments — bonus scoring when found in channel names
+KNOWN_GROUP_NAMES = [
+    "rippersec", "cyberfattah", "fattah", "fatemiyoun", "fatimion",
+    "handala", "killnet", "noname057", "darkstorm", "dragonforce",
+    "ghostsec", "sylhet", "lulzsec", "dienet", "keymous", "stucx",
+    "anonghost", "azrael", "garuda", "indohax", "altoufan", "313",
+    "mrhamza", "cyberav3nger", "eaglecrew", "serverkillers",
+    "mysterious_team", "mysteriousteam", "holyteam", "usersecc",
+    "zpentest", "peoplescyber", "turkhack", "1915team",
+    "moroccan", "arabian_ghost", "golden_falcon", "isnaad",
+    "cyb3r_drag0n", "cyberdrag0n", "swordjustice",
+    "gaza_children", "islamic_hacker", "nation_of_savior",
 ]
 
 # ==============================================================================
@@ -876,18 +894,22 @@ class TelegramMonitor:
         critical_hits = [kw for kw in KEYWORDS_CRITICAL if kw.lower() in text_lower]
         medium_hits   = [kw for kw in KEYWORDS_MEDIUM   if kw.lower() in text_lower]
         hack_hits     = [kw for kw in HACKTIVIST_KEYWORDS if kw in text_lower]
-        score = len(critical_hits) * 25 + len(medium_hits) * 8 + len(hack_hits) * 5
+        # Bonus: known threat actor group names in text
+        group_hits    = [g for g in KNOWN_GROUP_NAMES if g in text_lower]
+        score = (len(critical_hits) * 25 + len(medium_hits) * 8
+                 + len(hack_hits) * 5 + len(group_hits) * 30)
         return min(score, 100), critical_hits + medium_hits
 
     def _looks_like_hacktivist_channel(self, username, title=""):
         """Quick heuristic: does this username/title look like a hacktivist channel?"""
         combined = (username + " " + title).lower()
-        return any(kw in combined for kw in HACKTIVIST_KEYWORDS)
+        return (any(kw in combined for kw in HACKTIVIST_KEYWORDS)
+                or any(g in combined for g in KNOWN_GROUP_NAMES))
 
     async def _check_and_add_channel(self, username, reason, score):
         """
         Evaluate a discovered username.
-        If score >= 60 → auto-queue for monitoring.
+        If score >= 40 → auto-queue for monitoring.
         Always log to discovered_channels.json for admin review.
         """
         if not username or len(username) < 4:
@@ -927,7 +949,7 @@ class TelegramMonitor:
             "reason": reason,
             "discovered_at": datetime.now(timezone.utc).isoformat(),
             "status": "pending_review",
-            "auto_added": score >= 60,
+            "auto_added": score >= 40,
             "metadata": metadata,
         }
         self.discovered_channels[uname_lower] = entry
@@ -937,7 +959,7 @@ class TelegramMonitor:
         self._save_discovered()
 
         # Auto-queue if high relevance
-        if score >= 60:
+        if score >= 40:
             await self._queue_for_monitoring(username)
 
     async def _queue_for_monitoring(self, username):
@@ -1016,14 +1038,39 @@ class TelegramMonitor:
             "اختراق الاردن", "هاكرز الاردن", "هجوم سيبراني", "تسريب بيانات",
             "اختراق عربي", "الجيش الإلكتروني", "مقاومة إلكترونية",
             "هاكرز إيران", "سيبر إسلامي", "فاطميون سيبر",
-            # English terms
+            "تسريب اردن", "هجوم اردن", "هاكر عربي",
+            "مقاومة سيبرانية", "جيش سيبراني", "عملية سيبرانية",
+            # English terms — general
             "hack jordan", "jordan cyber", "cyber attack arab",
             "anonymous palestine", "anonymous sudan", "cyber resistance",
             "hackers team", "dark storm", "killnet", "islamic hackers",
             "iran cyber", "cyber army islam", "operation jordan",
-            # Group/tool names
+            "hacktivist palestine", "hacktivist jordan", "hacktivist arab",
+            "ddos jordan", "deface jordan", "leak jordan",
+            "hack middle east", "cyber attack middle east",
+            "pro palestine hackers", "islamic cyber army",
+            # Known group names — direct search
+            "rippersec", "ripper sec", "megamedusa",
+            "cyber fattah", "cyberfattah", "fattah cyber",
             "dragonforce", "threatsec", "rootkit", "ghostsec",
             "sylhet gang", "team insane", "moroccan cyber",
+            "handala hack", "handala cyber",
+            "dark storm team", "darkstormteam",
+            "team azrael", "angel of death hack",
+            "cyber av3ngers", "cyberavengers",
+            "stucx team", "stucxnet",
+            "keymous team", "keymous hack",
+            "indohaxsec", "garuda hacktivist",
+            "lulzsec black", "lulzsec muslim",
+            "altoufan team", "golden falcon hack",
+            "mysterious team bangladesh", "eagle cyber crew",
+            "z-pentest", "zpentest", "server killers",
+            "people's cyber army", "holy league hacktivist",
+            "1915 team", "turk hack team",
+            "nation of saviors", "cyber isnaad",
+            "gaza children hackers", "islamic hacker army",
+            "dienet ddos", "anonghost",
+            "fatemiyoun cyber", "313 team hack",
         ]
         while True:
             # Load AI-discovered search terms dynamically
