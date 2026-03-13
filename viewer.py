@@ -76,26 +76,26 @@ CHANNEL_TIERS = {
     # TIER 1 — Directly targeting Jordan
     "hak993":               {"tier": 1, "label": "Fatemiyoun Cyber Team", "threat": "CRITICAL"},
     "hak994":               {"tier": 1, "label": "Fatemiyoun Cyber Team", "threat": "CRITICAL"},
-    "Fatimion310_bot":      {"tier": 1, "label": "Fatemiyoun Bot",        "threat": "CRITICAL"},
-    "fatimion110":          {"tier": 1, "label": "Fatemiyoun Community",  "threat": "CRITICAL"},
-    "hkr313":               {"tier": 1, "label": "Fatemiyoun Field Team", "threat": "CRITICAL"},
+    "Fatimion310_bot":      {"tier": 1, "label": "Fatemiyoun Bot",        "threat": "CRITICAL", "group": "Fatemiyoun Cyber Team"},
+    "fatimion110":          {"tier": 1, "label": "Fatemiyoun Community",  "threat": "CRITICAL", "group": "Fatemiyoun Cyber Team"},
+    "hkr313":               {"tier": 1, "label": "Fatemiyoun Field Team", "threat": "CRITICAL", "group": "Fatemiyoun Cyber Team"},
     "xX313XxTeam":          {"tier": 1, "label": "313 Team (Iraqi Cyber Resistance)", "threat": "CRITICAL"},
-    "Team313Official":      {"tier": 1, "label": "313 Team Official",     "threat": "CRITICAL"},
-    "x313xTeamLeak":        {"tier": 1, "label": "313 Team Leaks",        "threat": "CRITICAL"},
-    "x313xTeamBackup":      {"tier": 1, "label": "313 Team Backup",       "threat": "CRITICAL"},
+    "Team313Official":      {"tier": 1, "label": "313 Team Official",     "threat": "CRITICAL", "group": "313 Team"},
+    "x313xTeamLeak":        {"tier": 1, "label": "313 Team Leaks",        "threat": "CRITICAL", "group": "313 Team"},
+    "x313xTeamBackup":      {"tier": 1, "label": "313 Team Backup",       "threat": "CRITICAL", "group": "313 Team"},
     # TIER 2 — Iran-aligned ecosystem
     "Mhwear98":             {"tier": 2, "label": "Cyber Islamic Resistance", "threat": "HIGH",   "status": "banned"},
     "Mhwercyber4":          {"tier": 2, "label": "Cyber Islamic Resistance", "threat": "HIGH",   "status": "banned"},
-    "mhwear0":              {"tier": 2, "label": "Cyber Islamic Resistance (active handle)", "threat": "HIGH"},
+    "mhwear0":              {"tier": 2, "label": "Cyber Islamic Resistance (active handle)", "threat": "HIGH", "group": "Cyber Islamic Resistance"},
     "fattahh_ir":           {"tier": 2, "label": "Cyber Fattah Team",     "threat": "HIGH",   "status": "banned"},
     "Handala_hack":         {"tier": 2, "label": "Handala (MOIS/Void Manticore)", "threat": "HIGH", "status": "banned"},
     "handala_hack26":       {"tier": 2, "label": "Handala Backup",        "threat": "HIGH",   "status": "banned"},
     "handal_a":             {"tier": 2, "label": "Handala (Active 2025)", "threat": "HIGH"},
-    "Handala_hack_iranian": {"tier": 2, "label": "Handala Iranian",       "threat": "HIGH"},
-    "Handala_Hack_Team":    {"tier": 2, "label": "Handala Team",          "threat": "HIGH"},
+    "Handala_hack_iranian": {"tier": 2, "label": "Handala Iranian",       "threat": "HIGH", "group": "Handala"},
+    "Handala_Hack_Team":    {"tier": 2, "label": "Handala Team",          "threat": "HIGH", "group": "Handala"},
     "blackopmrhamza":       {"tier": 2, "label": "Mr Hamza",              "threat": "HIGH",   "status": "banned"},
     "RipperSec":            {"tier": 2, "label": "RipperSec (Malaysia)",  "threat": "HIGH",   "status": "banned"},
-    "TheRipperSec":         {"tier": 2, "label": "RipperSec Main",        "threat": "HIGH",   "status": "banned"},
+    "TheRipperSec":         {"tier": 2, "label": "RipperSec Main",        "threat": "HIGH",   "status": "banned", "group": "RipperSec"},
     "AnonGhostOfficialTeam":{"tier": 2, "label": "AnonGhost",             "threat": "HIGH",   "status": "banned"},
     "sylhetgangsgofficial": {"tier": 2, "label": "Sylhet Gang SG",        "threat": "HIGH",   "status": "banned"},
     "KeymousTeam":          {"tier": 2, "label": "Keymous+",              "threat": "HIGH"},
@@ -103,21 +103,21 @@ CHANNEL_TIERS = {
     "Keymous_V2":           {"tier": 2, "label": "Keymous+ Backup",       "threat": "HIGH",   "status": "banned"},
     "islamic_hacker_army1": {"tier": 2, "label": "Islamic Hacker Army",   "threat": "HIGH"},
     # TIER 3 — Broader ecosystem
-    "noname05716eng":       {"tier": 3, "label": "NoName057(16) EN",      "threat": "MEDIUM", "status": "banned"},
-    "noname05716":          {"tier": 3, "label": "NoName057(16) RU",      "threat": "MEDIUM", "status": "banned"},
-    "dienet3":              {"tier": 3, "label": "DieNet (DDoS-as-a-service)", "threat": "MEDIUM"},
-    "dnnmabot":             {"tier": 3, "label": "DieNet Attack Notifier Bot", "threat": "MEDIUM"},
-    "LulzSecBlack":         {"tier": 3, "label": "LulzSec Black (PIJ)",   "threat": "MEDIUM"},
-    "LulzSecHackers":       {"tier": 3, "label": "LulzSec Hackers",       "threat": "MEDIUM"},
-    "Luls_sec_muslims":     {"tier": 3, "label": "LulzSec Muslims",       "threat": "MEDIUM"},
+    "noname05716eng":       {"tier": 3, "label": "NoName057(16) EN",      "threat": "MEDIUM", "status": "banned", "group": "NoName057(16)"},
+    "noname05716":          {"tier": 3, "label": "NoName057(16) RU",      "threat": "MEDIUM", "status": "banned", "group": "NoName057(16)"},
+    "dienet3":              {"tier": 2, "label": "DieNet (DDoS-as-a-service)", "threat": "HIGH", "group": "DieNet"},
+    "dnnmabot":             {"tier": 2, "label": "DieNet Attack Notifier Bot", "threat": "HIGH", "group": "DieNet"},
+    "LulzSecBlack":         {"tier": 3, "label": "LulzSec Black (PIJ)",   "threat": "MEDIUM", "group": "LulzSec"},
+    "LulzSecHackers":       {"tier": 3, "label": "LulzSec Hackers",       "threat": "MEDIUM", "group": "LulzSec"},
+    "Luls_sec_muslims":     {"tier": 3, "label": "LulzSec Muslims",       "threat": "MEDIUM", "group": "LulzSec"},
     "ElamAlmoqawama":       {"tier": 3, "label": "Islamic Resistance Iraq","threat": "MEDIUM"},
     "toufan_alaksa":        {"tier": 3, "label": "Al Aqsa Resistance Axis","threat": "MEDIUM"},
-    "Chat_Islamic_Hacker_Army": {"tier": 3, "label": "IHA Discussion",    "threat": "MEDIUM"},
+    "Chat_Islamic_Hacker_Army": {"tier": 3, "label": "IHA Discussion",    "threat": "MEDIUM", "group": "Islamic Hacker Army"},
     "Khamenei_arabi":       {"tier": 3, "label": "Khamenei Arabic",       "threat": "LOW"},
     "operationswordofjustice": {"tier": 2, "label": "Operation Sword of Justice", "threat": "HIGH"},
     "Anonymous0islamic":    {"tier": 3, "label": "Anonymous Islamic",     "threat": "MEDIUM"},
-    "handala24":            {"tier": 2, "label": "Handala (Active 2024+)","threat": "HIGH"},
-    "tttteam313":           {"tier": 2, "label": "313 Team (Affiliated)", "threat": "HIGH"},
+    "handala24":            {"tier": 2, "label": "Handala (Active 2024+)","threat": "HIGH", "group": "Handala"},
+    "tttteam313":           {"tier": 2, "label": "313 Team (Affiliated)", "threat": "HIGH", "group": "313 Team"},
     "SabrenNewss":          {"tier": 2, "label": "Sabren News",           "threat": "HIGH"},
     # ── VERIFIED ADDITIONS (2026-03-03, cross-referenced TGStat/telemetr.io) ───
     # Dark Storm Team — DDoS/defacement US/EU/ME infrastructure
@@ -132,7 +132,7 @@ CHANNEL_TIERS = {
     "Golden_falcon_team":   {"tier": 2, "label": "Golden Falcon",          "threat": "HIGH"},
     # Stucx Team — active defacement, multiple verified handles
     "stucxteam":            {"tier": 2, "label": "Stucx Team",             "threat": "HIGH"},
-    "stucxnet":             {"tier": 2, "label": "Stucx Net",              "threat": "HIGH"},
+    "stucxnet":             {"tier": 2, "label": "Stucx Net",              "threat": "HIGH", "group": "Stucx Team"},
     "xxstucxteam":          {"tier": 2, "label": "Stucx Team (Alt)",       "threat": "HIGH"},
     # Hand of Justice — affiliated with Cyber Isnaad Front
     "the_hand_of_justice":  {"tier": 2, "label": "Hand of Justice",        "threat": "HIGH"},
@@ -140,17 +140,17 @@ CHANNEL_TIERS = {
     "CyberIsnaadFront":     {"tier": 2, "label": "Cyber Isnaad Front",     "threat": "HIGH"},
     # Cyb3rDrag0nz / CyberDrag0nzz — defacement coalition
     "TeamCyb3rDrag0nz":     {"tier": 2, "label": "CyberDrag0nzz",         "threat": "HIGH"},
-    "cyb3r_drag0nz_team":   {"tier": 2, "label": "CyberDrag0nzz (Alt)",   "threat": "HIGH"},
+    "cyb3r_drag0nz_team":   {"tier": 2, "label": "CyberDrag0nzz (Alt)",   "threat": "HIGH", "group": "CyberDrag0nzz"},
     # Hacktivist of Garuda / Garuda Eye — Indonesian hacktivist
     "HacktivistOfGaruda":   {"tier": 3, "label": "Garuda Eye (Indonesia)", "threat": "MEDIUM"},
-    "HacktivistOfGarudaOfficial": {"tier": 3, "label": "Garuda Eye (Official)", "threat": "MEDIUM"},
+    "HacktivistOfGarudaOfficial": {"tier": 3, "label": "Garuda Eye (Official)", "threat": "MEDIUM", "group": "Garuda Eye"},
     # Nation of Saviours — active pro-Palestine
     "nation_of_saviors_public": {"tier": 3, "label": "Nation of Saviours", "threat": "MEDIUM"},
     # EvilNet 3.0 — data exfiltration, defacement
     "EvilNet3":             {"tier": 3, "label": "EvilNet 3.0",            "threat": "MEDIUM"},
     # Gaza Children's Group — Gaza-based hacktivist
     "Gaza_Children_Hackers": {"tier": 2, "label": "Gaza Children's Group", "threat": "HIGH"},
-    "gaza_children_ha":     {"tier": 2, "label": "Gaza Children (Backup)", "threat": "HIGH"},
+    "gaza_children_ha":     {"tier": 2, "label": "Gaza Children (Backup)", "threat": "HIGH", "group": "Gaza Children's Group"},
     # Indohaxsec — Indonesian hacktivist, Arctic Wolf-reported
     "INDOHAXSEC":           {"tier": 3, "label": "Indohaxsec",             "threat": "MEDIUM"},
     # Altoufan Team — resistance cyber ops
@@ -160,28 +160,28 @@ CHANNEL_TIERS = {
     "teamAzraelbackup":     {"tier": 2, "label": "Team Azrael (Backup)",   "threat": "HIGH"},
     # BD Anonymous / The Anonymous BD — Bangladesh
     "anonymous_bangladesh": {"tier": 3, "label": "BD Anonymous",           "threat": "MEDIUM"},
-    "t_gray_hacker":        {"tier": 3, "label": "The Anonymous BD",       "threat": "MEDIUM"},
+    "t_gray_hacker":        {"tier": 3, "label": "The Anonymous BD",       "threat": "MEDIUM", "group": "BD Anonymous"},
     # Moroccan Black Cyber Army — note: zero not O
     "M0roccan_Black_CyberArmy": {"tier": 3, "label": "Moroccan Black Cyber Army", "threat": "MEDIUM"},
-    "moroccan_blackcyberarmy": {"tier": 3, "label": "MBCA (Alt)",          "threat": "MEDIUM"},
+    "moroccan_blackcyberarmy": {"tier": 3, "label": "MBCA (Alt)",          "threat": "MEDIUM", "group": "Moroccan Black Cyber Army"},
     # Akatsuki Cyber Team — pro-Palestine, pro-Iran ops
     "akatsukicyberteam":    {"tier": 3, "label": "Akatsuki Cyber Team",    "threat": "MEDIUM"},
     # FAD Team — CONFIRMED Ministry of Finance breach, real channel @r3_6j
     "r3_6j":                {"tier": 1, "label": "FAD Team (Min. of Finance breach)", "threat": "CRITICAL"},
     # Cyber Av3ngers — IRGC-affiliated, ICS/OT attacks on water/energy
     "CyberAv3ngers":        {"tier": 2, "label": "Cyber Av3ngers (IRGC)",  "threat": "HIGH"},
-    "cyberaveng3rs":        {"tier": 2, "label": "Cyber Av3ngers (Alt)",   "threat": "HIGH"},
+    "cyberaveng3rs":        {"tier": 2, "label": "Cyber Av3ngers (Alt)",   "threat": "HIGH", "group": "Cyber Av3ngers"},
     # Iran Anonymous / Anonymous OpIran
     "anonopiran":           {"tier": 3, "label": "Anonymous OpIran",       "threat": "MEDIUM"},
     # Liwaa Mohammad (Mohamed Brigade) — Lebanese resistance cyber unit
     "liwaamohammad":        {"tier": 2, "label": "Liwaa Mohammad (Lebanese Resistance)", "threat": "HIGH"},
     # Tharallah Brigade — uses mhwear* namespace
-    "mhwear10":             {"tier": 2, "label": "Tharallah Brigade",      "threat": "HIGH"},
+    "mhwear10":             {"tier": 2, "label": "Tharallah Brigade",      "threat": "HIGH", "group": "Cyber Islamic Resistance"},
     # Cyber32
     "Cyber32":              {"tier": 3, "label": "Cyber32",                "threat": "MEDIUM"},
     # DieNet extended channels
-    "DieNetAPI":            {"tier": 3, "label": "DieNet API Info",        "threat": "MEDIUM"},
-    "dienet_media":         {"tier": 3, "label": "DieNet Media Corp",      "threat": "MEDIUM"},
+    "DieNetAPI":            {"tier": 2, "label": "DieNet API Info",        "threat": "HIGH", "group": "DieNet"},
+    "dienet_media":         {"tier": 2, "label": "DieNet Media Corp",      "threat": "HIGH", "group": "DieNet"},
 }
 
 # Scan process state
@@ -507,11 +507,11 @@ def api_messages(channel_username):
         m = dict(m)
         if key in enrichments:
             m["ai_enrichment"] = enrichments[key]
-        # Inject critical_subtype for backward compat (old messages won't have it)
-        if m.get("priority") == "CRITICAL" and not m.get("critical_subtype"):
+        # Inject critical_subtype for all messages (not just CRITICAL)
+        if not m.get("critical_subtype"):
             m["critical_subtype"] = _compute_critical_subtype(m.get("keyword_hits", []), m.get("text_preview", "") or m.get("text", ""))
-        # Apply critical_subtype filter (only filters CRITICAL messages)
-        if subtype_filter != "ALL" and m.get("priority") == "CRITICAL":
+        # Apply critical_subtype filter to ALL priority levels
+        if subtype_filter != "ALL":
             ms = m.get("critical_subtype", "GENERAL")
             if ms != subtype_filter and ms != "BOTH":
                 continue
@@ -534,6 +534,8 @@ def api_messages_all():
     search  = request.args.get("search", "").lower()
     keyword = request.args.get("keyword", "").lower()
     channel = request.args.get("channel", "").lower()
+    has_media_filter = request.args.get("has_media", "")
+    has_docs_filter  = request.args.get("has_docs", "")
     limit   = min(int(request.args.get("limit", 1000)), 5000)
     # Pagination params (optional)
     page     = request.args.get("page", type=int)
@@ -546,7 +548,11 @@ def api_messages_all():
         ts = m.get("timestamp_utc", "")
         ch = (m.get("channel_username") or m.get("channel", "")).lower()
 
-        if priority_filter != "ALL" and p != priority_filter:
+        # "MEDIUM" from timeline means "Medium & Critical"
+        if priority_filter == "MEDIUM":
+            if p not in ("MEDIUM", "CRITICAL"):
+                continue
+        elif priority_filter != "ALL" and p != priority_filter:
             continue
         if since  and ts < since:
             continue
@@ -565,17 +571,29 @@ def api_messages_all():
             txt_low  = (m.get("text_preview") or "").lower()
             if keyword not in kws and keyword not in txt_low:
                 continue
+        if has_media_filter and not m.get("has_media") and not m.get("media_path"):
+            continue
+        if has_docs_filter:
+            # Must have a downloaded file that is NOT an image, video, or audio
+            mp = (m.get("media_path") or "").lower()
+            if not mp:
+                continue  # not downloaded — nothing to show
+            ext = mp.rsplit(".", 1)[-1] if "." in mp else ""
+            if ext in ("jpg", "jpeg", "png", "gif", "webp", "bmp", "svg", "ico",
+                        "mp4", "webm", "mov", "avi", "mkv", "flv", "wmv", "m4v",
+                        "mp3", "ogg", "wav", "flac", "aac", "m4a", "wma", "opus"):
+                continue  # image, video, or audio — skip
         m = dict(m)
-        # Inject critical_subtype for backward compat (old messages won't have it)
-        if p == "CRITICAL" and not m.get("critical_subtype"):
+        # Inject critical_subtype for all messages (not just CRITICAL)
+        if not m.get("critical_subtype"):
             m["critical_subtype"] = _compute_critical_subtype(m.get("keyword_hits", []), m.get("text_preview", "") or m.get("text", ""))
         # Attach AI enrichment if available
         ch_full = m.get("channel_username") or m.get("channel", "")
         key = f"{ch_full}_{m.get('message_id','')}"
         if key in enrichments:
             m["ai_enrichment"] = enrichments[key]
-        # Apply critical_subtype filter (only filters CRITICAL messages)
-        if subtype_filter != "ALL" and p == "CRITICAL":
+        # Apply critical_subtype filter to ALL priority levels
+        if subtype_filter != "ALL":
             ms = m.get("critical_subtype", "GENERAL")
             if ms != subtype_filter and ms != "BOTH":
                 continue
@@ -617,7 +635,9 @@ def api_messages_poll():
         conn = get_conn()
         query = "SELECT raw_json, critical_subtype, backfill, media_path, has_media FROM messages WHERE timestamp_utc > ?"
         params = [after]
-        if priority != "ALL":
+        if priority == "MEDIUM":
+            query += " AND priority IN ('MEDIUM', 'CRITICAL')"
+        elif priority != "ALL":
             query += " AND priority = ?"
             params.append(priority)
         query += " ORDER BY timestamp_utc DESC LIMIT ?"
@@ -629,7 +649,7 @@ def api_messages_poll():
         for row in rows:
             try:
                 m = json.loads(row[0])
-                if m.get("priority") == "CRITICAL" and not m.get("critical_subtype"):
+                if not m.get("critical_subtype"):
                     m["critical_subtype"] = _compute_critical_subtype(
                         m.get("keyword_hits", []),
                         m.get("text_preview", "") or m.get("text", ""))
@@ -1080,9 +1100,12 @@ def _build_apt_profiles():
     for ch, meta in CHANNEL_TIERS.items():
         if meta.get("status") == "banned":
             continue
-        label = meta.get("label", ch)
-        # Normalize group names: strip suffixes like (Backup), (Alt), (Active 2024+)
-        base = re.sub(r'\s*\((?:Backup|Alt|Active\s*\d+\+?|Chat|Bot)\)\s*$', '', label).strip()
+        # Explicit group override takes priority, then derive from label
+        raw = meta.get("group") or meta.get("label", ch)
+        # Strip ALL parenthetical suffixes at end: (Backup), (IRGC), (DDoS-as-a-service), etc.
+        base = re.sub(r'\s*\([^)]*\)\s*$', '', raw).strip()
+        # Strip known descriptor suffixes (language tags, variant names)
+        base = re.sub(r'\s+(?:EN|RU|Main|Alt|Backup|Discussion)\s*$', '', base, flags=re.IGNORECASE).strip()
         channel_to_apt[ch] = base
         grp = apt_groups[base]
         grp["channels"].append(ch)
@@ -1198,6 +1221,313 @@ def _build_apt_profiles():
 def api_apt_profiles():
     """APT profile listing for APT Tracker sidebar."""
     return jsonify(_build_apt_profiles())
+
+
+@app.route("/api/apt/network")
+def api_apt_network():
+    """APT collaboration network — computes edges between APT groups."""
+    messages = load_messages()
+    enrichments = load_enrichments()
+
+    # ── Build channel→APT mapping (same logic as _build_apt_profiles) ──
+    channel_to_apt = {}
+    apt_meta = {}  # name → {tier, threat, channels, total_msgs, critical}
+    for ch, meta in CHANNEL_TIERS.items():
+        if meta.get("status") == "banned":
+            continue
+        raw = meta.get("group") or meta.get("label", ch)
+        base = re.sub(r'\s*\([^)]*\)\s*$', '', raw).strip()
+        base = re.sub(r'\s+(?:EN|RU|Main|Alt|Backup|Discussion)\s*$', '', base, flags=re.IGNORECASE).strip()
+        channel_to_apt[ch] = base
+        if base not in apt_meta:
+            apt_meta[base] = {"tier": meta.get("tier", 3), "threat": meta.get("threat", "MEDIUM"),
+                              "channels": [], "total_msgs": 0, "critical": 0}
+        apt_meta[base]["channels"].append(ch)
+        if meta.get("tier", 3) < apt_meta[base]["tier"]:
+            apt_meta[base]["tier"] = meta.get("tier", 3)
+
+    # Build list of all APT names (lowercased for matching)
+    apt_names = list(apt_meta.keys())
+    apt_names_lower = {n.lower(): n for n in apt_names}
+    # Also build alias map: common short forms → canonical name
+    alias_map = {}
+    for n in apt_names:
+        alias_map[n.lower()] = n
+        # Add without special chars
+        cleaned = re.sub(r'[^a-z0-9\s]', '', n.lower()).strip()
+        if cleaned and cleaned != n.lower():
+            alias_map[cleaned] = n
+        # Individual words of 4+ chars
+        for word in n.lower().split():
+            w = re.sub(r'[^a-z0-9]', '', word)
+            if len(w) >= 4 and w not in ("team", "cyber", "hack", "group", "army"):
+                alias_map[w] = n
+
+    # ── Scan messages and build per-APT message index ──
+    apt_messages = defaultdict(list)  # apt_name → [{text, ts, targets, attack_type, iocs}]
+    for m in messages:
+        ch = m.get("channel_username") or m.get("channel", "")
+        apt_name = channel_to_apt.get(ch)
+        if not apt_name:
+            ekey = f"{ch}_{m.get('message_id', '')}"
+            ai = enrichments.get(ekey, m.get("ai_enrichment", {}))
+            ga = ai.get("group_attribution", "")
+            if ga and ga.lower() not in ("unknown", "n/a", ""):
+                apt_name = ga
+        if not apt_name:
+            continue
+        if apt_name in apt_meta:
+            apt_meta[apt_name]["total_msgs"] += 1
+        pri = m.get("priority", "LOW")
+        if pri == "CRITICAL" and apt_name in apt_meta:
+            apt_meta[apt_name]["critical"] += 1
+
+        text = m.get("text_preview") or ""
+        ts = m.get("timestamp_utc") or ""
+        ekey = f"{ch}_{m.get('message_id', '')}"
+        ai = enrichments.get(ekey, m.get("ai_enrichment", {}))
+        targets = []
+        for d in (m.get("iocs") or {}).get("domain", []):
+            targets.append(d.lower())
+        sector = ai.get("target_sector", "")
+        atype = ai.get("attack_type", "")
+
+        apt_messages[apt_name].append({
+            "text": text, "ts": ts, "targets": targets,
+            "sector": sector, "attack_type": atype,
+            "iocs": m.get("iocs") or {},
+        })
+
+    # ── METRIC 1: Shared attack claims (explicit mentions) ──
+    # Scan messages for mentions of OTHER APT group names
+    mention_edges = defaultdict(lambda: {"count": 0, "examples": []})
+    for apt_name, msgs in apt_messages.items():
+        for msg in msgs:
+            text_lower = msg["text"].lower()
+            if len(text_lower) < 10:
+                continue
+            for alias, canonical in alias_map.items():
+                if canonical == apt_name:
+                    continue  # skip self
+                if alias in text_lower:
+                    # Verify it's a real mention (not substring of unrelated word)
+                    # Check word boundary roughly
+                    idx = text_lower.find(alias)
+                    before = text_lower[idx - 1] if idx > 0 else " "
+                    after = text_lower[idx + len(alias)] if idx + len(alias) < len(text_lower) else " "
+                    if not before.isalpha() and not after.isalpha():
+                        edge_key = tuple(sorted([apt_name, canonical]))
+                        mention_edges[edge_key]["count"] += 1
+                        if len(mention_edges[edge_key]["examples"]) < 3:
+                            mention_edges[edge_key]["examples"].append({
+                                "from": apt_name, "text": msg["text"][:120],
+                                "date": msg["ts"][:10] if msg["ts"] else "",
+                            })
+
+    # ── METRIC 2: Parallel attack publishing (same target, close time window) ──
+    # Group attacks by target domain → find overlapping APTs within 48h
+    target_to_attacks = defaultdict(list)  # domain → [{apt, ts}]
+    for apt_name, msgs in apt_messages.items():
+        for msg in msgs:
+            for t in msg["targets"]:
+                if t and "." in t:
+                    try:
+                        ts_dt = datetime.fromisoformat(msg["ts"].replace("Z", "+00:00")) if msg["ts"] else None
+                    except Exception:
+                        ts_dt = None
+                    target_to_attacks[t].append({"apt": apt_name, "ts": ts_dt, "text": msg["text"][:120]})
+
+    parallel_edges = defaultdict(lambda: {"count": 0, "shared_targets": set(), "examples": []})
+    for target, atks in target_to_attacks.items():
+        if len(atks) < 2:
+            continue
+        # Find pairs of different APTs attacking same target within 48h
+        apts_involved = set(a["apt"] for a in atks)
+        if len(apts_involved) < 2:
+            continue
+        atks_sorted = sorted(atks, key=lambda x: x["ts"] or datetime.min.replace(tzinfo=timezone.utc))
+        for i, a in enumerate(atks_sorted):
+            for j in range(i + 1, len(atks_sorted)):
+                b = atks_sorted[j]
+                if a["apt"] == b["apt"]:
+                    continue
+                if a["ts"] and b["ts"]:
+                    delta = abs((b["ts"] - a["ts"]).total_seconds())
+                    if delta <= 48 * 3600:  # within 48h
+                        edge_key = tuple(sorted([a["apt"], b["apt"]]))
+                        parallel_edges[edge_key]["count"] += 1
+                        parallel_edges[edge_key]["shared_targets"].add(target)
+                        if len(parallel_edges[edge_key]["examples"]) < 3:
+                            parallel_edges[edge_key]["examples"].append({
+                                "target": target,
+                                "apt_a": a["apt"], "date_a": str(a["ts"])[:10] if a["ts"] else "",
+                                "apt_b": b["apt"], "date_b": str(b["ts"])[:10] if b["ts"] else "",
+                            })
+
+    # ── METRIC 3: Shared IOC infrastructure (same IPs/domains/hashes) ──
+    ioc_to_apts = defaultdict(set)
+    for apt_name, msgs in apt_messages.items():
+        for msg in msgs:
+            for ioc_type in ("ipv4", "domain", "hash_sha256"):
+                for val in (msg["iocs"].get(ioc_type) or []):
+                    if val and len(val) > 3:
+                        ioc_to_apts[f"{ioc_type}:{val.lower()}"].add(apt_name)
+
+    infra_edges = defaultdict(lambda: {"count": 0, "shared_iocs": []})
+    for ioc_key, apts_set in ioc_to_apts.items():
+        if len(apts_set) < 2:
+            continue
+        apts_list = sorted(apts_set)
+        for i, a in enumerate(apts_list):
+            for j in range(i + 1, len(apts_list)):
+                b = apts_list[j]
+                edge_key = tuple(sorted([a, b]))
+                infra_edges[edge_key]["count"] += 1
+                if len(infra_edges[edge_key]["shared_iocs"]) < 5:
+                    infra_edges[edge_key]["shared_iocs"].append(ioc_key)
+
+    # ── METRIC 4: Sector co-targeting (same sectors weighted) ──
+    apt_sectors = defaultdict(lambda: defaultdict(int))
+    for apt_name, msgs in apt_messages.items():
+        for msg in msgs:
+            s = msg["sector"]
+            if s and s.lower() not in ("unknown", "n/a", ""):
+                apt_sectors[apt_name][s] += 1
+
+    sector_edges = defaultdict(lambda: {"score": 0, "shared_sectors": []})
+    apt_list = [n for n in apt_names if apt_messages.get(n)]
+    for i, a in enumerate(apt_list):
+        for j in range(i + 1, len(apt_list)):
+            b = apt_list[j]
+            shared = set(apt_sectors[a].keys()) & set(apt_sectors[b].keys())
+            if shared:
+                score = sum(min(apt_sectors[a][s], apt_sectors[b][s]) for s in shared)
+                if score >= 2:
+                    edge_key = tuple(sorted([a, b]))
+                    sector_edges[edge_key]["score"] = score
+                    sector_edges[edge_key]["shared_sectors"] = sorted(shared)[:5]
+
+    # ── METRIC 5: Temporal correlation (activity spikes in same time windows) ──
+    apt_daily = defaultdict(lambda: defaultdict(int))  # apt → date → count
+    for apt_name, msgs in apt_messages.items():
+        for msg in msgs:
+            day = msg["ts"][:10] if msg["ts"] else ""
+            if day:
+                apt_daily[apt_name][day] += 1
+
+    temporal_edges = defaultdict(lambda: {"score": 0, "peak_days": []})
+    for i, a in enumerate(apt_list):
+        for j in range(i + 1, len(apt_list)):
+            b = apt_list[j]
+            shared_days = set(apt_daily[a].keys()) & set(apt_daily[b].keys())
+            if not shared_days:
+                continue
+            # Compute co-activity: days where BOTH had above-average activity
+            a_avg = max(1, sum(apt_daily[a].values()) / max(1, len(apt_daily[a])))
+            b_avg = max(1, sum(apt_daily[b].values()) / max(1, len(apt_daily[b])))
+            co_active_days = []
+            for d in shared_days:
+                if apt_daily[a][d] >= a_avg * 1.5 and apt_daily[b][d] >= b_avg * 1.5:
+                    co_active_days.append(d)
+            if len(co_active_days) >= 2:
+                edge_key = tuple(sorted([a, b]))
+                temporal_edges[edge_key]["score"] = len(co_active_days)
+                temporal_edges[edge_key]["peak_days"] = sorted(co_active_days)[-5:]
+
+    # ── Merge all edges into final graph ──
+    all_edge_keys = set()
+    all_edge_keys.update(mention_edges.keys())
+    all_edge_keys.update(parallel_edges.keys())
+    all_edge_keys.update(infra_edges.keys())
+    all_edge_keys.update(sector_edges.keys())
+    all_edge_keys.update(temporal_edges.keys())
+
+    edges = []
+    for ek in all_edge_keys:
+        a, b = ek
+        # Only include APTs that have messages
+        if a not in apt_meta or b not in apt_meta:
+            continue
+        if apt_meta[a]["total_msgs"] == 0 or apt_meta[b]["total_msgs"] == 0:
+            continue
+
+        mention = mention_edges.get(ek, {"count": 0, "examples": []})
+        parallel = parallel_edges.get(ek, {"count": 0, "shared_targets": set(), "examples": []})
+        infra = infra_edges.get(ek, {"count": 0, "shared_iocs": []})
+        sector = sector_edges.get(ek, {"score": 0, "shared_sectors": []})
+        temporal = temporal_edges.get(ek, {"score": 0, "peak_days": []})
+
+        # Combined weight: mentions strongest signal, then parallel, then infra
+        weight = (mention["count"] * 5 +
+                  parallel["count"] * 4 +
+                  infra["count"] * 3 +
+                  sector["score"] * 1 +
+                  temporal["score"] * 2)
+
+        if weight < 2:
+            continue  # filter noise
+
+        edge_types = []
+        if mention["count"] > 0:
+            edge_types.append("mention")
+        if parallel["count"] > 0:
+            edge_types.append("parallel")
+        if infra["count"] > 0:
+            edge_types.append("shared_infra")
+        if sector["score"] > 0:
+            edge_types.append("sector")
+        if temporal["score"] > 0:
+            edge_types.append("temporal")
+
+        edges.append({
+            "source": a, "target": b, "weight": weight,
+            "types": edge_types,
+            "mention_count": mention["count"],
+            "mention_examples": mention["examples"][:2],
+            "parallel_count": parallel["count"],
+            "parallel_targets": sorted(parallel["shared_targets"])[:5] if isinstance(parallel["shared_targets"], set) else parallel.get("shared_targets", [])[:5],
+            "parallel_examples": parallel["examples"][:2],
+            "shared_iocs": infra["shared_iocs"][:5],
+            "shared_sectors": sector["shared_sectors"],
+            "temporal_score": temporal["score"],
+            "temporal_days": temporal["peak_days"][:3],
+        })
+
+    edges.sort(key=lambda x: -x["weight"])
+
+    # ── Build nodes (only APTs that appear in edges or have significant activity) ──
+    active_apts = set()
+    for e in edges:
+        active_apts.add(e["source"])
+        active_apts.add(e["target"])
+    # Also include top APTs by activity even if no edges
+    for n in apt_list:
+        if apt_meta[n]["total_msgs"] >= 5:
+            active_apts.add(n)
+
+    nodes = []
+    for n in sorted(active_apts):
+        m = apt_meta.get(n, {})
+        edge_count = sum(1 for e in edges if e["source"] == n or e["target"] == n)
+        nodes.append({
+            "id": n, "tier": m.get("tier", 3), "threat": m.get("threat", "MEDIUM"),
+            "total_msgs": m.get("total_msgs", 0), "critical": m.get("critical", 0),
+            "channels": len(m.get("channels", [])),
+            "connections": edge_count,
+        })
+
+    return jsonify({
+        "nodes": nodes,
+        "edges": edges[:200],  # cap for performance
+        "metrics": {
+            "total_apts": len(nodes),
+            "total_edges": len(edges),
+            "mention_edges": sum(1 for e in edges if "mention" in e["types"]),
+            "parallel_edges": sum(1 for e in edges if "parallel" in e["types"]),
+            "infra_edges": sum(1 for e in edges if "shared_infra" in e["types"]),
+            "temporal_edges": sum(1 for e in edges if "temporal" in e["types"]),
+        },
+    })
 
 
 @app.route("/api/apt/<path:name>/detail")
@@ -2683,6 +3013,47 @@ def _generate_blocklist_report():
     for i, elem in enumerate(new_elements):
         body.insert(insert_pos + i, elem)
 
+    # ── Disclaimer (last page) ──
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+    spacer_d = doc.add_paragraph()
+    spacer_d.paragraph_format.space_before = Pt(24)
+
+    rule = doc.add_paragraph()
+    rule.paragraph_format.space_after = Pt(6)
+    rule_run = rule.add_run("_" * 95)
+    rule_run.font.size = Pt(7)
+    rule_run.font.color.rgb = RGBColor(0x99, 0x99, 0x99)
+
+    disc_heading = doc.add_paragraph()
+    disc_heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    disc_heading.paragraph_format.space_before = Pt(8)
+    disc_heading.paragraph_format.space_after = Pt(4)
+    dh_run = disc_heading.add_run("DISCLAIMER")
+    dh_run.font.size = Pt(9)
+    dh_run.font.bold = True
+    dh_run.font.color.rgb = RGBColor(0x4A, 0x55, 0x68)
+
+    disclaimer_text = (
+        "All information contained in this report was collected exclusively through publicly available "
+        "Open Source Intelligence (OSINT), social media monitoring, and third-party threat intelligence feeds. "
+        "No unauthorized access to any systems was performed during the preparation of this report. "
+        "While this report contains security recommendations, ScanWave Cybersecurity does not guarantee the "
+        "accuracy, completeness, or reliability of any information presented herein. This report is provided "
+        'on an "as-is" basis for informational and defensive security purposes only and does not constitute '
+        "legal or professional advice. ScanWave Cybersecurity, its employees, and its affiliates shall not be "
+        "held liable for any damages, losses, or consequences \u2014 whether direct, indirect, incidental, or "
+        "consequential \u2014 arising from the use of, reliance on, or actions taken based on the information "
+        "contained in this report. Recipients assume full responsibility for any decisions made based on this material."
+    )
+    disc_para = doc.add_paragraph()
+    disc_para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    disc_para.paragraph_format.space_after = Pt(0)
+    d_run = disc_para.add_run(disclaimer_text)
+    d_run.font.size = Pt(7.5)
+    d_run.font.italic = True
+    d_run.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
+
     # ── Save ──
     buf = BytesIO()
     doc.save(buf)
@@ -2845,6 +3216,11 @@ _NATIONAL_SIGNALS = {
     # Resistance axis
     "hezbollah", "حزب الله", "hamas", "حماس", "qassam", "قسام", "houthi", "حوثي",
     "انصار الله", "مقاومة", "جهاد اسلامي",
+    # Geopolitical / conflict zones (these disambiguate اختراق as military)
+    "gaza", "غزة", "palestine", "فلسطين", "فلسطيني", "palestinian",
+    "lebanon", "لبنان", "syria", "سوريا", "iraq", "العراق", "yemen", "اليمن",
+    "west bank", "الضفة", "الأقصى", "al aqsa", "occupied", "محتل", "احتلال",
+    "resistance", "المقاومة", "axis", "محور",
     # Jordan military / security services
     "military", "عسكري", "troops", "army", "القوات المسلحة",
     "الجيش الاردني", "jordan armed forces", "القوات الجوية", "air force",
@@ -2853,9 +3229,13 @@ _NATIONAL_SIGNALS = {
     "استخبارات", "intelligence", "gendarmerie", "الدرك",
     "border guard", "حرس الحدود", "مكافحة الإرهاب", "counter terrorism",
     "الأمن العام", "security directorate", "muwaffaq", "الموفق",
-    # War / conflict (avoid short words that match inside cyber terms like "malware")
+    # War / conflict / military operations
     "warfare", "warzone", "at war", "of war", "حرب", "missile", "صاروخ", "escalation", "تصعيد",
     "airstrike", "air strike", "عملية عسكرية", "military operation",
+    # Aerial / ground military terms (disambiguates اختراق جوي = aerial penetration)
+    "جوي", "aerial", "airspace", "اجتياح", "incursion", "invasion", "غزو",
+    "bombardment", "قصف", "shelling", "شهيد", "martyr", "شهداء",
+    "casualties", "killed", "قتلى", "جرحى", "wounded",
 }
 
 # Service/sale advertisements — generic hacking services being sold, not actual attacks
@@ -2899,7 +3279,10 @@ def _is_service_ad(txt):
     return sum(1 for sig in _SERVICE_SIGNALS if sig in txt) >= 2
 
 def _compute_critical_subtype(keyword_hits, text=""):
-    """Classify a CRITICAL message by subtype.
+    """Classify a message by subtype: CYBER, NATIONAL, BOTH, or GENERAL.
+
+    Applied to ALL priority levels (not just CRITICAL) so that Cyber/NatSec
+    filters work correctly across the entire feed.
 
     Checks keyword_hits first, then scans full message text for additional
     context.  Ambiguous terms (like اختراق which means both 'hack' and
@@ -2955,6 +3338,273 @@ def _load_channels_config():
 
 def _save_channels_config(cfg):
     CHANNELS_FILE.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DARK INTEL API
+# ═══════════════════════════════════════════════════════════════════════════════
+_DARK_INTEL_FILE = Path("./telegram_intel/dark_intel.jsonl")
+_DARK_STATE_FILE = Path("./telegram_intel/dark_collector_state.json")
+_DARK_DIGEST_FILE = Path("./telegram_intel/daily_dark_digest.json")
+_DARK_DOMAIN_FILE = Path("./telegram_intel/domain_watchlist.json")
+_THREAT_LEVEL_FILE = Path("./telegram_intel/threat_level.json")
+
+def _load_dark_intel(limit=200, severity=None, source=None, after=None):
+    """Load recent dark intel findings from JSONL file."""
+    if not _DARK_INTEL_FILE.exists():
+        return []
+    findings = []
+    try:
+        with open(_DARK_INTEL_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    item = json.loads(line)
+                    if severity and item.get("severity") != severity:
+                        continue
+                    if source and item.get("source") != source:
+                        continue
+                    if after and item.get("timestamp_utc", "") <= after:
+                        continue
+                    if item.get("severity") == "FALSE_POSITIVE":
+                        continue
+                    findings.append(item)
+                except Exception:
+                    continue
+    except Exception:
+        pass
+    # Sort newest first, apply limit
+    findings.sort(key=lambda x: x.get("timestamp_utc", ""), reverse=True)
+    return findings[:limit]
+
+
+@app.route("/api/dark/feed")
+def api_dark_feed():
+    """Paginated dark intel findings feed."""
+    limit = min(int(request.args.get("limit", 100)), 500)
+    severity = request.args.get("severity")
+    source = request.args.get("source")
+    after = request.args.get("after")
+    findings = _load_dark_intel(limit=limit, severity=severity, source=source, after=after)
+    return jsonify({"count": len(findings), "findings": findings})
+
+
+@app.route("/api/dark/stats")
+def api_dark_stats():
+    """Dark collection statistics."""
+    # Collector state
+    state = {}
+    if _DARK_STATE_FILE.exists():
+        try:
+            state = json.loads(_DARK_STATE_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+
+    # Count findings by source and severity
+    all_findings = _load_dark_intel(limit=10000)
+    by_source = {}
+    by_severity = {}
+    for f in all_findings:
+        src = f.get("source", "unknown")
+        sev = f.get("severity", "unknown")
+        by_source[src] = by_source.get(src, 0) + 1
+        by_severity[sev] = by_severity.get(sev, 0) + 1
+
+    return jsonify({
+        "total_findings": state.get("findings_total", len(all_findings)),
+        "false_positives": state.get("false_positives", 0),
+        "tor_circuits_rotated": state.get("tor_circuits_rotated", 0),
+        "by_source": by_source,
+        "by_severity": by_severity,
+        "last_scans": {
+            "paste": state.get("last_paste_scan"),
+            "breach": state.get("last_breach_scan"),
+            "certstream": "continuous",
+            "dnstwist": state.get("last_dnstwist_scan"),
+            "github": state.get("last_github_scan"),
+            "ransomware": state.get("last_ransom_scan"),
+            "dark_web": state.get("last_dark_crawl"),
+            "intel_feeds": state.get("last_intel_feed_scan"),
+            "daily_digest": state.get("last_daily_digest"),
+        },
+    })
+
+
+@app.route("/api/dark/digest")
+def api_dark_digest():
+    """Latest AI-generated daily digest."""
+    if _DARK_DIGEST_FILE.exists():
+        try:
+            return jsonify(json.loads(_DARK_DIGEST_FILE.read_text(encoding="utf-8")))
+        except Exception:
+            pass
+    return jsonify({"error": "No digest available yet"})
+
+
+@app.route("/api/dark/domains")
+def api_dark_domains():
+    """Domain squatting watchlist."""
+    if _DARK_DOMAIN_FILE.exists():
+        try:
+            return jsonify(json.loads(_DARK_DOMAIN_FILE.read_text(encoding="utf-8")))
+        except Exception:
+            pass
+    return jsonify({"targets_scanned": [], "known_lookalikes": [], "total_lookalikes": 0})
+
+
+@app.route("/api/dark/threat_level")
+def api_dark_threat_level():
+    """Compute behavioral threat level from real message data."""
+    # Also serve cached file if it exists (from external process)
+    if _THREAT_LEVEL_FILE.exists():
+        try:
+            cached = json.loads(_THREAT_LEVEL_FILE.read_text(encoding="utf-8"))
+            if cached.get("signals"):
+                return jsonify(cached)
+        except Exception:
+            pass
+
+    try:
+        conn = get_conn()
+
+        # ── Volume anomaly: compare last 24h vs 7-day average ──
+        vol_24h = conn.execute(
+            "SELECT COUNT(*) FROM messages WHERE timestamp_utc > datetime('now', '-24 hours')"
+        ).fetchone()[0]
+        vol_7d = conn.execute(
+            "SELECT COUNT(*) FROM messages WHERE timestamp_utc > datetime('now', '-7 days')"
+        ).fetchone()[0]
+        avg_daily = vol_7d / 7 if vol_7d else 1
+        volume_anomaly = min(1.0, max(0, (vol_24h / avg_daily - 0.5) / 1.5)) if avg_daily > 0 else 0
+
+        # ── Critical spike: ratio of criticals in last 24h vs average ──
+        crit_24h = conn.execute(
+            "SELECT COUNT(*) FROM messages WHERE timestamp_utc > datetime('now', '-24 hours') AND priority = 'CRITICAL'"
+        ).fetchone()[0]
+        crit_7d = conn.execute(
+            "SELECT COUNT(*) FROM messages WHERE timestamp_utc > datetime('now', '-7 days') AND priority = 'CRITICAL'"
+        ).fetchone()[0]
+        avg_crit_daily = crit_7d / 7 if crit_7d else 1
+        crit_ratio = crit_24h / avg_crit_daily if avg_crit_daily > 0 else 0
+        target_convergence = min(1.0, max(0, (crit_ratio - 0.5) / 1.5))
+
+        # ── Jordan targeting: messages with Jordan keywords in last 24h ──
+        jo_24h = conn.execute("""
+            SELECT COUNT(*) FROM messages
+            WHERE timestamp_utc > datetime('now', '-24 hours')
+            AND (keyword_hits LIKE '%jordan%' OR keyword_hits LIKE '%%الاردن%%'
+                 OR keyword_hits LIKE '%%الأردن%%' OR keyword_hits LIKE '%%.jo%%'
+                 OR keyword_hits LIKE '%%amman%%' OR keyword_hits LIKE '%%عمان%%')
+        """).fetchone()[0]
+        jo_7d = conn.execute("""
+            SELECT COUNT(*) FROM messages
+            WHERE timestamp_utc > datetime('now', '-7 days')
+            AND (keyword_hits LIKE '%jordan%' OR keyword_hits LIKE '%%الاردن%%'
+                 OR keyword_hits LIKE '%%الأردن%%' OR keyword_hits LIKE '%%.jo%%'
+                 OR keyword_hits LIKE '%%amman%%' OR keyword_hits LIKE '%%عمان%%')
+        """).fetchone()[0]
+        avg_jo = jo_7d / 7 if jo_7d else 0
+        jordan_targeting = min(1.0, jo_24h / max(avg_jo, 1) / 2)
+
+        # ── Tool sharing: IOC density in last 24h ──
+        ioc_24h = conn.execute("""
+            SELECT COUNT(*) FROM messages
+            WHERE timestamp_utc > datetime('now', '-24 hours')
+            AND iocs IS NOT NULL AND iocs != '{}' AND iocs != ''
+        """).fetchone()[0]
+        tool_sharing = min(1.0, ioc_24h / max(vol_24h, 1) * 3)
+
+        # ── Channel activity breadth: unique active channels in 24h vs 7d ──
+        ch_24h = conn.execute(
+            "SELECT COUNT(DISTINCT channel_username) FROM messages WHERE timestamp_utc > datetime('now', '-24 hours')"
+        ).fetchone()[0]
+        ch_7d = conn.execute(
+            "SELECT COUNT(DISTINCT channel_username) FROM messages WHERE timestamp_utc > datetime('now', '-7 days')"
+        ).fetchone()[0]
+        forward_activation = min(1.0, ch_24h / max(ch_7d, 1))
+
+        # ── Member surge: new channels discovered in last 48h ──
+        try:
+            disc = json.loads(Path("./telegram_intel/discovered_channels.json").read_text(encoding="utf-8"))
+            from datetime import datetime as _dt, timedelta
+            cutoff = (_dt.utcnow() - timedelta(hours=48)).isoformat()
+            recent_disc = sum(1 for v in disc.values() if (v.get("discovered_at", "") or "") > cutoff)
+            member_surge = min(1.0, recent_disc / 20)  # 20 new channels in 48h = 1.0
+        except Exception:
+            member_surge = 0
+
+        # ── Deletion spike: placeholder (would need deletion tracking) ──
+        deletion_spike = 0
+
+        signals = {
+            "volume_anomaly": round(volume_anomaly, 3),
+            "target_convergence": round(target_convergence, 3),
+            "jordan_targeting": round(jordan_targeting, 3),
+            "tool_sharing": round(tool_sharing, 3),
+            "forward_activation": round(forward_activation, 3),
+            "member_surge": round(member_surge, 3),
+            "deletion_spike": round(deletion_spike, 3),
+        }
+
+        # Composite score: weighted average
+        weights = {
+            "jordan_targeting": 3.0,
+            "target_convergence": 2.5,
+            "volume_anomaly": 1.5,
+            "tool_sharing": 1.5,
+            "forward_activation": 1.0,
+            "member_surge": 1.0,
+            "deletion_spike": 0.5,
+        }
+        total_weight = sum(weights.values())
+        score = sum(signals[k] * weights[k] for k in signals) / total_weight
+
+        # Determine level
+        if score >= 0.75:
+            level = "CRITICAL"
+        elif score >= 0.55:
+            level = "HIGH"
+        elif score >= 0.35:
+            level = "ELEVATED"
+        elif score >= 0.15:
+            level = "GUARDED"
+        else:
+            level = "LOW"
+
+        # Triggered alerts
+        alerts = []
+        if signals["jordan_targeting"] >= 0.6:
+            alerts.append(f"Jordan targeting elevated: {jo_24h} messages in 24h")
+        if signals["volume_anomaly"] >= 0.7:
+            alerts.append(f"Volume anomaly: {vol_24h} messages in 24h ({vol_24h/avg_daily:.1f}x average)")
+        if signals["target_convergence"] >= 0.7:
+            alerts.append(f"Critical spike: {crit_24h} criticals in 24h ({crit_ratio:.1f}x average)")
+        if signals["member_surge"] >= 0.5:
+            alerts.append(f"Channel surge: {recent_disc} new channels discovered in 48h")
+        if signals["tool_sharing"] >= 0.5:
+            alerts.append(f"IOC sharing spike: {ioc_24h} messages with IOCs in 24h")
+
+        return jsonify({
+            "current_level": level,
+            "score": round(score, 3),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "signals": signals,
+            "triggered_alerts": alerts,
+            "raw": {
+                "vol_24h": vol_24h, "avg_daily": round(avg_daily),
+                "crit_24h": crit_24h, "avg_crit_daily": round(avg_crit_daily),
+                "jo_24h": jo_24h, "ch_24h": ch_24h, "ch_7d": ch_7d,
+                "ioc_24h": ioc_24h,
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            "current_level": "UNKNOWN", "score": 0,
+            "updated_at": None, "signals": {},
+            "error": str(e)
+        })
 
 
 @app.route("/api/admin/status")

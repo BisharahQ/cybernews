@@ -250,5 +250,26 @@
    ]
   },
   "cached_at": "2026-03-05T00:22:20.927074+00:00"
+ },
+ "domain:poison-frog.club": {
+  "data": {
+   "ipAddress": "162.255.119.234",
+   "isPublic": true,
+   "ipVersion": 4,
+   "isWhitelisted": false,
+   "abuseConfidenceScore": 0,
+   "countryCode": "US",
+   "usageType": "Content Delivery Network",
+   "isp": "Namecheap, Inc.",
+   "domain": "namecheap.com",
+   "hostnames": [],
+   "isTor": false,
+   "countryName": "United States of America",
+   "totalReports": 0,
+   "numDistinctUsers": 0,
+   "lastReportedAt": "2024-09-23T12:02:39+00:00",
+   "reports": []
+  },
+  "cached_at": "2026-03-05T00:22:43.755562+00:00"
  }
 }

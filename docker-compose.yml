@@ -10,11 +10,20 @@ services:
       - "0.0.0.0:${HOST_PORT:-8888}:5000"
     volumes:
       - cybernews_data:/app/telegram_intel
+    networks:
+      - cybernews_net
     logging:
       driver: "json-file"
       options:
         max-size: "50m"
         max-file: "3"
+
+networks:
+  cybernews_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
 
 volumes:
   cybernews_data:

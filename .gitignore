@@ -47,3 +47,35 @@ email_infra_proposal.txt
 # IDE
 .vscode/
 .idea/
+
+# OS files
+.DS_Store
+
+# Generated reports & artifacts
+ScanWave_*.docx
+ScanWave_*.pdf
+ScanWave_*.csv
+*.csv
+test_logo.docx
+logo_xref*.jpeg
+~$*.docx
+
+# Messages DB (too large for git)
+telegram_intel/messages.db
+
+# Dark collector state
+telegram_intel/dark_intel.jsonl
+telegram_intel/dark_collector_state.json
+
+# Client-specific scripts
+*_etihad*.py
+bot_search_etihad.py
+deep_search_etihad.py
+user_search_iranian.py
+
+# Report text drafts
+report_v*.txt
+report_*.md
+
+# Windows plugin artifacts
+C:\\*

@@ -13,6 +13,7 @@ COMPONENTS MANAGED:
   1. viewer.py          — Web UI + API (port 5000)
   2. telegram_monitor.py --live  — Live Telegram monitoring
   3. ai_agent.py        — AI enrichment + keyword learning + channel vetting
+  4. dark_collector.py   — Dark web + OSINT collection (paste, breach, CT, GitHub, Tor)
 
 CONFIGURATION:
   Edit .env file in this directory:
@@ -117,6 +118,14 @@ COMPONENTS = [
         "restart_delay": 30,
         "max_restarts": 999,
         "needs_env": ["OPENAI_API_KEY"],
+    },
+    {
+        "name": "dark_collector",
+        "cmd":  [sys.executable, "dark_collector.py"],
+        "required": False,   # Optional — runs with whatever APIs are available
+        "restart_delay": 15,
+        "max_restarts": 999,
+        "needs_env": [],     # Works with no keys (CertStream, dnstwist, Ahmia are free)
     },
 ]
 
@@ -276,6 +285,22 @@ def run():
 
     has_ai = bool(os.environ.get("OPENAI_API_KEY"))
     log.info(f"AI agent: {'ENABLED (key found)' if has_ai else 'DISABLED (set OPENAI_API_KEY in .env)'}")
+
+    # Start Tor service for dark web crawling (best-effort, non-blocking)
+    try:
+        tor_proc = subprocess.Popen(
+            ["tor", "-f", "/etc/tor/torrc"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        time.sleep(3)
+        if tor_proc.poll() is None:
+            log.info(f"Tor service: STARTED (PID {tor_proc.pid}, SOCKS5 on :9050)")
+        else:
+            log.warning("Tor service: FAILED to start (dark web crawling will be limited)")
+    except FileNotFoundError:
+        log.info("Tor service: NOT INSTALLED (dark web crawling will use Ahmia-only mode)")
+    except Exception as e:
+        log.warning(f"Tor service: ERROR — {e}")
 
     # Launch watcher threads for each component
     threads = []

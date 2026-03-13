@@ -2,9 +2,17 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# System deps: curl for healthcheck, ca-certs for TLS, libreoffice for PDF conversion
+# System deps: curl for healthcheck, ca-certs for TLS, libreoffice for PDF conversion, tor for dark web
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates libreoffice-writer && rm -rf /var/lib/apt/lists/*
+    curl ca-certificates libreoffice-writer tor && rm -rf /var/lib/apt/lists/*
+
+# Tor configuration: SOCKS5 on 9050, Control on 9051, no exit relay
+RUN echo "SocksPort 9050" > /etc/tor/torrc && \
+    echo "ControlPort 9051" >> /etc/tor/torrc && \
+    echo "CookieAuthentication 0" >> /etc/tor/torrc && \
+    echo "HashedControlPassword " >> /etc/tor/torrc && \
+    echo "ExitRelay 0" >> /etc/tor/torrc && \
+    echo "ExitPolicy reject *:*" >> /etc/tor/torrc
 
 # Python deps (separate layer for caching)
 COPY requirements.txt .

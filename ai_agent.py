@@ -267,15 +267,23 @@ def _load_discovery():
 
 def _save_discovery(data):
     if _SQLITE_OK:
-        try:
-            for username, info in data.items():
-                if isinstance(info, dict):
+        for username, info in data.items():
+            if isinstance(info, dict):
+                try:
                     _db.upsert_discovered_channel(username, **info)
-        except Exception:
-            pass
+                except Exception as e:
+                    log.debug(f"[DISCOVERY] SQLite upsert error for @{username}: {e}")
     # Also write JSON file for backward compat
     DISCOVERY_FILE.write_text(
         json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+def _update_channel_status(username, status):
+    """Directly update a discovered channel's status in SQLite. Fast and reliable."""
+    if _SQLITE_OK:
+        try:
+            _db.update_discovered_status(username, status)
+        except Exception as e:
+            log.debug(f"[DISCOVERY] SQLite status update error for @{username}: {e}")
 
 def _append_enriched(record):
     # Write to JSONL file
@@ -711,7 +719,20 @@ Respond ONLY with valid JSON:
 Be aggressive with APPROVE — confidence 50+ is sufficient for channels with ANY cyber indicators."""
 
 def _get_channel_messages_from_db(username, limit=15):
-    """Get recent messages from our DB for a specific channel."""
+    """Get recent messages from our DB for a specific channel. Uses SQLite first, JSONL fallback."""
+    # Fast path: SQLite query (indexed, instant even with 100K+ messages)
+    if _SQLITE_OK:
+        try:
+            from app.database import query as db_query
+            rows = db_query(
+                "SELECT text_preview, priority, timestamp_utc, keyword_hits "
+                "FROM messages WHERE channel_username = ? COLLATE NOCASE "
+                "ORDER BY timestamp_utc DESC LIMIT ?",
+                (username, limit))
+            return [dict(r) for r in rows]
+        except Exception:
+            pass
+    # Slow fallback: scan JSONL line by line
     msgs = []
     if not MESSAGES_FILE.exists():
         return msgs
@@ -736,37 +757,179 @@ def _get_channel_messages_from_db(username, limit=15):
 
 def loop_channel_vetting(state):
     """
-    LOOP 3: Every 5 minutes, check for new unvetted discovered channels and auto-vet them.
+    LOOP 3: Every 3 minutes, check for new unvetted discovered channels and auto-vet them.
+    Uses batch GPT calls for channels without messages to increase throughput.
     """
     log.info("[LOOP3] Channel vetting loop started")
+    # Track retry counts per channel to avoid infinite retry loops
+    retry_counts = {}
+    _MAX_RETRIES = 3
     while True:
         try:
             disc = _load_discovery()
             vetted = set(state.get("vetted_channels", []))
+            # Normalize to lowercase for consistent matching
+            vetted_lower = {v.lower() for v in vetted}
             pending_vet = [
                 (uname, info) for uname, info in disc.items()
-                if uname not in vetted and info.get("status") == "pending_review"
+                if uname.lower() not in vetted_lower and info.get("status") == "pending_review"
             ]
 
+            if pending_vet:
+                log.info(f"[LOOP3] {len(pending_vet)} channels to vet this cycle")
+
+            # Separate channels with/without messages for batch processing
+            batch_no_msgs = []
+            single_with_msgs = []
             for uname, info in pending_vet:
-                try:
-                    # Auto-dismiss scam-flagged channels without using a GPT call
-                    meta = info.get("metadata", {})
-                    if meta.get("scam"):
-                        disc = _load_discovery()
+                # Auto-dismiss scam-flagged channels without using a GPT call
+                meta = info.get("metadata", {})
+                if meta.get("scam"):
+                    disc = _load_discovery()
+                    if uname in disc:
                         disc[uname]["status"]          = "dismissed"
                         disc[uname]["ai_vet_decision"] = "DISMISS"
                         disc[uname]["ai_vet_reason"]   = "Auto-dismissed: Telegram scam flag set"
                         disc[uname]["ai_confidence"]   = 99
                         _save_discovery(disc)
-                        vetted.add(uname)
-                        state["channels_autodismissed"] = state.get("channels_autodismissed", 0) + 1
-                        state["vetted_channels"] = list(vetted)
-                        _save_state(state)
-                        log.info(f"[LOOP3] AUTO-DISMISSED @{uname} — Telegram scam flag")
-                        continue
+                        _update_channel_status(uname, "dismissed")
+                    vetted.add(uname)
+                    vetted_lower.add(uname.lower())
+                    state["channels_autodismissed"] = state.get("channels_autodismissed", 0) + 1
+                    state["vetted_channels"] = list(vetted)
+                    _save_state(state)
+                    log.info(f"[LOOP3] AUTO-DISMISSED @{uname} — Telegram scam flag")
+                    continue
 
-                    # Build metadata context string
+                # Check retry count — if too many failures, auto-decide based on score
+                retries = retry_counts.get(uname.lower(), 0)
+                if retries >= _MAX_RETRIES:
+                    disc = _load_discovery()
+                    if uname in disc:
+                        score = info.get("score", 0)
+                        if score >= 30:
+                            # High enough score — auto-approve
+                            disc[uname]["status"]          = "approved"
+                            disc[uname]["ai_vet_decision"] = "APPROVE"
+                            disc[uname]["ai_vet_reason"]   = f"Auto-approved after {retries} GPT failures (score={score})"
+                            disc[uname]["ai_confidence"]   = 60
+                            disc[uname]["auto_added"]      = True
+                            _save_discovery(disc)
+                            _update_channel_status(uname, "approved")
+                            _queue_for_monitoring(uname)
+                            state["channels_autoapproved"] = state.get("channels_autoapproved", 0) + 1
+                            log.info(f"[LOOP3] AUTO-APPROVED @{uname} (score={score}, GPT failed {retries}x)")
+                        else:
+                            disc[uname]["status"]          = "dismissed"
+                            disc[uname]["ai_vet_decision"] = "DISMISS"
+                            disc[uname]["ai_vet_reason"]   = f"Auto-dismissed after {retries} GPT failures (score={score})"
+                            disc[uname]["ai_confidence"]   = 40
+                            _save_discovery(disc)
+                            _update_channel_status(uname, "dismissed")
+                            state["channels_autodismissed"] = state.get("channels_autodismissed", 0) + 1
+                            log.info(f"[LOOP3] AUTO-DISMISSED @{uname} (score={score}, GPT failed {retries}x)")
+                    vetted.add(uname)
+                    vetted_lower.add(uname.lower())
+                    state["vetted_channels"] = list(vetted)
+                    _save_state(state)
+                    continue
+
+                db_msgs = _get_channel_messages_from_db(uname, limit=15)
+                if db_msgs:
+                    single_with_msgs.append((uname, info, db_msgs))
+                else:
+                    batch_no_msgs.append((uname, info))
+
+            # ── Batch process channels WITHOUT messages (up to 10 at a time) ──
+            for batch_start in range(0, len(batch_no_msgs), 10):
+                batch = batch_no_msgs[batch_start:batch_start + 10]
+                if not batch:
+                    break
+                # Build a single prompt with multiple channels
+                batch_items = []
+                for idx, (uname, info) in enumerate(batch, 1):
+                    meta = info.get("metadata", {})
+                    meta_lines = []
+                    if meta.get("about"):
+                        meta_lines.append(f"Description: {meta['about'][:200]}")
+                    if meta.get("participants_count"):
+                        meta_lines.append(f"Subscribers: {meta['participants_count']:,}")
+                    meta_str = ", ".join(meta_lines) if meta_lines else "No metadata"
+                    batch_items.append(
+                        f"{idx}. @{uname} | Reason: {info.get('reason','?')} | "
+                        f"Score: {info.get('score',0)} | {meta_str}")
+
+                batch_prompt = (
+                    "Vet these channels in BATCH. For EACH channel, decide APPROVE or DISMISS.\n"
+                    "APPROVE any channel with cyber/hack/attack/resistance indicators in name or description.\n"
+                    "APPROVE if discovered via forwarded_from or mentioned_in a known threat channel.\n"
+                    "DISMISS only if clearly non-cyber (news, personal, food, sports, entertainment).\n"
+                    "When in doubt, APPROVE.\n\n"
+                    + "\n".join(batch_items)
+                    + "\n\nRespond with JSON: {\"decisions\": [{\"username\": \"...\", "
+                    "\"decision\": \"APPROVE\"|\"DISMISS\", \"confidence\": 0-100, "
+                    "\"reason\": \"...\", \"threat_level\": \"HIGH\"|\"MEDIUM\"|\"LOW\", "
+                    "\"tier\": 1|2|3}, ...]}"
+                )
+                result = _chat([
+                    {"role": "system", "content": VET_SYSTEM},
+                    {"role": "user",   "content": batch_prompt},
+                ], max_tokens=1200)
+
+                if not result or "decisions" not in result:
+                    # Mark retry count for all channels in this batch
+                    for uname, info in batch:
+                        retry_counts[uname.lower()] = retry_counts.get(uname.lower(), 0) + 1
+                    log.warning(f"[LOOP3] Batch GPT failed for {len(batch)} channels — will retry")
+                    time.sleep(2)
+                    continue
+
+                disc = _load_discovery()
+                for dec in result.get("decisions", []):
+                    dec_uname = dec.get("username", "").lstrip("@").lower()
+                    if not dec_uname or dec_uname not in disc:
+                        continue
+                    decision = dec.get("decision", "UNCERTAIN")
+                    confidence = int(dec.get("confidence", 0))
+                    reason_str = dec.get("reason", "")
+
+                    if decision == "APPROVE" and confidence >= 40:
+                        disc[dec_uname]["status"]          = "approved"
+                        disc[dec_uname]["ai_vet_decision"] = decision
+                        disc[dec_uname]["ai_vet_reason"]   = reason_str
+                        disc[dec_uname]["ai_confidence"]   = confidence
+                        disc[dec_uname]["ai_threat_level"] = dec.get("threat_level", "MEDIUM")
+                        disc[dec_uname]["ai_tier"]         = dec.get("tier", 3)
+                        disc[dec_uname]["auto_added"]      = True
+                        _queue_for_monitoring(dec_uname)
+                        _update_channel_status(dec_uname, "approved")
+                        state["channels_autoapproved"] = state.get("channels_autoapproved", 0) + 1
+                        log.info(f"[LOOP3] BATCH-APPROVED @{dec_uname} (conf={confidence}%): {reason_str}")
+                    elif decision == "DISMISS":
+                        disc[dec_uname]["status"]          = "dismissed"
+                        disc[dec_uname]["ai_vet_decision"] = decision
+                        disc[dec_uname]["ai_vet_reason"]   = reason_str
+                        disc[dec_uname]["ai_confidence"]   = confidence
+                        _update_channel_status(dec_uname, "dismissed")
+                        state["channels_autodismissed"] = state.get("channels_autodismissed", 0) + 1
+                        log.info(f"[LOOP3] BATCH-DISMISSED @{dec_uname} (conf={confidence}%): {reason_str}")
+                    else:
+                        disc[dec_uname]["ai_vet_decision"] = "UNCERTAIN"
+                        disc[dec_uname]["ai_vet_reason"]   = reason_str
+                        disc[dec_uname]["ai_confidence"]   = confidence
+
+                    vetted.add(dec_uname)
+                    vetted_lower.add(dec_uname.lower())
+
+                _save_discovery(disc)
+                state["vetted_channels"] = list(vetted)
+                _save_state(state)
+                time.sleep(2)  # Rate limit between batches
+
+            # ── Single process channels WITH messages (richer context) ──
+            for uname, info, db_msgs in single_with_msgs:
+                try:
+                    meta = info.get("metadata", {})
                     meta_lines = []
                     if meta.get("about"):
                         meta_lines.append(f"Description: {meta['about'][:300]}")
@@ -774,37 +937,17 @@ def loop_channel_vetting(state):
                         meta_lines.append(f"Subscribers: {meta['participants_count']:,}")
                     meta_str = "\n".join(meta_lines) if meta_lines else "No metadata available"
 
-                    # Get messages from DB for this channel
-                    db_msgs = _get_channel_messages_from_db(uname, limit=15)
-
-                    if db_msgs:
-                        # Build message sample
-                        samples = "\n".join(
-                            f"[{m.get('priority','?')}] {m.get('text_preview','')[:200]}"
-                            for m in db_msgs[-10:]
-                        )
-                        user_content = (
-                            f"Channel: @{uname}\n"
-                            f"Discovery reason: {info.get('reason','?')}\n"
-                            f"Discovery score: {info.get('score', 0)}\n"
-                            f"{meta_str}\n"
-                            f"Sample messages from DB ({len(db_msgs)}):\n{samples}"
-                        )
-                        approve_threshold = 50  # Lowered from 70 — be more aggressive
-                    else:
-                        # No messages in DB — vet on channel name + reason + metadata
-                        user_content = (
-                            f"Channel: @{uname}\n"
-                            f"Discovery reason: {info.get('reason','?')}\n"
-                            f"Discovery score: {info.get('score', 0)}\n"
-                            f"{meta_str}\n"
-                            f"No messages yet. Judge by the channel username, description, and discovery reason.\n"
-                            f"APPROVE if the name contains ANY cyber/hack/attack/resistance indicators.\n"
-                            f"APPROVE if discovered via forwarded_from or mentioned_in a known threat channel.\n"
-                            f"Only DISMISS if clearly non-cyber (news, personal, food, sports, entertainment).\n"
-                            f"Do NOT use UNCERTAIN — force a decision. APPROVE or DISMISS only."
-                        )
-                        approve_threshold = 40  # Lowered from 55 — name alone is enough
+                    samples = "\n".join(
+                        f"[{m.get('priority','?')}] {m.get('text_preview','')[:200]}"
+                        for m in db_msgs[-10:]
+                    )
+                    user_content = (
+                        f"Channel: @{uname}\n"
+                        f"Discovery reason: {info.get('reason','?')}\n"
+                        f"Discovery score: {info.get('score', 0)}\n"
+                        f"{meta_str}\n"
+                        f"Sample messages from DB ({len(db_msgs)}):\n{samples}"
+                    )
 
                     result = _chat([
                         {"role": "system", "content": VET_SYSTEM},
@@ -812,60 +955,67 @@ def loop_channel_vetting(state):
                     ], max_tokens=300)
 
                     if not result:
-                        vetted.add(uname)
+                        retry_counts[uname.lower()] = retry_counts.get(uname.lower(), 0) + 1
+                        log.warning(f"[LOOP3] GPT returned empty for @{uname} "
+                                    f"(retry {retry_counts.get(uname.lower(), 0)}/{_MAX_RETRIES})")
                         continue
 
                     decision = result.get("decision", "UNCERTAIN")
                     confidence = int(result.get("confidence", 0))
-                    reason = result.get("reason", "")
+                    reason_str = result.get("reason", "")
 
-                    # Reload discovery to avoid race condition
                     disc = _load_discovery()
+                    if uname not in disc:
+                        continue
 
-                    if decision == "APPROVE" and confidence >= approve_threshold:
+                    if decision == "APPROVE" and confidence >= 50:
                         disc[uname]["status"]          = "approved"
                         disc[uname]["ai_vet_decision"] = decision
-                        disc[uname]["ai_vet_reason"]   = reason
+                        disc[uname]["ai_vet_reason"]   = reason_str
                         disc[uname]["ai_confidence"]   = confidence
                         disc[uname]["ai_threat_level"] = result.get("suggested_threat_level","MEDIUM")
                         disc[uname]["ai_tier"]         = result.get("priority_tier", 3)
                         disc[uname]["auto_added"]      = True
                         _save_discovery(disc)
                         _queue_for_monitoring(uname)
+                        _update_channel_status(uname, "approved")
                         state["channels_autoapproved"] = state.get("channels_autoapproved", 0) + 1
                         log.info(f"[LOOP3] AUTO-APPROVED @{uname} "
-                                 f"(conf={confidence}%): {reason}")
+                                 f"(conf={confidence}%): {reason_str}")
 
                     elif decision == "DISMISS":
                         disc[uname]["status"]          = "dismissed"
                         disc[uname]["ai_vet_decision"] = decision
-                        disc[uname]["ai_vet_reason"]   = reason
+                        disc[uname]["ai_vet_reason"]   = reason_str
                         disc[uname]["ai_confidence"]   = confidence
                         _save_discovery(disc)
+                        _update_channel_status(uname, "dismissed")
                         state["channels_autodismissed"] = state.get("channels_autodismissed", 0) + 1
                         log.info(f"[LOOP3] AUTO-DISMISSED @{uname} "
-                                 f"(conf={confidence}%): {reason}")
+                                 f"(conf={confidence}%): {reason_str}")
 
                     else:  # UNCERTAIN
                         disc[uname]["ai_vet_decision"] = "UNCERTAIN"
-                        disc[uname]["ai_vet_reason"]   = reason
+                        disc[uname]["ai_vet_reason"]   = reason_str
                         disc[uname]["ai_confidence"]   = confidence
                         _save_discovery(disc)
                         log.info(f"[LOOP3] UNCERTAIN @{uname} — left for human review")
 
                     vetted.add(uname)
+                    vetted_lower.add(uname.lower())
                     state["vetted_channels"] = list(vetted)
                     _save_state(state)
-                    time.sleep(2)  # Rate limit
+                    time.sleep(1)  # Faster rate limit — 1s instead of 2s
 
                 except Exception as e:
-                    log.warning(f"[LOOP3] Error vetting @{uname}: {e}")
-                    vetted.add(uname)
+                    retry_counts[uname.lower()] = retry_counts.get(uname.lower(), 0) + 1
+                    log.warning(f"[LOOP3] Error vetting @{uname}: {e} "
+                                f"(retry {retry_counts.get(uname.lower(), 0)}/{_MAX_RETRIES})")
 
         except Exception as e:
             log.error(f"[LOOP3] Error: {e}")
 
-        time.sleep(300)  # Check every 5 minutes
+        time.sleep(180)  # Check every 3 minutes (was 5)
 
 
 # ══════════════════════════════════════════════════════════════════════════════

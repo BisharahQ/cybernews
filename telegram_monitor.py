@@ -32,6 +32,7 @@ try:
     from telethon import TelegramClient, events
     from telethon.tl.types import MessageMediaPhoto, MessageMediaDocument, InputChannel, PeerChannel
     from telethon.tl.functions.channels import JoinChannelRequest
+    from telethon.tl.functions.messages import CheckChatInviteRequest, ImportChatInviteRequest
 except ImportError:
     print("ERROR: Install telethon first: pip install telethon")
     exit(1)
@@ -248,6 +249,17 @@ WATCHLIST = {
         # Cyber32 - hacktivist defacement
         "Cyber32",                 # Cyber32 main
     ],
+}
+
+# Private channels (by numeric ID) — these have no public username
+# Format: {channel_id: {"label": ..., "tier": ...}}
+PRIVATE_CHANNELS = {
+    3575098403: {
+        "label": "Handala Inner Channel (BELECTRIC/Etihad Source)",
+        "tier": 1,
+        "threat": "CRITICAL",
+        "notes": "Private Handala coordination channel. Source of BELECTRIC/Bank al Etihad breach screenshots with Farsi text claiming persistent access.",
+    },
 }
 
 # Flatten all channels for monitoring
@@ -773,6 +785,11 @@ NATIONAL_CRITICAL_SIGNALS = {
     # Resistance axis groups
     "حزب الله", "hezbollah", "حماس", "hamas", "قسام", "qassam",
     "جهاد اسلامي", "حوثي", "houthi", "انصار الله", "مقاومة",
+    # Geopolitical / conflict zones (these disambiguate اختراق as military)
+    "gaza", "غزة", "palestine", "فلسطين", "فلسطيني", "palestinian",
+    "lebanon", "لبنان", "syria", "سوريا", "iraq", "العراق", "yemen", "اليمن",
+    "west bank", "الضفة", "الأقصى", "al aqsa", "occupied", "محتل", "احتلال",
+    "resistance", "المقاومة", "axis", "محور",
     # Jordan military / security services
     "عسكري", "military", "troops", "army", "القوات المسلحة",
     "الجيش الاردني", "jordan armed forces", "القوات الجوية", "air force",
@@ -781,10 +798,14 @@ NATIONAL_CRITICAL_SIGNALS = {
     "استخبارات", "intelligence", "gendarmerie", "الدرك",
     "border guard", "حرس الحدود", "مكافحة الإرهاب", "counter terrorism",
     "الأمن العام", "security directorate", "muwaffaq", "الموفق",
-    # War / conflict signals (avoid short words that match inside cyber terms like "malware")
+    # War / conflict / military operations
     "حرب", "warfare", "warzone", "at war", "of war", "airstrike", "air strike",
     "missile", "صاروخ", "تصعيد", "escalation",
     "عملية عسكرية", "military operation",
+    # Aerial / ground military terms (disambiguates اختراق جوي = aerial penetration)
+    "جوي", "aerial", "airspace", "اجتياح", "incursion", "invasion", "غزو",
+    "bombardment", "قصف", "shelling", "شهيد", "martyr", "شهداء",
+    "casualties", "killed", "قتلى", "جرحى", "wounded",
 }
 
 # Service/sale advertisements — hacking services being sold, not actual attacks
@@ -986,9 +1007,10 @@ class TelegramMonitor:
     async def _scan_message_for_channels(self, message, text):
         """
         Real-time scan of an incoming message for new channel references:
-        1. Forwarded-from channel
+        1. Forwarded-from channel (including private channels by ID)
         2. @mentions in text
-        3. t.me/ links in text
+        3. t.me/ public links in text
+        4. t.me/+ and t.me/joinchat/ invite links (for private groups)
         """
         try:
             # 1. Forwarded from another channel
@@ -998,6 +1020,8 @@ class TelegramMonitor:
                 if fwd_chat:
                     fwd_username = getattr(fwd_chat, 'username', None) or ''
                     fwd_title    = getattr(fwd_chat, 'title',    '') or ''
+                    fwd_id       = getattr(fwd_chat, 'id', None)
+
                     if fwd_username and fwd_username.lower() not in self.monitored_usernames:
                         score, hits = self._score_text_for_relevance(text + " " + fwd_title)
                         if score > 0 or self._looks_like_hacktivist_channel(fwd_username, fwd_title):
@@ -1005,6 +1029,18 @@ class TelegramMonitor:
                                 fwd_username,
                                 f"forwarded_from:{fwd_title or fwd_username}",
                                 max(score, 20))
+                    elif not fwd_username and fwd_id:
+                        # Private channel with no username — track by numeric ID
+                        abs_id = abs(fwd_id)
+                        if abs_id > 1_000_000_000_000:
+                            abs_id = abs_id - 1_000_000_000_000
+                        if abs_id not in self.monitored_ids and abs_id not in PRIVATE_CHANNELS:
+                            score, hits = self._score_text_for_relevance(text + " " + fwd_title)
+                            if score > 0 or self._looks_like_hacktivist_channel("", fwd_title):
+                                self._store_private_channel_lead(
+                                    abs_id, fwd_title,
+                                    f"forwarded_from_private:{fwd_title}",
+                                    max(score, 25))
 
             # 2. @mentions in text
             mentions = re.findall(r'@([a-zA-Z][a-zA-Z0-9_]{4,})', text)
@@ -1015,7 +1051,7 @@ class TelegramMonitor:
                         await self._check_and_add_channel(
                             mention, "mentioned_in_message", max(score, 15))
 
-            # 3. t.me/ links
+            # 3. t.me/ public links
             tme_links = re.findall(r't\.me/([a-zA-Z][a-zA-Z0-9_]{4,})', text)
             for link_user in tme_links:
                 if link_user.lower() not in self.monitored_usernames:
@@ -1023,8 +1059,86 @@ class TelegramMonitor:
                     if score > 0 or self._looks_like_hacktivist_channel(link_user):
                         await self._check_and_add_channel(
                             link_user, "tme_link_in_message", max(score, 15))
+
+            # 4. Invite links — t.me/+HASH and t.me/joinchat/HASH (private group access)
+            invite_hashes = re.findall(r't\.me/\+([A-Za-z0-9_-]{10,})', text)
+            invite_hashes += re.findall(r't\.me/joinchat/([A-Za-z0-9_-]{10,})', text)
+            for inv_hash in invite_hashes:
+                score, hits = self._score_text_for_relevance(text)
+                self._store_invite_link(inv_hash, text, max(score, 20))
+
         except Exception as e:
             log.debug(f"[DISCOVERY] Scan error: {e}")
+
+    def _store_invite_link(self, invite_hash, context_text, score):
+        """Store a discovered invite link for later auto-join attempts."""
+        try:
+            invite_file = OUTPUT_DIR / "discovered_invite_links.json"
+            data = {}
+            if invite_file.exists():
+                try:
+                    data = json.loads(invite_file.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+            links = data.get("links", {})
+            if invite_hash in links:
+                # Already known — update score if higher
+                if score > links[invite_hash].get("score", 0):
+                    links[invite_hash]["score"] = score
+                    links[invite_hash]["updated_at"] = datetime.now(timezone.utc).isoformat()
+                return
+            links[invite_hash] = {
+                "hash": invite_hash,
+                "score": score,
+                "context": context_text[:300],
+                "discovered_at": datetime.now(timezone.utc).isoformat(),
+                "status": "pending",       # pending | joined | failed | irrelevant
+                "join_attempts": 0,
+                "channel_id": None,        # Filled after successful join
+                "channel_title": None,
+            }
+            data["links"] = links
+            data["updated_at"] = datetime.now(timezone.utc).isoformat()
+            invite_file.write_text(
+                json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+            log.info(f"[DISCOVERY] New invite link: t.me/+{invite_hash[:20]}... (score={score})")
+        except Exception as e:
+            log.debug(f"[DISCOVERY] Invite link store error: {e}")
+
+    def _store_private_channel_lead(self, channel_id, title, reason, score):
+        """Store a private channel discovered via forward-chain for later join attempts."""
+        try:
+            leads_file = OUTPUT_DIR / "private_channel_leads.json"
+            data = {}
+            if leads_file.exists():
+                try:
+                    data = json.loads(leads_file.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+            leads = data.get("leads", {})
+            str_id = str(channel_id)
+            if str_id in leads:
+                if score > leads[str_id].get("score", 0):
+                    leads[str_id]["score"] = score
+                    leads[str_id]["sightings"] = leads[str_id].get("sightings", 0) + 1
+                    leads[str_id]["updated_at"] = datetime.now(timezone.utc).isoformat()
+                return
+            leads[str_id] = {
+                "channel_id": channel_id,
+                "title": title,
+                "reason": reason,
+                "score": score,
+                "sightings": 1,
+                "discovered_at": datetime.now(timezone.utc).isoformat(),
+                "status": "pending",    # pending | joined | failed
+            }
+            data["leads"] = leads
+            data["updated_at"] = datetime.now(timezone.utc).isoformat()
+            leads_file.write_text(
+                json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+            log.info(f"[DISCOVERY] Private channel lead: ID {channel_id} ({title}) score={score}")
+        except Exception as e:
+            log.debug(f"[DISCOVERY] Private lead store error: {e}")
 
     async def _periodic_search(self):
         """
@@ -1471,6 +1585,20 @@ class TelegramMonitor:
                 failed.append((channel, str(e)))
                 log.warning(f"Cannot access {channel}: {e}")
 
+        # ── Join private channels by numeric ID ──────────────────────────
+        for ch_id, ch_info in PRIVATE_CHANNELS.items():
+            label = ch_info.get("label", f"private_{ch_id}")
+            try:
+                entity = await self.client.get_entity(PeerChannel(ch_id))
+                self.monitored_ids.add(entity.id)
+                ch_uname = getattr(entity, "username", None) or f"c_{ch_id}"
+                self.monitored_usernames.add(ch_uname.lower())
+                joined.append(f"{ch_uname} ({label})")
+                log.info(f"Monitoring (private): {label} (ID: {ch_id}, username: {ch_uname})")
+            except Exception as e:
+                failed.append((f"ID:{ch_id} ({label})", str(e)))
+                log.warning(f"Cannot access private channel {ch_id} ({label}): {e}")
+
         log.info(f"\nMonitoring {len(joined)} channels, {len(failed)} failed")
         if failed:
             log.info("Failed channels (may be banned/private/renamed):")
@@ -1479,24 +1607,38 @@ class TelegramMonitor:
 
         return joined
 
-    async def _backfill_single(self, channel, limit=1000, since=None):
-        """Backfill a single channel. If since is set, stop at that datetime."""
-        label = f"since {since.strftime('%Y-%m-%dT%H:%M')}Z" if since else f"last {limit} msgs"
-        log.info(f"  Gap-fill @{channel}: {label}...")
+    # Default backfill floor: at least 1000 msgs AND at least back to Feb 1 2026
+    _BACKFILL_MIN_MSGS = 1000
+    _BACKFILL_MIN_DATE = datetime(2026, 2, 1, tzinfo=timezone.utc)
+
+    async def _backfill_single(self, channel, min_msgs=None, min_date=None):
+        """
+        Backfill a single channel.
+        Keeps fetching until BOTH conditions are satisfied:
+          - At least min_msgs messages fetched
+          - Reached back to min_date
+        Whichever takes longer — we keep going until both are done.
+        """
+        min_msgs = min_msgs or self._BACKFILL_MIN_MSGS
+        min_date = min_date or self._BACKFILL_MIN_DATE
+        log.info(f"  Backfill @{channel}: min {min_msgs} msgs, min date {min_date.strftime('%Y-%m-%d')}...")
         count = 0
         try:
             chat = await self.client.get_entity(channel)
             chat_title    = getattr(chat, 'title',    getattr(chat, 'username', channel))
             chat_username = getattr(chat, 'username', channel)
 
-            async for message in self.client.iter_messages(channel, limit=limit):
+            # limit=None → fetch unlimited; we break manually when both conditions met
+            async for message in self.client.iter_messages(channel, limit=None):
                 if not message or not message.text:
                     continue
                 text = message.text
                 utc_time  = message.date.replace(tzinfo=timezone.utc)
-                # Stop once we've gone past the since boundary
-                if since and utc_time <= since:
+
+                # Stop only when BOTH conditions are satisfied
+                if count >= min_msgs and utc_time <= min_date:
                     break
+
                 irst_time = self._to_irst(utc_time)
                 priority, keyword_hits, critical_subtype = self._check_keywords(text)
                 lang = self._detect_language(text)
@@ -1543,9 +1685,13 @@ class TelegramMonitor:
                     self.stats["iocs"] += 1
                 self.stats["total"] += 1
                 count += 1
+
+                # Scan backfilled messages for invite links + channel refs
+                asyncio.create_task(self._scan_message_for_channels(message, text))
+
         except Exception as e:
             log.error(f"  Backfill error @{channel}: {e}")
-        log.info(f"  Auto-backfill @{channel}: {count} messages saved")
+        log.info(f"  Backfill @{channel}: {count} messages saved")
 
     async def _auto_join_pending(self):
         """Every 5 minutes, check pending_channels.json for new channels to join."""
@@ -1571,7 +1717,7 @@ class TelegramMonitor:
                         self.monitored_ids.add(entity.id)
                         self.monitored_usernames.add(ch.lower())
                         log.info(f"  AUTO-JOINED: @{ch} (ID: {entity.id})")
-                        await self._backfill_single(ch, limit=1000)
+                        await self._backfill_single(ch)
                         newly_joined.append(ch)
                     except Exception as e:
                         err_lower = str(e).lower()
@@ -1596,6 +1742,225 @@ class TelegramMonitor:
                     log.info(f"AUTO-JOIN discarded {len(permanently_failed)} non-existent channels")
             except Exception as e:
                 log.error(f"Auto-join error: {e}")
+
+    async def _auto_join_invite_links(self):
+        """Every 10 minutes, try to join discovered invite links."""
+        await asyncio.sleep(180)  # Stagger: 3 min after boot
+        invite_file = OUTPUT_DIR / "discovered_invite_links.json"
+        _MAX_ATTEMPTS = 3
+        while True:
+            try:
+                if not invite_file.exists():
+                    await asyncio.sleep(600)
+                    continue
+                data = json.loads(invite_file.read_text(encoding="utf-8"))
+                links = data.get("links", {})
+                pending = {h: info for h, info in links.items()
+                           if info.get("status") == "pending"
+                           and info.get("join_attempts", 0) < _MAX_ATTEMPTS}
+                if not pending:
+                    await asyncio.sleep(600)
+                    continue
+
+                log.info(f"[INVITE-JOIN] Processing {len(pending)} pending invite links...")
+                joined, failed = 0, 0
+                for inv_hash, info in list(pending.items())[:10]:  # Max 10 per cycle
+                    try:
+                        info["join_attempts"] = info.get("join_attempts", 0) + 1
+                        # First check what the invite leads to
+                        check = await self.client(CheckChatInviteRequest(hash=inv_hash))
+                        title = getattr(check, 'title', '') or ''
+                        about = getattr(check, 'about', '') or ''
+                        participants = getattr(check, 'participants_count', 0) or 0
+
+                        # Score the invite to see if it's relevant
+                        score, hits = self._score_text_for_relevance(
+                            title + " " + about + " " + info.get("context", ""))
+                        is_hacktivist = self._looks_like_hacktivist_channel("", title + " " + about)
+
+                        if score > 0 or is_hacktivist or info.get("score", 0) >= 20:
+                            # Relevant — join it
+                            result = await self.client(ImportChatInviteRequest(hash=inv_hash))
+                            chat = result.chats[0] if result.chats else None
+                            if chat:
+                                ch_id = chat.id
+                                ch_uname = getattr(chat, 'username', None) or f"c_{ch_id}"
+                                self.monitored_ids.add(ch_id)
+                                self.monitored_usernames.add(ch_uname.lower())
+                                info["status"] = "joined"
+                                info["channel_id"] = ch_id
+                                info["channel_title"] = title or getattr(chat, 'title', '')
+                                info["joined_at"] = datetime.now(timezone.utc).isoformat()
+                                joined += 1
+                                log.info(f"[INVITE-JOIN] JOINED via invite: {title or ch_uname} "
+                                         f"(ID: {ch_id}, {participants} members)")
+                                # Backfill messages from the newly joined channel
+                                await self._backfill_single(ch_uname)
+                            else:
+                                info["status"] = "failed"
+                                info["error"] = "No chat in result"
+                        else:
+                            info["status"] = "irrelevant"
+                            info["reason"] = f"Low relevance score={score}"
+                            log.debug(f"[INVITE-JOIN] Skipped irrelevant invite: {title}")
+
+                    except Exception as e:
+                        err_str = str(e).lower()
+                        if "expired" in err_str or "revoked" in err_str:
+                            info["status"] = "failed"
+                            info["error"] = "Invite expired/revoked"
+                        elif "already" in err_str and ("participant" in err_str or "member" in err_str):
+                            # Already in this chat — mark as joined
+                            info["status"] = "joined"
+                            info["note"] = "Already a member"
+                            log.info(f"[INVITE-JOIN] Already member of invite {inv_hash[:15]}...")
+                        elif "flood" in err_str:
+                            log.warning(f"[INVITE-JOIN] FloodWait — pausing invite joins")
+                            break  # Stop processing this cycle
+                        else:
+                            failed += 1
+                            if info.get("join_attempts", 0) >= _MAX_ATTEMPTS:
+                                info["status"] = "failed"
+                                info["error"] = str(e)
+                            log.debug(f"[INVITE-JOIN] Error for {inv_hash[:15]}: {e}")
+                        await asyncio.sleep(5)
+                    await asyncio.sleep(8)  # Conservative rate limit between joins
+
+                # Save updated state
+                data["links"] = links
+                data["updated_at"] = datetime.now(timezone.utc).isoformat()
+                invite_file.write_text(
+                    json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+                if joined:
+                    log.info(f"[INVITE-JOIN] Cycle complete: {joined} joined, {failed} failed")
+            except Exception as e:
+                log.error(f"[INVITE-JOIN] Error: {e}")
+            await asyncio.sleep(600)  # Every 10 minutes
+
+    async def _auto_join_private_leads(self):
+        """Every 15 minutes, try to join private channels discovered via forward-chain."""
+        await asyncio.sleep(240)  # Stagger: 4 min after boot
+        leads_file = OUTPUT_DIR / "private_channel_leads.json"
+        while True:
+            try:
+                if not leads_file.exists():
+                    await asyncio.sleep(900)
+                    continue
+                data = json.loads(leads_file.read_text(encoding="utf-8"))
+                leads = data.get("leads", {})
+                pending = {cid: info for cid, info in leads.items()
+                           if info.get("status") == "pending"
+                           and info.get("sightings", 0) >= 2}  # Need 2+ sightings for confidence
+                if not pending:
+                    await asyncio.sleep(900)
+                    continue
+
+                log.info(f"[PRIVATE-JOIN] Processing {len(pending)} private channel leads...")
+                for str_id, info in list(pending.items())[:5]:  # Max 5 per cycle
+                    ch_id = int(str_id)
+                    if ch_id in self.monitored_ids:
+                        info["status"] = "joined"
+                        continue
+                    try:
+                        entity = await self.client.get_entity(PeerChannel(ch_id))
+                        self.monitored_ids.add(entity.id)
+                        ch_uname = getattr(entity, "username", None) or f"c_{ch_id}"
+                        self.monitored_usernames.add(ch_uname.lower())
+                        info["status"] = "joined"
+                        info["joined_at"] = datetime.now(timezone.utc).isoformat()
+                        info["username"] = ch_uname
+                        log.info(f"[PRIVATE-JOIN] Joined private channel: {info.get('title','')} "
+                                 f"(ID: {ch_id}, username: {ch_uname})")
+                        await self._backfill_single(ch_uname)
+                    except Exception as e:
+                        err_str = str(e).lower()
+                        if "channel_private" in err_str or "not a member" in err_str:
+                            # Can't access — need invite link
+                            info["status"] = "needs_invite"
+                            info["error"] = "Not a member — need invite link"
+                            log.info(f"[PRIVATE-JOIN] {info.get('title','')} (ID: {ch_id}) — "
+                                     f"needs invite link (private, not a member)")
+                        else:
+                            log.debug(f"[PRIVATE-JOIN] Error for ID {ch_id}: {e}")
+                    await asyncio.sleep(5)
+
+                data["leads"] = leads
+                data["updated_at"] = datetime.now(timezone.utc).isoformat()
+                leads_file.write_text(
+                    json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+            except Exception as e:
+                log.error(f"[PRIVATE-JOIN] Error: {e}")
+            await asyncio.sleep(900)  # Every 15 minutes
+
+    async def _backfill_existing_invite_links(self):
+        """One-time scan: extract invite links from ALL existing messages in the DB."""
+        await asyncio.sleep(30)  # Short delay on boot
+        invite_file = OUTPUT_DIR / "discovered_invite_links.json"
+        # Check if we've already done the backfill scan
+        already_done = False
+        if invite_file.exists():
+            try:
+                data = json.loads(invite_file.read_text(encoding="utf-8"))
+                if data.get("backfill_complete"):
+                    already_done = True
+            except Exception:
+                pass
+        if already_done:
+            log.info("[INVITE-BACKFILL] Already completed — skipping")
+            return
+
+        log.info("[INVITE-BACKFILL] Scanning all DB messages for invite links...")
+        count = 0
+        try:
+            if _SQLITE_OK:
+                from app.database import query as db_query
+                rows = db_query(
+                    "SELECT text_preview, full_text FROM messages "
+                    "WHERE text_preview LIKE '%t.me/+%' OR text_preview LIKE '%t.me/joinchat%' "
+                    "OR full_text LIKE '%t.me/+%' OR full_text LIKE '%t.me/joinchat%'")
+                for row in rows:
+                    text = (row.get("full_text") or row.get("text_preview") or "")
+                    invite_hashes = re.findall(r't\.me/\+([A-Za-z0-9_-]{10,})', text)
+                    invite_hashes += re.findall(r't\.me/joinchat/([A-Za-z0-9_-]{10,})', text)
+                    for inv_hash in invite_hashes:
+                        score, _ = self._score_text_for_relevance(text)
+                        self._store_invite_link(inv_hash, text, max(score, 15))
+                        count += 1
+            else:
+                # Fallback: scan JSONL
+                msg_file = OUTPUT_DIR / "messages.jsonl"
+                if msg_file.exists():
+                    with open(msg_file, encoding="utf-8") as f:
+                        for line in f:
+                            if "t.me/+" not in line and "t.me/joinchat" not in line:
+                                continue
+                            try:
+                                m = json.loads(line.strip())
+                                text = m.get("text_preview", "") or ""
+                                invite_hashes = re.findall(r't\.me/\+([A-Za-z0-9_-]{10,})', text)
+                                invite_hashes += re.findall(r't\.me/joinchat/([A-Za-z0-9_-]{10,})', text)
+                                for inv_hash in invite_hashes:
+                                    score, _ = self._score_text_for_relevance(text)
+                                    self._store_invite_link(inv_hash, text, max(score, 15))
+                                    count += 1
+                            except Exception:
+                                pass
+
+            # Mark backfill as done
+            data = {}
+            if invite_file.exists():
+                try:
+                    data = json.loads(invite_file.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+            data["backfill_complete"] = True
+            data["backfill_at"] = datetime.now(timezone.utc).isoformat()
+            data["updated_at"] = datetime.now(timezone.utc).isoformat()
+            invite_file.write_text(
+                json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+            log.info(f"[INVITE-BACKFILL] Complete — found {count} invite links in existing messages")
+        except Exception as e:
+            log.error(f"[INVITE-BACKFILL] Error: {e}")
 
     def _compact_messages(self):
         """Deduplicate messages — uses SQLite for dedup, also compacts JSONL."""
@@ -1641,15 +2006,17 @@ class TelegramMonitor:
                 done = []
                 for req in pending:
                     ch    = req.get("channel", "")
-                    limit = int(req.get("limit", 500))
+                    req_min_msgs = int(req.get("limit", 0)) or None
                     since_str = req.get("since", "")
-                    since = None
+                    req_min_date = None
                     if since_str:
                         try:
-                            since = datetime.fromisoformat(since_str)
+                            req_min_date = datetime.fromisoformat(since_str)
                         except Exception:
                             pass
-                    log.info(f"[BF-QUEUE] Processing: @{ch} limit={limit}")
+                    log.info(f"[BF-QUEUE] Processing: @{ch} "
+                             f"min_msgs={req_min_msgs or 'default'}, "
+                             f"min_date={req_min_date or 'default'}")
                     # Auto-join if not already monitoring
                     if ch.lower() not in self.monitored_usernames:
                         try:
@@ -1661,9 +2028,10 @@ class TelegramMonitor:
                             log.warning(f"[BF-QUEUE] Cannot join @{ch}: {e}")
                             done.append({"channel": ch, "status": "failed", "error": str(e)})
                             continue
-                    await self._backfill_single(ch, limit=limit, since=since)
+                    await self._backfill_single(ch, min_msgs=req_min_msgs,
+                                                min_date=req_min_date)
                     self._compact_messages()
-                    done.append({"channel": ch, "status": "done", "limit": limit})
+                    done.append({"channel": ch, "status": "done"})
                 queue["pending"]   = []
                 queue["completed"] = queue.get("completed", []) + done
                 queue["updated_at"] = datetime.now(timezone.utc).isoformat()
@@ -1686,7 +2054,10 @@ class TelegramMonitor:
             self._save_cursor()  # Keep cursor fresh so gap is minimal if we crash
 
     async def backfill(self, limit=500, since_date=None):
-        """Fetch historical messages from all accessible channels"""
+        """Fetch historical messages from all accessible channels.
+        Uses the standard backfill logic: at least 1000 msgs AND back to Feb 1 2026.
+        CLI params override: limit → min_msgs, since_date → min_date.
+        """
         await self.client.start(phone=PHONE)
         log.info("Authenticated successfully")
 
@@ -1695,89 +2066,18 @@ class TelegramMonitor:
             log.error("No channels accessible. Update the watchlist.")
             return
 
-        since_str = since_date.strftime("%Y-%m-%d") if since_date else "beginning"
-        log.info(f"\nBACKFILL STARTING - fetching up to {limit} msgs per channel since {since_str}...")
-        total_fetched = 0
+        bf_min_msgs = max(limit, self._BACKFILL_MIN_MSGS)
+        bf_min_date = since_date or self._BACKFILL_MIN_DATE
+        log.info(f"\nBACKFILL STARTING — {len(active_channels)} channels, "
+                 f"min {bf_min_msgs} msgs, back to {bf_min_date.strftime('%Y-%m-%d')}")
 
         for channel in active_channels:
-            channel_count = 0
-            log.info(f"  Fetching {channel}...")
-            try:
-                async for message in self.client.iter_messages(channel, limit=limit):
-                    # Stop when we reach messages older than since_date
-                    if since_date and message.date.replace(tzinfo=timezone.utc) < since_date:
-                        break
-                    if not message or not message.text:
-                        continue
+            await self._backfill_single(channel, min_msgs=bf_min_msgs,
+                                        min_date=bf_min_date)
 
-                    text = message.text
-                    chat = await self.client.get_entity(channel)
-                    chat_title = getattr(chat, 'title', getattr(chat, 'username', 'unknown'))
-                    chat_username = getattr(chat, 'username', 'unknown')
-                    sender_id = getattr(message, 'sender_id', 'unknown')
-
-                    utc_time = message.date.replace(tzinfo=timezone.utc)
-                    irst_time = self._to_irst(utc_time)
-
-                    priority, keyword_hits, critical_subtype = self._check_keywords(text)
-                    lang = self._detect_language(text)
-                    iocs = self._extract_iocs(text)
-
-                    record = {
-                        "timestamp_utc": utc_time.isoformat(),
-                        "timestamp_irst": irst_time.strftime("%Y-%m-%d %H:%M:%S IRST"),
-                        "irst_hour": irst_time.hour,
-                        "irst_weekday": irst_time.strftime("%A"),
-                        "channel": chat_title,
-                        "channel_username": chat_username,
-                        "sender_name": "unknown",
-                        "sender_id": sender_id,
-                        "message_id": message.id,
-                        "text_preview": text,
-                        "priority": priority,
-                        "keyword_hits": keyword_hits,
-                        "iocs": iocs,
-                        "has_media": message.media is not None,
-                        "media_type": type(message.media).__name__ if message.media else None,
-                        "language": lang,
-                        "critical_subtype": critical_subtype,
-                        "backfill": True,
-                    }
-
-                    self._write_jsonl(self.message_log, record)
-                    self._write_jsonl(self.timing_log, {
-                        "timestamp_utc": utc_time.isoformat(),
-                        "irst_hour": irst_time.hour,
-                        "irst_weekday": irst_time.strftime("%A"),
-                        "channel": chat_title,
-                        "sender_id": sender_id,
-                    })
-
-                    if priority in ("CRITICAL", "MEDIUM"):
-                        self.stats[priority.lower()] += 1
-                        self._write_jsonl(self.alert_log, record)
-                        log.warning(f"[BACKFILL] {priority}: [{chat_title}] {keyword_hits} | {utc_time.date()}")
-
-                    if iocs:
-                        self.stats["iocs"] += 1
-                        self._write_jsonl(self.ioc_log, {
-                            "timestamp_utc": utc_time.isoformat(),
-                            "channel": chat_title,
-                            "iocs": iocs,
-                            "context": text[:200],
-                        })
-
-                    self.stats["total"] += 1
-                    channel_count += 1
-
-            except Exception as e:
-                log.error(f"  Error fetching {channel}: {e}")
-
-            log.info(f"  {channel}: {channel_count} messages fetched")
-            total_fetched += channel_count
-
+        self._compact_messages()
         log.info(f"\nBACKFILL COMPLETE")
-        log.info(f"  Total messages: {total_fetched}")
+        log.info(f"  Total messages: {self.stats['total']}")
         log.info(f"  Critical alerts: {self.stats['critical']}")
         log.info(f"  Medium alerts:   {self.stats['medium']}")
         log.info(f"  IOCs extracted:  {self.stats['iocs']}")
@@ -1811,12 +2111,13 @@ class TelegramMonitor:
                     gap_secs  = (datetime.now(timezone.utc) - last_stop).total_seconds()
                     gap_min   = gap_secs / 60
                     if gap_secs > 300:  # > 5 minutes gap
-                        # Scale messages per channel by gap length (~20 msgs/hr estimate)
-                        limit = max(50, min(500, int(gap_secs / 3600 * 20)))
+                        # Gap-fill: use last_stop as min_date, scale min_msgs by gap length
+                        gap_min_msgs = max(50, min(1000, int(gap_secs / 3600 * 20)))
                         log.info(f"[RESUME] Gap of {gap_min:.0f} min detected since last run ({last_stop_str[:19]})")
-                        log.info(f"[RESUME] Auto-backfilling up to {limit} msgs/channel to fill gap...")
+                        log.info(f"[RESUME] Auto-backfilling (min {gap_min_msgs} msgs, back to {last_stop_str[:19]})...")
                         for ch in list(self.monitored_usernames):
-                            await self._backfill_single(ch, limit=limit, since=last_stop)
+                            await self._backfill_single(ch, min_msgs=gap_min_msgs,
+                                                        min_date=last_stop)
                         # Compact messages.jsonl after gap-fill to remove duplicates
                         self._compact_messages()
                         log.info("[RESUME] Gap fill complete — resuming live monitoring")
@@ -1847,7 +2148,11 @@ class TelegramMonitor:
         asyncio.create_task(self._auto_join_pending())
         asyncio.create_task(self._process_backfill_queue())
         asyncio.create_task(self._periodic_search())
+        asyncio.create_task(self._auto_join_invite_links())
+        asyncio.create_task(self._auto_join_private_leads())
+        asyncio.create_task(self._backfill_existing_invite_links())
         log.info("[DISCOVERY] Live discovery engine started — scanning all messages + periodic search")
+        log.info("[DISCOVERY] Invite link harvester + private channel tracker active")
 
         # Keep running — save cursor on any exit
         try:

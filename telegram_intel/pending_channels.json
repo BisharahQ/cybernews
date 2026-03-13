@@ -35,7 +35,19 @@
     "moroccan_black_cyber_army",
     "jordancyberclub",
     "hackerjordan",
-    "sepah_cyberi_iran"
+    "sepah_cyberi_iran",
+    {
+      "username": null,
+      "channel_id": 3575098403,
+      "display_name": "Handala Inner Channel (Private - BELECTRIC Source)",
+      "source": "manual_discovery",
+      "reason": "Private channel t.me/c/3575098403/13 - source of Handala BELECTRIC Bank al Etihad breach screenshots",
+      "score": 100,
+      "added_at": "2026-03-07T12:57:59.894665+00:00",
+      "private": true,
+      "tier": 1,
+      "threat": "CRITICAL"
+    }
   ],
   "processed": [
     "Gaza_Children_Hackers",
@@ -54,6 +66,6 @@
     "the_hand_of_justice",
     "r3_6j"
   ],
-  "updated_at": "2026-03-03T19:18:02.419684+00:00",
+  "updated_at": "2026-03-07T12:57:59.895662+00:00",
   "failed": []
 }

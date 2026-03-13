@@ -796,5 +796,13 @@
     "label": "Cyber Islamic Resistance (99 backup)",
     "threat": "HIGH",
     "status": "active"
+  },
+  "c_3575098403": {
+    "tier": 1,
+    "label": "Handala Inner Channel (Private - BELECTRIC/Etihad Source)",
+    "threat": "CRITICAL",
+    "notes": "Private channel found at t.me/c/3575098403/13. Contains Farsi posts about persistent access to Bank al Etihad via BELECTRIC solar monitoring. Source of the Handala breach screenshots.",
+    "channel_id": 3575098403,
+    "private": true
   }
 }
