@@ -38,6 +38,17 @@ telegram_intel/ai_agent_state.json
 telegram_intel/ai_brief.json
 telegram_intel/last_seen.json
 
+# Non-platform utility scripts (local only)
+calc_eps.py
+infra_report.py
+infra_report_v2.py
+restructure.py
+run_all.py
+generate_generic_report.py
+generate_sizing_email.py
+delete_safe_indices.sh
+ES_Cluster_Optimization_Sizing.docx
+
 # Temp/scratch files
 tmp_*.py
 jordan_incidents_raw.json
