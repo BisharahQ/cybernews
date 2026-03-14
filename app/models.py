@@ -677,3 +677,140 @@ def set_ai_state(key, value):
             value_json = excluded.value_json,
             updated_at = datetime('now')
     """, (key, json.dumps(value, ensure_ascii=False)))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  CLIENTS & CLIENT ASSETS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def get_clients(status=None):
+    """Get all clients with their assets grouped by type."""
+    if status:
+        rows = query("SELECT * FROM clients WHERE status = ? ORDER BY name", (status,))
+    else:
+        rows = query("SELECT * FROM clients ORDER BY name")
+
+    client_ids = [r["id"] for r in rows]
+    if not client_ids:
+        return []
+
+    # Bulk-load all assets
+    placeholders = ",".join("?" * len(client_ids))
+    asset_rows = query(
+        f"SELECT * FROM client_assets WHERE client_id IN ({placeholders}) ORDER BY asset_type, asset_value",
+        client_ids,
+    )
+
+    # Group assets by client_id and type
+    from collections import defaultdict
+    assets_by_client = defaultdict(lambda: defaultdict(list))
+    for a in asset_rows:
+        assets_by_client[a["client_id"]][a["asset_type"]].append(
+            {"id": a["id"], "value": a["asset_value"]}
+        )
+
+    result = []
+    for r in rows:
+        client = dict(r)
+        client["assets"] = dict(assets_by_client.get(r["id"], {}))
+        result.append(client)
+    return result
+
+
+def get_client(client_id):
+    """Get a single client with assets."""
+    row = query("SELECT * FROM clients WHERE id = ?", (client_id,), one=True)
+    if not row:
+        return None
+    client = dict(row)
+    asset_rows = query(
+        "SELECT * FROM client_assets WHERE client_id = ? ORDER BY asset_type, asset_value",
+        (client_id,),
+    )
+    from collections import defaultdict
+    assets = defaultdict(list)
+    for a in asset_rows:
+        assets[a["asset_type"]].append({"id": a["id"], "value": a["asset_value"]})
+    client["assets"] = dict(assets)
+    return client
+
+
+def upsert_client(name, short_name=None, sector="banking", notes=None):
+    """Insert or update a client. Returns client_id."""
+    return execute("""
+        INSERT INTO clients (name, short_name, sector, notes)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(name) DO UPDATE SET
+            short_name = excluded.short_name,
+            sector = excluded.sector,
+            notes = excluded.notes,
+            updated_at = datetime('now')
+    """, (name.strip(), (short_name or "").strip() or None, sector, notes))
+
+
+def delete_client(client_id):
+    """Delete a client and all its assets (CASCADE)."""
+    conn = get_conn()
+    conn.execute("PRAGMA foreign_keys=ON")
+    conn.execute("DELETE FROM clients WHERE id = ?", (client_id,))
+    conn.commit()
+
+
+def set_client_assets(client_id, asset_type, values):
+    """Replace all assets of a given type for a client."""
+    conn = get_conn()
+    conn.execute(
+        "DELETE FROM client_assets WHERE client_id = ? AND asset_type = ?",
+        (client_id, asset_type),
+    )
+    clean = [v.strip() for v in values if v.strip()]
+    if clean:
+        conn.executemany(
+            "INSERT OR IGNORE INTO client_assets (client_id, asset_type, asset_value) VALUES (?, ?, ?)",
+            [(client_id, asset_type, v) for v in clean],
+        )
+    conn.commit()
+
+
+def remove_client_asset(asset_id):
+    """Delete a single asset row."""
+    execute("DELETE FROM client_assets WHERE id = ?", (asset_id,))
+
+
+def get_all_client_assets_flat():
+    """Flat list of all active client assets for the match engine.
+    Returns [(client_id, name, short_name, asset_type, asset_value), ...]
+    """
+    return query("""
+        SELECT c.id as client_id, c.name, c.short_name, ca.asset_type, ca.asset_value
+        FROM clients c
+        JOIN client_assets ca ON c.id = ca.client_id
+        WHERE c.status = 'active'
+        ORDER BY c.id, ca.asset_type
+    """)
+
+
+# ── Media retention helpers ──────────────────────────────────────────────────
+
+def mark_media_purged(channel_username, message_id, meta_dict):
+    """Mark a message's video as purged, storing metadata."""
+    execute(
+        "UPDATE messages SET media_purged = 1, media_meta = ? WHERE channel_username = ? AND message_id = ?",
+        (json.dumps(meta_dict, ensure_ascii=False), channel_username, message_id),
+    )
+
+
+def mark_media_restored(channel_username, message_id, new_media_path):
+    """Mark a message's video as restored after re-download."""
+    execute(
+        "UPDATE messages SET media_purged = 0, media_meta = NULL, media_path = ? WHERE channel_username = ? AND message_id = ?",
+        (new_media_path, channel_username, message_id),
+    )
+
+
+def get_purged_media_meta(channel_username, message_id):
+    """Get purge metadata for a message."""
+    return query(
+        "SELECT media_meta FROM messages WHERE channel_username = ? AND message_id = ? AND media_purged = 1",
+        (channel_username, message_id), one=True,
+    )

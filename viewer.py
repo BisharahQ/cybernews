@@ -204,10 +204,167 @@ def load_enrichments():
     return result
 
 _msg_cache = {"data": None, "ts": 0, "count": 0}
-_MSG_CACHE_TTL = 30  # seconds
+_MSG_CACHE_TTL = 300  # seconds
+
+# ── Client match engine ──────────────────────────────────────────────────────
+_client_index = {"clients": {}, "msg_matches": {}, "stats": {}, "ts": 0}
+_CLIENT_INDEX_TTL = 600  # seconds
+_client_index_lock = threading.Lock()
+
+
+def _is_arabic(text):
+    """Check if text contains Arabic characters."""
+    return any('\u0600' <= ch <= '\u06FF' for ch in text)
+
+
+_WORD_SPLIT_RX = re.compile(r'[a-z0-9]+')
+
+
+def _build_client_index():
+    """Build in-memory index mapping messages to client IDs.
+    Returns (clients_dict, msg_to_clients, client_stats).
+    Thread-safe with double-checked locking.
+    Uses word-set intersection (fast) for single-word English patterns
+    and substring matching for Arabic/domain/multi-word patterns.
+    """
+    now = time.time()
+    if _client_index["ts"] and (now - _client_index["ts"]) < _CLIENT_INDEX_TTL:
+        return _client_index["clients"], _client_index["msg_matches"], _client_index["stats"]
+
+    with _client_index_lock:
+        # Double-check after acquiring lock
+        now2 = time.time()
+        if _client_index["ts"] and (now2 - _client_index["ts"]) < _CLIENT_INDEX_TTL:
+            return _client_index["clients"], _client_index["msg_matches"], _client_index["stats"]
+
+        flat = db.get_all_client_assets_flat()
+        clients = {}
+        for row in flat:
+            cid = row["client_id"]
+            if cid not in clients:
+                clients[cid] = {"name": row["name"], "short_name": row["short_name"],
+                                "patterns": [], "substr_pats": []}
+            clients[cid]["patterns"].append(row["asset_value"].lower())
+
+        if not clients:
+            _client_index.update({"clients": {}, "msg_matches": {}, "stats": {}, "ts": now2})
+            return {}, {}, {}
+
+        # Classify patterns into fast-path structures:
+        # - single_word_to_clients: {"cbj": {1}, "hbtf": {6}} — O(1) set lookup
+        # - multi_word_pats: [("arab bank", {2}), ...] — substring match
+        # - Arabic/domain patterns stay as substr_pats on each client
+        single_word_to_clients = {}  # word -> set of client_ids
+        multi_word_pats = []  # [(pattern, set_of_client_ids), ...]
+        for cid, cdata in clients.items():
+            for raw in cdata["patterns"]:
+                low = raw.strip()
+                if not low:
+                    continue
+                if _is_arabic(low) or '.' in low:
+                    cdata["substr_pats"].append(low)
+                elif ' ' in low:
+                    # Multi-word English phrase — needs substring match
+                    found = False
+                    for pat, cids in multi_word_pats:
+                        if pat == low:
+                            cids.add(cid)
+                            found = True
+                            break
+                    if not found:
+                        multi_word_pats.append((low, {cid}))
+                else:
+                    # Single English word — fast set lookup
+                    single_word_to_clients.setdefault(low, set()).add(cid)
+
+        single_word_set = frozenset(single_word_to_clients.keys())
+
+        # Match every message against client patterns
+        msgs = load_messages()
+        msg_matches = {}
+        client_stats = {cid: {"total": 0, "critical": 0, "latest_ts": ""} for cid in clients}
+
+        for idx, m in enumerate(msgs):
+            text = ((m.get("text_preview") or "") + " " + (m.get("full_text") or "")).lower()
+            iocs_raw = m.get("iocs")
+            if isinstance(iocs_raw, str):
+                text += " " + iocs_raw.lower()
+            elif isinstance(iocs_raw, dict):
+                for vals in iocs_raw.values():
+                    if isinstance(vals, list):
+                        text += " " + " ".join(str(v) for v in vals).lower()
+
+            matched = set()
+
+            # 1) Single-word English: extract words, intersect with pattern set
+            words = set(_WORD_SPLIT_RX.findall(text))
+            hits = words & single_word_set
+            for w in hits:
+                matched.update(single_word_to_clients[w])
+
+            # 2) Multi-word English phrases: substring match
+            for pat, cids in multi_word_pats:
+                if pat in text:
+                    matched.update(cids)
+
+            # 3) Arabic/domain substring matches
+            for cid, cdata in clients.items():
+                if cid in matched:
+                    continue
+                for pat in cdata["substr_pats"]:
+                    if pat in text:
+                        matched.add(cid)
+                        break
+
+            for cid in matched:
+                client_stats[cid]["total"] += 1
+                if m.get("priority") == "CRITICAL":
+                    client_stats[cid]["critical"] += 1
+                ts = m.get("timestamp_utc", "")
+                if ts > client_stats[cid]["latest_ts"]:
+                    client_stats[cid]["latest_ts"] = ts
+            if matched:
+                msg_matches[idx] = matched
+
+        _client_index.update({"clients": clients, "msg_matches": msg_matches, "stats": client_stats, "ts": now2})
+        return clients, msg_matches, client_stats
+
+
+def _filter_messages_by_client(messages, client_id):
+    """Filter a message list to only those matching a specific client."""
+    if not client_id:
+        return messages
+    try:
+        cid = int(client_id)
+    except (ValueError, TypeError):
+        return messages
+    _, msg_matches, _ = _build_client_index()
+    # messages list must be the same list as load_messages() for index to work
+    all_msgs = load_messages()
+    # Build set of matching message identifiers
+    matching_keys = set()
+    for idx, matched_cids in msg_matches.items():
+        if cid in matched_cids:
+            m = all_msgs[idx]
+            matching_keys.add((m.get("channel_username", ""), m.get("message_id", 0)))
+    return [m for m in messages if (m.get("channel_username", ""), m.get("message_id", 0)) in matching_keys]
+
+
+def _match_text_to_client(text, client_id):
+    """Check if text matches a specific client's assets."""
+    clients, _, _ = _build_client_index()
+    try:
+        cid = int(client_id)
+    except (ValueError, TypeError):
+        return False
+    cdata = clients.get(cid)
+    if not cdata:
+        return False
+    text_lower = text.lower()
+    return any(pat in text_lower for pat in cdata["patterns"])
 
 def load_messages():
-    """Load messages from SQLite with 15s in-memory cache."""
+    """Load messages from SQLite with 60s in-memory cache."""
     now = time.time()
     # Fast path: cache is fresh
     if _msg_cache["data"] is not None and (now - _msg_cache["ts"]) < _MSG_CACHE_TTL:
@@ -216,11 +373,11 @@ def load_messages():
         conn = get_conn()
         # Quick row count — if unchanged, extend cache up to 2 min
         cnt = conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
-        if _msg_cache["data"] is not None and cnt == _msg_cache["count"] and (now - _msg_cache["ts"]) < 120:
+        if _msg_cache["data"] is not None and cnt == _msg_cache["count"] and (now - _msg_cache["ts"]) < 900:
             _msg_cache["ts"] = now  # refresh TTL
             return _msg_cache["data"]
         rows = conn.execute(
-            "SELECT raw_json, critical_subtype, backfill, media_path, has_media FROM messages ORDER BY timestamp_utc ASC"
+            "SELECT raw_json, critical_subtype, backfill, media_path, has_media, media_purged, media_meta FROM messages ORDER BY timestamp_utc ASC"
         ).fetchall()
         msgs = []
         for row in rows:
@@ -228,10 +385,16 @@ def load_messages():
                 m = json.loads(row[0])
                 # Always recompute critical_subtype (viewer has latest filters)
                 if m.get("priority") == "CRITICAL":
-                    m["critical_subtype"] = _compute_critical_subtype(
+                    subtype = _compute_critical_subtype(
                         m.get("keyword_hits", []),
                         m.get("text_preview", "") or m.get("full_text", "") or m.get("text", "")
                     )
+                    # Demote hacking service ads to MEDIUM (unless Jordan-targeted)
+                    if subtype == "SERVICE_AD":
+                        m["priority"] = "MEDIUM"
+                        m["critical_subtype"] = "GENERAL"
+                    else:
+                        m["critical_subtype"] = subtype
                 elif row[1]:
                     m["critical_subtype"] = row[1]
                 if row[2]:
@@ -241,6 +404,13 @@ def load_messages():
                     m["media_path"] = row[3]
                 if row[4]:
                     m["has_media"] = True
+                if row[5]:
+                    m["media_purged"] = True
+                    if row[6]:
+                        try:
+                            m["media_meta"] = json.loads(row[6])
+                        except Exception:
+                            pass
                 msgs.append(m)
             except Exception:
                 pass
@@ -601,6 +771,11 @@ def api_messages_all():
 
     result.sort(key=lambda x: x.get("timestamp_utc", ""), reverse=True)
 
+    # ── Client filter ──
+    client_filter = request.args.get("client", "").strip()
+    if client_filter:
+        result = _filter_messages_by_client(result, client_filter)
+
     # If page param provided, return paginated response
     if page is not None:
         total = len(result)
@@ -633,7 +808,7 @@ def api_messages_poll():
 
     try:
         conn = get_conn()
-        query = "SELECT raw_json, critical_subtype, backfill, media_path, has_media FROM messages WHERE timestamp_utc > ?"
+        query = "SELECT raw_json, critical_subtype, backfill, media_path, has_media, media_purged, media_meta FROM messages WHERE timestamp_utc > ?"
         params = [after]
         if priority == "MEDIUM":
             query += " AND priority IN ('MEDIUM', 'CRITICAL')"
@@ -659,12 +834,24 @@ def api_messages_poll():
                     m["media_path"] = row[3]
                 if row[4]:
                     m["has_media"] = True
+                if row[5]:
+                    m["media_purged"] = True
+                    if row[6]:
+                        try:
+                            m["media_meta"] = json.loads(row[6])
+                        except Exception:
+                            pass
                 ts = m.get("timestamp_utc", "")
                 if ts > newest_ts:
                     newest_ts = ts
                 msgs.append(m)
             except Exception:
                 pass
+
+        # ── Client filter ──
+        client_filter = request.args.get("client", "").strip()
+        if client_filter:
+            msgs = _filter_messages_by_client(msgs, client_filter)
 
         return jsonify({
             "new_count": len(msgs),
@@ -699,6 +886,9 @@ def api_messages_count():
 def api_dashboard():
     """Aggregated intelligence for the Dashboard tab."""
     messages = load_messages()
+    client_filter = request.args.get("client", "").strip()
+    if client_filter:
+        messages = _filter_messages_by_client(messages, int(client_filter))
 
     kw_crit  = defaultdict(int)
     kw_med   = defaultdict(int)
@@ -2623,6 +2813,208 @@ def _auto_research_loop():
         time.sleep(86400)  # Sleep 24h
 
 
+# ── Dark intel IOC ingestion into blocklist ──────────────────────────────────
+_DARK_IOC_INGEST_INTERVAL = 6 * 3600  # 6 hours
+
+# Sources from dark_intel.jsonl that produce REAL attacker infrastructure IOCs.
+# These are curated threat intel feeds — NOT hacktivist brag posts.
+# Message IOCs are EXCLUDED because they contain VICTIM domains/IPs, not attacker infra.
+_TRUSTWORTHY_DARK_SOURCES = frozenset({
+    "otx_alienvault",        # OTX pulses — C2 IPs, malware domains
+    "threatfox",             # abuse.ch — confirmed malware C2s
+    "urlhaus",               # abuse.ch — malware distribution URLs
+    "malwarebazaar",         # abuse.ch — malware hashes
+    "dnstwist",              # Lookalike/typosquat domains targeting Jordan
+    "cisa_kev",              # CISA Known Exploited Vulnerabilities
+})
+
+# Legitimate .gov.jo subdomains that dnstwist incorrectly flags as lookalikes
+_DNSTWIST_FALSE_POSITIVES = frozenset({
+    "mol.gov.jo", "mof.gov.jo", "mot.gov.jo", "moe.gov.jo",
+    "moh.gov.jo", "moj.gov.jo", "moa.gov.jo", "moy.gov.jo",
+    "moin.gov.jo",
+})
+
+
+def _is_private_ip(ip):
+    try:
+        parts = [int(p) for p in ip.split('.')]
+        if len(parts) != 4:
+            return True
+        if parts[0] == 10: return True
+        if parts[0] == 172 and 16 <= parts[1] <= 31: return True
+        if parts[0] == 192 and parts[1] == 168: return True
+        if parts[0] == 127: return True
+        if parts[0] == 0 or parts[0] >= 224: return True
+        return False
+    except Exception:
+        return True
+
+
+def _dark_ioc_ingest_loop():
+    """Background thread: ingest IOCs from dark_intel.jsonl (curated threat feeds only).
+
+    Only ingests from trusted sources that provide ATTACKER infrastructure:
+    - OTX AlienVault pulses (C2 IPs, malware domains)
+    - ThreatFox (confirmed malware C2)
+    - URLhaus (malware distribution URLs)
+    - MalwareBazaar (malware hashes)
+    - dnstwist (typosquat/lookalike domains targeting Jordan)
+    - CISA KEV (known exploited CVEs)
+
+    Does NOT ingest from:
+    - Telegram messages (contain VICTIM domains/IPs, not attacker infra)
+    - RSS feeds (news articles, not IOCs)
+    - Ransomware leak sites (victim names, not attacker IOCs)
+    """
+    time.sleep(90)  # Let everything else start first
+    while True:
+        try:
+            dark_path = OUTPUT_DIR / "dark_intel.jsonl"
+            if not dark_path.exists():
+                log.info("[IOC-INGEST] No dark_intel.jsonl found, skipping.")
+                time.sleep(_DARK_IOC_INGEST_INTERVAL)
+                continue
+
+            log.info("[IOC-INGEST] Starting dark intel IOC ingestion cycle...")
+
+            # Load existing IOC values to avoid duplicates
+            existing_cache = _load_research_cache()
+            existing_vals = set()
+            for entry in existing_cache.values():
+                for ioc in entry.get("iocs", []):
+                    existing_vals.add(f"{ioc.get('type', '')}:{ioc.get('value', '').lower().strip()}")
+
+            # Load client domains to avoid blocking our own banks
+            client_domains = set()
+            try:
+                flat = db.get_all_client_assets_flat()
+                for row in flat:
+                    if row["asset_type"] in ("domain", "email_domain"):
+                        client_domains.add(row["asset_value"].lower().strip())
+            except Exception:
+                pass
+
+            # Parse dark_intel.jsonl — only from trusted sources
+            new_iocs = {}
+            with open(dark_path) as f:
+                for line in f:
+                    try:
+                        finding = json.loads(line)
+                    except Exception:
+                        continue
+                    source = finding.get("source", "")
+                    if source not in _TRUSTWORTHY_DARK_SOURCES:
+                        continue
+
+                    title = finding.get("title", "")
+                    iocs_raw = finding.get("iocs", {})
+                    if not isinstance(iocs_raw, dict):
+                        continue
+
+                    for ioc_type_raw, vals in iocs_raw.items():
+                        # Normalize type names
+                        itype = ioc_type_raw.lower()
+                        if itype in ("ip", "ips", "ipv4"):
+                            itype = "ipv4"
+                        elif itype == "sha256":
+                            itype = "hash_sha256"
+                        elif itype == "md5":
+                            itype = "hash_md5"
+                        elif itype in ("domains",):
+                            itype = "domain"
+
+                        if itype not in ("ipv4", "domain", "hash_sha256", "hash_md5", "url", "cve"):
+                            continue
+
+                        if not isinstance(vals, list):
+                            vals = [vals] if vals else []
+                        for val in vals:
+                            val = str(val).strip().lower()
+                            if not val or len(val) < 3:
+                                continue
+                            if itype == "ipv4" and _is_private_ip(val):
+                                continue
+                            if source == "dnstwist" and val in _DNSTWIST_FALSE_POSITIVES:
+                                continue
+                            # Never block our own client domains
+                            if itype == "domain" and val in client_domains:
+                                continue
+
+                            key = f"{itype}:{val}"
+                            if key in existing_vals:
+                                continue
+                            if key not in new_iocs:
+                                new_iocs[key] = {
+                                    "type": itype,
+                                    "value": val,
+                                    "source": source,
+                                    "context": f"[{source}] {title[:120]}",
+                                }
+
+            if not new_iocs:
+                log.info("[IOC-INGEST] No new dark intel IOCs to ingest.")
+                time.sleep(_DARK_IOC_INGEST_INTERVAL)
+                continue
+
+            log.info(f"[IOC-INGEST] Found {len(new_iocs)} new dark intel IOCs to verify.")
+
+            apt_name = "Dark Intel Feeds"
+            ingested = 0
+            for key, ioc_data in new_iocs.items():
+                itype = ioc_data["type"]
+                val = ioc_data["value"]
+
+                verdict = "SUSPICIOUS"  # Default: from trusted feed = at least suspicious
+                score = -1
+                country = ""
+
+                if itype in ("ipv4", "domain"):
+                    try:
+                        abuse = _abuseipdb_check(val, itype)
+                        if abuse and "error" not in abuse:
+                            score = abuse.get("abuseConfidenceScore", 0)
+                            verdict = "MALICIOUS" if score > 70 else ("SUSPICIOUS" if score > 25 else "CLEAN")
+                            country = abuse.get("countryCode", "")
+                    except Exception:
+                        pass
+                    time.sleep(0.5)  # Rate limit
+                elif itype in ("hash_sha256", "hash_md5"):
+                    verdict = "MALICIOUS"  # Hashes from ThreatFox/MalwareBazaar = confirmed malware
+                elif itype == "cve":
+                    verdict = "SUSPICIOUS"
+                elif itype == "url":
+                    verdict = "MALICIOUS"  # URLs from URLhaus = confirmed malware distribution
+
+                # dnstwist lookalikes need manual review
+                if ioc_data["source"] == "dnstwist":
+                    verdict = "SUSPICIOUS"
+                    score = -1
+
+                db.upsert_apt_ioc(
+                    apt_name=apt_name,
+                    ioc_value=val,
+                    ioc_type=itype,
+                    source=ioc_data["source"],
+                    context=ioc_data["context"],
+                    abuse_verdict=verdict,
+                    abuse_score=score,
+                    abuse_country=country,
+                    researched_at=datetime.now(timezone.utc).isoformat(),
+                )
+                ingested += 1
+                if ingested % 50 == 0:
+                    log.info(f"[IOC-INGEST] Progress: {ingested}/{len(new_iocs)} verified...")
+                    time.sleep(2)
+
+            log.info(f"[IOC-INGEST] Ingested {ingested} dark intel IOCs into blocklist.")
+
+        except Exception as e:
+            log.info(f"[IOC-INGEST] Error: {e}")
+
+        time.sleep(_DARK_IOC_INGEST_INTERVAL)
+
+
 @app.route("/api/apt/<path:name>/research")
 def api_apt_research(name):
     """Get researched IOCs for an APT. Auto-triggers if stale."""
@@ -2679,6 +3071,23 @@ def api_blocklist():
                 seen[val] = {"apt": apt_name, **ioc}
 
     blocklist = list(seen.values())
+
+    # ── Client filter: keep only IOCs whose value/context matches client assets ──
+    client_filter = request.args.get("client", "").strip()
+    if client_filter:
+        clients_d, _, _ = _build_client_index()
+        try:
+            cid = int(client_filter)
+        except (ValueError, TypeError):
+            cid = None
+        cdata = clients_d.get(cid) if cid else None
+        if cdata:
+            pats = cdata["patterns"]
+            blocklist = [ioc for ioc in blocklist
+                         if any(p in (ioc.get("value", "") + " " + (ioc.get("context") or "")).lower() for p in pats)]
+        else:
+            blocklist = []
+
     vord = {"MALICIOUS": 0, "SUSPICIOUS": 1, "UNVERIFIED": 2, "CLEAN": 3}
     blocklist.sort(key=lambda x: (vord.get(x.get("abuse_verdict", "UNVERIFIED"), 9), -(x.get("abuse_score", -1))))
 
@@ -2751,23 +3160,243 @@ def api_media(filepath):
 
 @app.route("/api/media/lookup/<channel>/<int:message_id>")
 def api_media_lookup(channel, message_id):
-    """Find all media files for a specific message."""
+    """Find all media files for a specific message. Returns purge metadata for deleted videos."""
     media_dir = _MEDIA_DIR / f"{channel}_{message_id}"
-    if not media_dir.exists() or not media_dir.is_dir():
-        return jsonify({"files": []})
     files = []
-    for f in sorted(media_dir.iterdir()):
-        if not f.is_file():
-            continue
-        ext = f.suffix.lower()
-        mtype = "image" if ext in _IMG_EXTS else "video" if ext in _VID_EXTS else "file"
-        files.append({
-            "url": f"/api/media/{channel}_{message_id}/{f.name}",
-            "type": mtype,
-            "name": f.name,
-            "size": f.stat().st_size,
-        })
+    has_video_on_disk = False
+    if media_dir.exists() and media_dir.is_dir():
+        for f in sorted(media_dir.iterdir()):
+            if not f.is_file():
+                continue
+            ext = f.suffix.lower()
+            mtype = "image" if ext in _IMG_EXTS else "video" if ext in _VID_EXTS else "file"
+            if mtype == "video":
+                has_video_on_disk = True
+            files.append({
+                "url": f"/api/media/{channel}_{message_id}/{f.name}",
+                "type": mtype,
+                "name": f.name,
+                "size": f.stat().st_size,
+            })
+    # If no video files on disk, check if videos were purged
+    if not has_video_on_disk:
+        meta_row = db.get_purged_media_meta(channel, message_id)
+        if meta_row and meta_row.get("media_meta"):
+            try:
+                meta = json.loads(meta_row["media_meta"]) if isinstance(meta_row["media_meta"], str) else meta_row["media_meta"]
+                # meta can be a single dict or list of dicts
+                metas = meta if isinstance(meta, list) else [meta]
+                for mm in metas:
+                    files.append({
+                        "type": "video",
+                        "name": mm.get("filename", "video.mp4"),
+                        "size": mm.get("size", 0),
+                        "purged": True,
+                        "channel": channel,
+                        "message_id": message_id,
+                    })
+            except Exception:
+                pass
     return jsonify({"files": files})
+
+
+# ── Media re-download from Telegram ──────────────────────────────────────────
+_redownload_locks = {}  # per-message locks to prevent duplicate downloads
+_redownload_global_lock = threading.Lock()
+
+REDOWNLOAD_SESSION = str(Path("./jordan_cyber_intel_viewer"))
+
+
+@app.route("/api/media/redownload/<channel>/<int:message_id>", methods=["POST"])
+def api_media_redownload(channel, message_id):
+    """Re-download a purged video from Telegram on demand."""
+    # Verify message exists and is purged
+    row = db.get_purged_media_meta(channel, message_id)
+    if not row:
+        return jsonify({"error": "not_purged", "detail": "Media is not purged or message not found"}), 404
+
+    lock_key = f"{channel}_{message_id}"
+    with _redownload_global_lock:
+        if lock_key in _redownload_locks:
+            return jsonify({"error": "in_progress", "detail": "Already downloading this video"}), 409
+        _redownload_locks[lock_key] = True
+
+    try:
+        import asyncio
+        try:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        except Exception:
+            pass
+
+        session_path = Path(REDOWNLOAD_SESSION + ".session")
+        if not session_path.exists():
+            # Fall back to main session if viewer session doesn't exist
+            use_session = SESSION
+        else:
+            use_session = REDOWNLOAD_SESSION
+
+        try:
+            with TGSync(use_session, API_ID, API_HASH) as client:
+                try:
+                    msg = client.get_messages(channel, ids=message_id)
+                except Exception as e:
+                    err_str = str(e).lower()
+                    if "private" in err_str or "invalid" in err_str or "banned" in err_str:
+                        return jsonify({"error": "channel_unavailable", "detail": f"Channel unavailable: {e}"}), 410
+                    raise
+
+                if msg is None:
+                    return jsonify({"error": "message_deleted", "detail": "Message no longer exists on Telegram"}), 410
+
+                if not msg.media:
+                    return jsonify({"error": "media_expired", "detail": "Message exists but media is no longer available"}), 410
+
+                media_dir = _MEDIA_DIR / f"{channel}_{message_id}"
+                media_dir.mkdir(parents=True, exist_ok=True)
+
+                path = client.download_media(msg, file=str(media_dir) + "/")
+                if not path:
+                    return jsonify({"error": "download_failed", "detail": "Telegram returned no data"}), 502
+
+                # Update DB: restore media
+                db.mark_media_restored(channel, message_id, str(Path(path).relative_to(_MEDIA_DIR.parent.parent if _MEDIA_DIR.is_absolute() else Path("."))))
+                # Invalidate message cache
+                _msg_cache["ts"] = 0
+
+                return jsonify({
+                    "success": True,
+                    "files": [{
+                        "url": f"/api/media/{channel}_{message_id}/{Path(path).name}",
+                        "type": "video",
+                        "name": Path(path).name,
+                        "size": Path(path).stat().st_size,
+                    }]
+                })
+
+        except Exception as e:
+            err_str = str(e).lower()
+            if "authkey" in err_str or "session" in err_str:
+                return jsonify({"error": "session_error", "detail": f"Telethon session error: {e}"}), 503
+            log.error(f"[REDOWNLOAD] Error for {channel}/{message_id}: {e}")
+            return jsonify({"error": "download_failed", "detail": str(e)[:200]}), 500
+
+    finally:
+        with _redownload_global_lock:
+            _redownload_locks.pop(lock_key, None)
+
+
+# ── Media Retention: Auto-purge old videos ───────────────────────────────────
+_RETENTION_DAYS = 7
+_RETENTION_CHECK_INTERVAL = 6 * 3600  # 6 hours
+_VID_PURGE_EXTS = {'.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.m4v', '.ogg', '.mp3'}
+
+
+def _purge_old_videos():
+    """Delete video files for messages older than _RETENTION_DAYS (by message timestamp, not file mtime)."""
+    cutoff_ts = (datetime.now(timezone.utc) - timedelta(days=_RETENTION_DAYS)).isoformat()
+    purged_count = 0
+    freed_bytes = 0
+
+    if not _MEDIA_DIR.exists():
+        return
+
+    # Query DB for messages with media that are old enough and not already purged
+    try:
+        conn = get_conn()
+        rows = conn.execute(
+            "SELECT channel_username, message_id FROM messages "
+            "WHERE has_media = 1 AND media_purged = 0 AND timestamp_utc < ? ",
+            (cutoff_ts,)
+        ).fetchall()
+    except Exception as e:
+        log.warning(f"[RETENTION] DB query failed: {e}")
+        return
+
+    for row in rows:
+        ch_name = row[0]
+        mid = row[1]
+        media_dir = _MEDIA_DIR / f"{ch_name}_{mid}"
+        if not media_dir.exists() or not media_dir.is_dir():
+            continue
+
+        for fpath in list(media_dir.iterdir()):
+            if not fpath.is_file():
+                continue
+            ext = fpath.suffix.lower()
+            if ext not in _VID_PURGE_EXTS:
+                continue
+
+            try:
+                fsize = fpath.stat().st_size
+                meta = {
+                    "filename": fpath.name,
+                    "size": fsize,
+                    "ext": ext,
+                    "purged_at": datetime.now(timezone.utc).isoformat(),
+                }
+                db.mark_media_purged(ch_name, mid, meta)
+                fpath.unlink()
+                purged_count += 1
+                freed_bytes += fsize
+            except Exception as e:
+                log.warning(f"[RETENTION] Failed to purge {fpath}: {e}")
+
+        # Remove directory if only non-video files remain or empty
+        try:
+            if media_dir.exists() and not any(media_dir.iterdir()):
+                media_dir.rmdir()
+        except Exception:
+            pass
+
+    # Also clean up orphan media dirs (no DB match) with old videos
+    for subdir in _MEDIA_DIR.iterdir():
+        if not subdir.is_dir():
+            continue
+        parts = subdir.name.rsplit("_", 1)
+        if len(parts) != 2:
+            continue
+        try:
+            int(parts[1])
+        except ValueError:
+            continue
+        for fpath in list(subdir.iterdir()):
+            if not fpath.is_file():
+                continue
+            ext = fpath.suffix.lower()
+            if ext not in _VID_PURGE_EXTS:
+                continue
+            try:
+                mtime = fpath.stat().st_mtime
+                if mtime < (time.time() - _RETENTION_DAYS * 86400):
+                    freed_bytes += fpath.stat().st_size
+                    fpath.unlink()
+                    purged_count += 1
+            except Exception:
+                pass
+        try:
+            if subdir.exists() and not any(subdir.iterdir()):
+                subdir.rmdir()
+        except Exception:
+            pass
+
+    if purged_count:
+        freed_gb = freed_bytes / (1024 ** 3)
+        log.info(f"[RETENTION] Purged {purged_count} videos, freed {freed_gb:.2f} GB")
+        _msg_cache["ts"] = 0  # invalidate cache so purge state is reflected
+
+
+def _media_retention_loop():
+    """Background thread: periodically purge old videos."""
+    time.sleep(30)  # wait for startup
+    while True:
+        try:
+            _purge_old_videos()
+        except Exception as e:
+            log.error(f"[RETENTION] Loop error: {e}")
+        # Sleep in 60s increments for responsive shutdown
+        for _ in range(int(_RETENTION_CHECK_INTERVAL / 60)):
+            time.sleep(60)
 
 
 # ── DOCX Report Generator (Template-based) ────────────────────
@@ -2837,22 +3466,22 @@ def _generate_blocklist_report():
 
     # ── Step 1: Update date on cover page ──
     import re as _re
+    full_date_str = now.strftime("%d %B %Y")  # e.g. "14 March 2026"
     for p in doc.paragraphs:
         if _re.match(r'^[A-Z][a-z]+ \d{4}$', p.text.strip()):
             for run in p.runs:
-                run.text = now.strftime("%B %Y")
+                run.text = full_date_str
             break
 
-    # ── Step 1b: Update header dates to current month ──
+    # ── Step 1b: Update header dates to current date ──
     ns_w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-    date_str = now.strftime("%B %Y")
     for section in doc.sections:
         for hdr_attr in ("header", "first_page_header", "even_page_header"):
             try:
                 hdr = getattr(section, hdr_attr)
                 for t_el in hdr._element.iter(f"{{{ns_w}}}t"):
                     if t_el.text and _re.search(r'[A-Z][a-z]+ \d{4}', t_el.text):
-                        t_el.text = _re.sub(r'[A-Z][a-z]+ \d{4}', date_str, t_el.text)
+                        t_el.text = _re.sub(r'[A-Z][a-z]+ \d{4}', full_date_str, t_el.text)
             except Exception:
                 pass
 
@@ -3063,13 +3692,25 @@ def _generate_blocklist_report():
 
 @app.route("/api/blocklist/report")
 def api_blocklist_report():
-    """Generate and download ScanWave SOC Client Advisory as PDF."""
+    """Generate and download ScanWave SOC Client Advisory as PDF or DOCX.
+
+    Query params:
+        format: 'pdf' (default) or 'docx'
+    """
     try:
         buf = _generate_blocklist_report()
         now = datetime.now(timezone.utc)
-        base = f"ScanWave_SOC_Client_Advisory_{now.strftime('%d_%B%Y')}"
+        base = f"ScanWave_SOC_Client_Advisory_{now.strftime('%d_%B_%Y')}"
+        fmt = request.args.get("format", "pdf").lower()
 
-        # Write DOCX to temp file, convert to PDF via LibreOffice
+        if fmt == "docx":
+            return Response(
+                buf.getvalue(),
+                mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                headers={"Content-Disposition": f"attachment;filename={base}.docx"}
+            )
+
+        # Default: PDF via LibreOffice conversion
         import tempfile, subprocess
         with tempfile.TemporaryDirectory() as tmpdir:
             docx_path = os.path.join(tmpdir, f"{base}.docx")
@@ -3315,8 +3956,9 @@ def _compute_critical_subtype(keyword_hits, text=""):
 
     # Demote service/sale ads: if it's a hacking service advertisement
     # and doesn't mention Jordan, it's not a relevant cyber threat
+    # Priority will be downgraded to MEDIUM by _should_demote_service_ad()
     if is_cyber and not is_national and txt and _is_service_ad(txt) and not _mentions_jordan(txt):
-        return "GENERAL"
+        return "SERVICE_AD"
 
     if is_cyber and is_national: return "BOTH"
     if is_cyber:    return "CYBER"
@@ -3388,6 +4030,33 @@ def api_dark_feed():
     source = request.args.get("source")
     after = request.args.get("after")
     findings = _load_dark_intel(limit=limit, severity=severity, source=source, after=after)
+
+    # ── Client filter ──
+    client_filter = request.args.get("client", "").strip()
+    if client_filter:
+        try:
+            cid = int(client_filter)
+        except (ValueError, TypeError):
+            cid = None
+        if cid:
+            # First check pre-tagged matched_client_ids from dark_collector
+            # Then fall back to text matching against client assets
+            clients_d, _, _ = _build_client_index()
+            cdata = clients_d.get(cid)
+            pats = cdata["patterns"] if cdata else []
+            filtered = []
+            for f in findings:
+                # Check pre-tagged IDs (from dark_collector)
+                if cid in (f.get("matched_client_ids") or []):
+                    filtered.append(f)
+                    continue
+                # Fall back to text matching
+                if pats:
+                    haystack = ((f.get("title") or "") + " " + (f.get("description") or "")).lower()
+                    if any(p in haystack for p in pats):
+                        filtered.append(f)
+            findings = filtered
+
     return jsonify({"count": len(findings), "findings": findings})
 
 
@@ -3801,6 +4470,45 @@ def api_stats_summary():
     cutoff_24h = (now - timedelta(hours=24)).isoformat()
     cutoff_1h  = (now - timedelta(hours=1)).isoformat()
 
+    # ── Client filter: if set, compute from in-memory match index ──
+    client_filter = request.args.get("client", "").strip()
+    if client_filter:
+        try:
+            cid = int(client_filter)
+        except (ValueError, TypeError):
+            cid = None
+        if cid:
+            _, msg_matches, cstats = _build_client_index()
+            msgs = load_messages()
+            total = cstats.get(cid, {}).get("total", 0)
+            critical = cstats.get(cid, {}).get("critical", 0)
+            # Compute time-windowed stats from matched messages
+            crit_24h = crit_1h = medium = 0
+            channels_set = set()
+            ioc_count = 0
+            for idx, matched_cids in msg_matches.items():
+                if cid not in matched_cids:
+                    continue
+                m = msgs[idx]
+                p = m.get("priority", "LOW")
+                ts = m.get("timestamp_utc", "")
+                channels_set.add(m.get("channel_username", ""))
+                if p == "MEDIUM":
+                    medium += 1
+                if p == "CRITICAL":
+                    if ts >= cutoff_24h:
+                        crit_24h += 1
+                    if ts >= cutoff_1h:
+                        crit_1h += 1
+                if m.get("iocs") and m["iocs"] not in ("{}", "null"):
+                    ioc_count += 1
+            return jsonify({
+                "total": total, "critical": critical, "medium": medium,
+                "critical_24h": crit_24h, "critical_1h": crit_1h,
+                "channels": len(channels_set), "iocs": ioc_count,
+                "generated_at": now.isoformat(), "client_id": cid,
+            })
+
     row = conn.execute("""
         SELECT
             COUNT(*) as total,
@@ -3812,16 +4520,10 @@ def api_stats_summary():
         FROM messages
     """, (cutoff_24h, cutoff_1h)).fetchone()
 
-    # IOC count (still need to sum from JSON — but fast)
-    ioc_rows = conn.execute("SELECT iocs FROM messages WHERE iocs IS NOT NULL").fetchall()
-    ioc_count = 0
-    for r in ioc_rows:
-        try:
-            iocs = json.loads(r[0]) if isinstance(r[0], str) else r[0]
-            if isinstance(iocs, dict):
-                ioc_count += sum(len(v or []) for v in iocs.values())
-        except Exception:
-            pass
+    # IOC count — use cached count or fast approximation
+    ioc_count = conn.execute(
+        "SELECT COUNT(*) FROM messages WHERE iocs IS NOT NULL AND iocs != '{}' AND iocs != 'null'"
+    ).fetchone()[0]
 
     return jsonify({
         "total":       row[0] or 0,
@@ -3900,6 +4602,111 @@ def api_admin_discovered_action(action, username):
     else:
         return jsonify({"error": "unknown action"}), 400
     return jsonify({"ok": True, "action": action, "username": uname})
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CLIENT ASSET REGISTRY API
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.route("/api/clients", methods=["GET"])
+def api_clients_list():
+    """List all clients with assets and match stats."""
+    status_filter = request.args.get("status")
+    clients_list = db.get_clients(status=status_filter)
+    # Attach match stats
+    _, _, client_stats = _build_client_index()
+    for c in clients_list:
+        s = client_stats.get(c["id"], {})
+        c["mentions"] = s.get("total", 0)
+        c["critical_mentions"] = s.get("critical", 0)
+        c["latest_mention"] = s.get("latest_ts", "")
+    return jsonify(clients_list)
+
+
+@app.route("/api/clients", methods=["POST"])
+def api_clients_create():
+    """Create a new client with assets."""
+    body = request.json or {}
+    name = (body.get("name") or "").strip()
+    if not name:
+        return jsonify({"error": "name is required"}), 400
+    short_name = body.get("short_name", "")
+    sector = body.get("sector", "banking")
+    notes = body.get("notes", "")
+    client_id = db.upsert_client(name, short_name=short_name, sector=sector, notes=notes)
+    # Save assets by type
+    assets = body.get("assets", {})
+    for asset_type, values in assets.items():
+        if isinstance(values, list):
+            db.set_client_assets(client_id, asset_type, values)
+    # Invalidate client index
+    _client_index["ts"] = 0
+    return jsonify(db.get_client(client_id)), 201
+
+
+@app.route("/api/clients/<int:client_id>", methods=["GET"])
+def api_clients_get(client_id):
+    """Get single client with assets."""
+    c = db.get_client(client_id)
+    if not c:
+        return jsonify({"error": "not found"}), 404
+    _, _, client_stats = _build_client_index()
+    s = client_stats.get(client_id, {})
+    c["mentions"] = s.get("total", 0)
+    c["critical_mentions"] = s.get("critical", 0)
+    c["latest_mention"] = s.get("latest_ts", "")
+    return jsonify(c)
+
+
+@app.route("/api/clients/<int:client_id>", methods=["PUT"])
+def api_clients_update(client_id):
+    """Update client metadata and assets."""
+    existing = db.get_client(client_id)
+    if not existing:
+        return jsonify({"error": "not found"}), 404
+    body = request.json or {}
+    name = (body.get("name") or existing["name"]).strip()
+    short_name = body.get("short_name", existing.get("short_name", ""))
+    sector = body.get("sector", existing.get("sector", "banking"))
+    notes = body.get("notes", existing.get("notes", ""))
+    db.upsert_client(name, short_name=short_name, sector=sector, notes=notes)
+    # Update assets if provided
+    assets = body.get("assets", {})
+    for asset_type, values in assets.items():
+        if isinstance(values, list):
+            db.set_client_assets(client_id, asset_type, values)
+    _client_index["ts"] = 0
+    return jsonify(db.get_client(client_id))
+
+
+@app.route("/api/clients/<int:client_id>", methods=["DELETE"])
+def api_clients_delete(client_id):
+    """Delete a client and all its assets."""
+    db.delete_client(client_id)
+    _client_index["ts"] = 0
+    return jsonify({"ok": True})
+
+
+@app.route("/api/clients/<int:client_id>/assets", methods=["POST"])
+def api_clients_add_asset(client_id):
+    """Add a single asset to a client."""
+    body = request.json or {}
+    atype = (body.get("type") or "").strip()
+    avalue = (body.get("value") or "").strip()
+    if not atype or not avalue:
+        return jsonify({"error": "type and value required"}), 400
+    db.set_client_assets(client_id, atype,
+                         [a["value"] for a in db.get_client(client_id).get("assets", {}).get(atype, [])] + [avalue])
+    _client_index["ts"] = 0
+    return jsonify({"ok": True})
+
+
+@app.route("/api/clients/<int:client_id>/assets/<int:asset_id>", methods=["DELETE"])
+def api_clients_delete_asset(client_id, asset_id):
+    """Delete a single asset."""
+    db.remove_client_asset(asset_id)
+    _client_index["ts"] = 0
+    return jsonify({"ok": True})
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -5562,4 +6369,12 @@ if __name__ == "__main__":
     _research_thread = threading.Thread(target=_auto_research_loop, daemon=True)
     _research_thread.start()
     log.info("[RESEARCH] Auto-research background thread started")
+    # Start media retention thread (purge videos older than 7 days)
+    _retention_thread = threading.Thread(target=_media_retention_loop, daemon=True)
+    _retention_thread.start()
+    log.info(f"[RETENTION] Media retention thread started (purge videos > {_RETENTION_DAYS} days)")
+    # Start dark intel IOC ingestion thread
+    _ioc_ingest_thread = threading.Thread(target=_dark_ioc_ingest_loop, daemon=True)
+    _ioc_ingest_thread.start()
+    log.info("[IOC-INGEST] Dark intel IOC ingestion thread started (every 6h)")
     app.run(debug=False, host="0.0.0.0", port=5000, threaded=True)

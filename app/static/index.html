@@ -1003,6 +1003,13 @@ textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba
 .media-container img{max-width:100%;max-height:300px;border-radius:2px;cursor:pointer;border:1px solid var(--border-emphasis);object-fit:contain;background:var(--bg-surface)}
 .media-container video{max-width:100%;max-height:300px;border-radius:2px;border:1px solid var(--border-emphasis);background:var(--bg-surface)}
 .media-container .media-loading{font-size:9px;color:var(--text-disabled);padding:4px}
+.media-purged{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg-surface);border:1px dashed var(--border-emphasis);border-radius:2px;font-size:10px;color:var(--text-secondary);width:100%}
+.media-purged .mp-icon{color:var(--text-disabled);flex-shrink:0}
+.media-purged .mp-info{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.redownload-btn{padding:3px 10px;background:var(--accent)22;border:1px solid var(--accent);color:var(--accent);border-radius:2px;cursor:pointer;font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.redownload-btn:hover{background:var(--accent)44}
+.redownload-btn:disabled{opacity:0.5;cursor:wait}
+.redownload-btn.error{border-color:var(--critical);color:var(--critical);background:var(--critical)11}
 .media-badge{font-size:8px;padding:1px 5px;background:var(--purple-bg);color:var(--purple);border-radius:2px;font-family:'JetBrains Mono',monospace}
 .media-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .media-lightbox img,.media-lightbox video{max-width:95vw;max-height:95vh;object-fit:contain;border-radius:2px}
@@ -1355,6 +1362,10 @@ textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba
       <span style="font-size:9px;color:var(--text-disabled)">crit/hr</span>
       <span id="ts-alert-dot" class="live-dot" style="width:5px;height:5px"></span>
     </div>
+    <select id="global-client-filter" onchange="applyClientFilter(this.value)" title="Filter all tabs by client"
+            style="font-size:9px;padding:2px 8px;background:var(--bg-surface);border:1px solid var(--border-emphasis);color:var(--accent);border-radius:2px;font-weight:700;min-width:140px;cursor:pointer">
+      <option value="">ALL CLIENTS</option>
+    </select>
     <button onclick="openGSearch()" title="Global search (Ctrl+K)" style="padding:3px 9px">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <span style="font-size:9px;opacity:.7">Ctrl+K</span>
@@ -1636,7 +1647,8 @@ textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba
         <input type="text" id="bl-search" class="bl-search" placeholder="Search IOCs..." oninput="loadBlocklist()">
         <button onclick="window.location='/api/blocklist/export?verdict='+encodeURIComponent(document.getElementById('bl-verdict-filter').value)" class="bl-btn green">EXPORT CSV</button>
         <button onclick="copyBlocklistIPs()" class="bl-btn gray">COPY ALL IPs</button>
-        <button onclick="generateReport(this)" class="bl-btn blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> GENERATE REPORT</button>
+        <button onclick="generateReport(this,'pdf')" class="bl-btn blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> REPORT PDF</button>
+        <button onclick="generateReport(this,'docx')" class="bl-btn blue"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> REPORT DOCX</button>
       </div>
       <!-- Stats -->
       <div id="bl-stats" class="bl-stats"></div>
@@ -1745,6 +1757,70 @@ textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba
       <div class="dash-card"><div class="dc-label">IOCs</div><div class="dc-value blue" id="adm-iocs">—</div></div>
       <div class="dash-card"><div class="dc-label">Last Message</div><div class="dc-value green" id="adm-last" style="font-size:11px">—</div></div>
       <div class="dash-card"><div class="dc-label">Cursor</div><div class="dc-value" id="adm-cursor" style="font-size:10px;color:var(--text-disabled)">—</div><div class="dc-sub">auto-resume point</div></div>
+    </div>
+
+    <!-- Client Asset Registry -->
+    <div class="admin-card" id="client-registry-card">
+      <div class="admin-card-header">
+        Client Asset Registry
+        <span class="subtitle" id="client-count-badge">0 clients</span>
+        <span class="spacer"></span>
+        <button onclick="admShowAddClient()" class="admin-btn-full admin-btn-blue" style="width:auto;padding:4px 12px;font-size:10px">+ ADD CLIENT</button>
+      </div>
+
+      <!-- Add/Edit form (hidden by default) -->
+      <div id="client-edit-form" style="display:none" class="admin-sub-card">
+        <div class="admin-sub-title blue" id="client-form-title">ADD NEW CLIENT</div>
+        <input type="hidden" id="client-edit-id" value="">
+        <div class="admin-grid-3" style="margin-bottom:10px">
+          <div><label style="font-size:9px;color:var(--text-disabled);display:block;margin-bottom:2px">Name *</label><input id="client-name" class="admin-input" placeholder="Bank al Etihad"></div>
+          <div><label style="font-size:9px;color:var(--text-disabled);display:block;margin-bottom:2px">Short Code</label><input id="client-short" class="admin-input" placeholder="BAE"></div>
+          <div><label style="font-size:9px;color:var(--text-disabled);display:block;margin-bottom:2px">Sector</label>
+            <select id="client-sector" class="admin-input">
+              <option value="banking">Banking</option>
+              <option value="government">Government</option>
+              <option value="telecom">Telecom</option>
+              <option value="energy">Energy</option>
+              <option value="military">Military</option>
+              <option value="education">Education</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label style="font-size:9px;color:var(--text-disabled);display:block;margin-bottom:2px">Domains (one per line)</label><textarea id="client-domains" class="admin-textarea" style="height:80px" placeholder="bankaletihad.com&#10;etihad.jo"></textarea></div>
+          <div><label style="font-size:9px;color:var(--text-disabled);display:block;margin-bottom:2px">Brand Names EN (one per line)</label><textarea id="client-brand-en" class="admin-textarea" style="height:80px" placeholder="Bank al Etihad&#10;Etihad Bank"></textarea></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label style="font-size:9px;color:var(--text-disabled);display:block;margin-bottom:2px">Brand Names AR (one per line)</label><textarea id="client-brand-ar" class="admin-textarea" style="height:80px" placeholder="بنك الاتحاد&#10;بنك الإتحاد" dir="rtl"></textarea></div>
+          <div><label style="font-size:9px;color:var(--text-disabled);display:block;margin-bottom:2px">Email Domains (one per line)</label><textarea id="client-email-domains" class="admin-textarea" style="height:80px" placeholder="bankaletihad.com"></textarea></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label style="font-size:9px;color:var(--text-disabled);display:block;margin-bottom:2px">Custom Keywords (one per line)</label><textarea id="client-keywords" class="admin-textarea" style="height:60px" placeholder="etihad"></textarea></div>
+          <div><label style="font-size:9px;color:var(--text-disabled);display:block;margin-bottom:2px">Notes</label><textarea id="client-notes" class="admin-textarea" style="height:60px" placeholder="Optional notes..."></textarea></div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button onclick="admCancelClientEdit()" class="admin-btn-full admin-btn-red" style="width:auto;padding:5px 16px">Cancel</button>
+          <button onclick="admSaveClient()" class="admin-btn-full admin-btn-green" style="width:auto;padding:5px 16px">SAVE CLIENT</button>
+        </div>
+      </div>
+
+      <!-- Client table -->
+      <div style="overflow-x:auto">
+        <table class="bl-table" id="client-table" style="font-size:10px">
+          <colgroup>
+            <col style="width:auto"><col style="width:60px"><col style="width:80px">
+            <col style="width:60px"><col style="width:80px"><col style="width:80px"><col style="width:80px">
+          </colgroup>
+          <thead><tr>
+            <th>Client Name</th><th>Code</th><th>Sector</th>
+            <th>Assets</th><th>Mentions</th><th>Critical</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="client-tbody">
+            <tr><td colspan="7" class="loading-center" style="padding:12px;color:var(--text-disabled)">Loading clients...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Two column layout -->
@@ -2467,6 +2543,7 @@ loadChannels().then(() => {
   // Auto-load the global all-channels feed on startup
   selectAllChannels(document.getElementById('all-ch-btn'));
 });
+loadClientDropdown();
 updateLiveRate();
 setInterval(refreshLoop, 30000);
 
@@ -2492,7 +2569,7 @@ async function refreshLoop() {
 
 async function updateLiveRate() {
   try {
-    const r = await fetch('/api/stats/summary');
+    const r = await fetch('/api/stats/summary' + getClientParamFirst());
     const s = await r.json();
     const rate = s.critical_1h || 0;
     const el   = document.getElementById('ts-rate');
@@ -2671,6 +2748,7 @@ async function selectAllChannels(btn) {
   if (since) url += `&since=${since}`;
   const sub = critSubState.monitor;
   if (sub !== 'ALL') url += `&critical_subtype=${sub}`;
+  url += getClientParam();
   try {
     const r = await fetch(url);
     allMsgs = await r.json();
@@ -2776,6 +2854,7 @@ async function fetchMessages(username) {
     if (since) url += `&since=${since}`;
     const sub = critSubState.monitor;
     if (sub !== 'ALL') url += `&critical_subtype=${sub}`;
+    url += getClientParam();
     const r = await fetch(url);
     allMsgs = await r.json();
     renderMessages(applyLocalFilters(allMsgs), 'msgs');
@@ -3088,7 +3167,16 @@ function _renderMedia(el, files) {
   });
   // Videos
   videos.forEach(f => {
-    html += `<video src="${f.url}" controls preload="none" onclick="event.stopPropagation()"></video>`;
+    if (f.purged) {
+      const sz = f.size ? _fmtSize(f.size) : '';
+      html += `<div class="media-purged">
+        <svg class="mp-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+        <span class="mp-info">${esc(f.name)}${sz ? ' ('+sz+')' : ''} — purged from disk</span>
+        <button class="redownload-btn" onclick="event.stopPropagation();redownloadMedia(this,'${esc(f.channel)}',${f.message_id})">RE-DOWNLOAD</button>
+      </div>`;
+    } else {
+      html += `<video src="${f.url}" controls preload="none" onclick="event.stopPropagation()"></video>`;
+    }
   });
   // Documents / file attachments
   if (docs.length) {
@@ -3106,6 +3194,47 @@ function _renderMedia(el, files) {
     html += '</div>';
   }
   el.innerHTML = html;
+}
+
+async function redownloadMedia(btn, channel, messageId) {
+  btn.disabled = true;
+  const origText = btn.textContent;
+  btn.textContent = 'DOWNLOADING...';
+  try {
+    const r = await fetch(`/api/media/redownload/${encodeURIComponent(channel)}/${messageId}`, {method:'POST'});
+    const data = await r.json();
+    if (data.success) {
+      btn.textContent = 'DONE';
+      btn.style.color = 'var(--green)';
+      btn.style.borderColor = 'var(--green)';
+      // Re-render this media container with the actual video
+      _mediaCache.delete(`${channel}_${messageId}`);
+      const container = btn.closest('.media-container');
+      if (container) {
+        const ch = container.dataset.mediaCh, id = container.dataset.mediaId;
+        try {
+          const lr = await fetch(`/api/media/lookup/${encodeURIComponent(ch)}/${id}`);
+          const ld = await lr.json();
+          _mediaCache.set(`${ch}_${id}`, ld.files);
+          _renderMedia(container, ld.files);
+        } catch(e2) {}
+      }
+    } else {
+      btn.classList.add('error');
+      const detail = data.detail || data.error || 'Unknown error';
+      if (data.error === 'channel_unavailable') btn.textContent = 'CHANNEL GONE';
+      else if (data.error === 'message_deleted') btn.textContent = 'MSG DELETED';
+      else if (data.error === 'media_expired') btn.textContent = 'MEDIA GONE';
+      else if (data.error === 'in_progress') { btn.textContent = 'IN QUEUE...'; btn.classList.remove('error'); }
+      else btn.textContent = 'FAILED';
+      btn.title = detail;
+      setTimeout(() => { btn.disabled = false; btn.textContent = origText; btn.classList.remove('error'); btn.title = ''; }, 5000);
+    }
+  } catch(e) {
+    btn.classList.add('error');
+    btn.textContent = 'NETWORK ERR';
+    setTimeout(() => { btn.disabled = false; btn.textContent = origText; btn.classList.remove('error'); }, 5000);
+  }
 }
 
 function openLightbox(url, type) {
@@ -3555,7 +3684,7 @@ function updateTitle(crit) {
 // ═══════════════════════════════════════════════════
 async function loadDashboard() {
   try {
-    const r = await fetch('/api/dashboard');
+    const r = await fetch('/api/dashboard' + getClientParamFirst());
     dashData = await r.json();
     document.getElementById('dc-total').textContent = dashData.total.toLocaleString();
     document.getElementById('dc-crit').textContent  = dashData.critical.toLocaleString();
@@ -3811,6 +3940,7 @@ async function loadGlobalFeed(keyword, priority) {
   if (s)       url += `&search=${encodeURIComponent(s)}`;
   const sub = critSubState.feed;
   if (sub !== 'ALL') url += `&critical_subtype=${sub}`;
+  url += getClientParam();
   try {
     const r = await fetch(url);
     gfMsgs  = await r.json();
@@ -3873,7 +4003,7 @@ function clearGFFilter() {
 async function loadIOCData() {
   if (iocData.length) { renderIOCTable(); return; }
   try {
-    const r = await fetch('/api/dashboard');
+    const r = await fetch('/api/dashboard' + getClientParamFirst());
     const d = await r.json();
     iocData = d.iocs || [];
     document.getElementById('ts-ioc').textContent = d.ioc_count.toLocaleString();
@@ -4049,6 +4179,7 @@ async function loadTimeline(silent = false) {
   if (critSubState.timeline !== 'ALL') url += `&critical_subtype=${critSubState.timeline}`;
   if (_attachFilter.timeline) url += `&has_media=1`;
   if (_docsFilter.timeline) url += `&has_docs=1`;
+  url += getClientParam();
 
   try {
     const r    = await fetch(url);
@@ -4125,6 +4256,174 @@ function resetTLFilters() {
 loadTimeline();
 
 // ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// GLOBAL CLIENT FILTER
+// ═══════════════════════════════════════════════════
+let _clientsList = [];
+
+function getClientParam() {
+  const cid = (document.getElementById('global-client-filter') || {}).value || '';
+  return cid ? `&client=${cid}` : '';
+}
+function getClientParamFirst() {
+  // Returns ?client=X or empty string (for use as first query param)
+  const cid = (document.getElementById('global-client-filter') || {}).value || '';
+  return cid ? `?client=${cid}` : '';
+}
+
+async function loadClientDropdown() {
+  try {
+    const r = await fetch('/api/clients');
+    _clientsList = await r.json();
+    const sel = document.getElementById('global-client-filter');
+    if (!sel) return;
+    const cur = sel.value;
+    while (sel.options.length > 1) sel.remove(1);
+    _clientsList.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = (c.short_name || c.name) + (c.mentions ? ` (${c.mentions})` : '');
+      sel.add(opt);
+    });
+    // Restore from localStorage
+    const saved = localStorage.getItem('scanwave-client') || '';
+    if (saved && [...sel.options].some(o => o.value === saved)) {
+      sel.value = saved;
+    } else {
+      sel.value = cur || '';
+    }
+  } catch(e) { console.warn('loadClientDropdown error:', e); }
+}
+
+function applyClientFilter(clientId) {
+  try { localStorage.setItem('scanwave-client', clientId || ''); } catch(e) {}
+  // Re-trigger the active tab's loader
+  updateLiveRate();
+  const tab = currentMainTab;
+  if (tab === 'monitor') { if (currentCh === '__ALL__') selectAllChannels(); else if (currentCh) fetchMessages(currentCh); }
+  if (tab === 'dashboard') loadDashboard();
+  if (tab === 'ioc') loadBlocklist();
+  if (tab === 'timeline') loadTimeline();
+  if (tab === 'deepintel') loadDeepIntel();
+  if (tab === 'apt') loadAPTTab();
+}
+
+// ═══════════════════════════════════════════════════
+// CLIENT ASSET REGISTRY (Admin Tab)
+// ═══════════════════════════════════════════════════
+
+async function loadClientRegistry() {
+  try {
+    const r = await fetch('/api/clients');
+    const clients = await r.json();
+    _clientsList = clients;
+    const tbody = document.getElementById('client-tbody');
+    const badge = document.getElementById('client-count-badge');
+    if (badge) badge.textContent = clients.length + ' clients';
+    if (!clients.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="padding:12px;color:var(--text-disabled);text-align:center">No clients registered. Click + ADD CLIENT to begin.</td></tr>';
+      return;
+    }
+    const SECTOR_COL = {banking:'var(--blue)',government:'var(--critical)',telecom:'var(--medium-text)',energy:'var(--green)',military:'var(--critical)'};
+    let html = '';
+    clients.forEach(c => {
+      const assetCount = Object.values(c.assets || {}).reduce((s, arr) => s + arr.length, 0);
+      const sCol = SECTOR_COL[c.sector] || 'var(--text-tertiary)';
+      html += `<tr>`;
+      html += `<td style="font-weight:600;color:var(--text-secondary)">${esc(c.name)}</td>`;
+      html += `<td style="color:var(--accent);font-weight:700;font-size:9px">${esc(c.short_name||'')}</td>`;
+      html += `<td><span style="font-size:9px;padding:1px 5px;border-radius:2px;background:${sCol}18;color:${sCol};border:1px solid ${sCol}33">${esc(c.sector||'')}</span></td>`;
+      html += `<td style="text-align:center">${assetCount}</td>`;
+      html += `<td style="text-align:center;color:var(--text-secondary)">${(c.mentions||0).toLocaleString()}</td>`;
+      html += `<td style="text-align:center;color:var(--critical);font-weight:700">${(c.critical_mentions||0).toLocaleString()}</td>`;
+      html += `<td style="text-align:center">`;
+      html += `<button onclick="admEditClient(${c.id})" style="font-size:9px;padding:2px 8px;background:var(--accent-bg);border:1px solid var(--accent-hover)44;color:var(--blue);border-radius:2px;cursor:pointer;margin-right:4px">Edit</button>`;
+      html += `<button onclick="admDeleteClient(${c.id},'${esc(c.name)}')" style="font-size:9px;padding:2px 8px;background:var(--critical-bg);border:1px solid var(--critical)33;color:var(--critical);border-radius:2px;cursor:pointer">Del</button>`;
+      html += `</td></tr>`;
+    });
+    tbody.innerHTML = html;
+  } catch(e) {
+    document.getElementById('client-tbody').innerHTML = '<tr><td colspan="7" style="color:var(--critical);padding:12px">Error: ' + esc(e.message) + '</td></tr>';
+  }
+}
+
+function admShowAddClient() {
+  document.getElementById('client-edit-id').value = '';
+  document.getElementById('client-form-title').textContent = 'ADD NEW CLIENT';
+  document.getElementById('client-name').value = '';
+  document.getElementById('client-short').value = '';
+  document.getElementById('client-sector').value = 'banking';
+  document.getElementById('client-domains').value = '';
+  document.getElementById('client-brand-en').value = '';
+  document.getElementById('client-brand-ar').value = '';
+  document.getElementById('client-email-domains').value = '';
+  document.getElementById('client-keywords').value = '';
+  document.getElementById('client-notes').value = '';
+  document.getElementById('client-edit-form').style.display = '';
+}
+
+async function admEditClient(id) {
+  try {
+    const r = await fetch(`/api/clients/${id}`);
+    const c = await r.json();
+    document.getElementById('client-edit-id').value = c.id;
+    document.getElementById('client-form-title').textContent = 'EDIT: ' + c.name;
+    document.getElementById('client-name').value = c.name || '';
+    document.getElementById('client-short').value = c.short_name || '';
+    document.getElementById('client-sector').value = c.sector || 'banking';
+    document.getElementById('client-domains').value = (c.assets.domain || []).map(a=>a.value).join('\n');
+    document.getElementById('client-brand-en').value = (c.assets.brand_en || []).map(a=>a.value).join('\n');
+    document.getElementById('client-brand-ar').value = (c.assets.brand_ar || []).map(a=>a.value).join('\n');
+    document.getElementById('client-email-domains').value = (c.assets.email_domain || []).map(a=>a.value).join('\n');
+    document.getElementById('client-keywords').value = (c.assets.keyword || []).map(a=>a.value).join('\n');
+    document.getElementById('client-notes').value = c.notes || '';
+    document.getElementById('client-edit-form').style.display = '';
+  } catch(e) { showToast('Error loading client: ' + e.message, true); }
+}
+
+function admCancelClientEdit() {
+  document.getElementById('client-edit-form').style.display = 'none';
+}
+
+async function admSaveClient() {
+  const id = document.getElementById('client-edit-id').value;
+  const name = document.getElementById('client-name').value.trim();
+  if (!name) { showToast('Client name is required', true); return; }
+  const body = {
+    name: name,
+    short_name: document.getElementById('client-short').value.trim(),
+    sector: document.getElementById('client-sector').value,
+    notes: document.getElementById('client-notes').value.trim(),
+    assets: {
+      domain: document.getElementById('client-domains').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      brand_en: document.getElementById('client-brand-en').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      brand_ar: document.getElementById('client-brand-ar').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      email_domain: document.getElementById('client-email-domains').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      keyword: document.getElementById('client-keywords').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    },
+  };
+  try {
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `/api/clients/${id}` : '/api/clients';
+    const r = await fetch(url, {method, headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    if (!r.ok) { const e = await r.json(); throw new Error(e.error || 'Save failed'); }
+    showToast(id ? 'Client updated' : 'Client created');
+    document.getElementById('client-edit-form').style.display = 'none';
+    loadClientRegistry();
+    loadClientDropdown();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function admDeleteClient(id, name) {
+  if (!confirm('Delete client "' + name + '" and all its assets?')) return;
+  try {
+    await fetch(`/api/clients/${id}`, {method:'DELETE'});
+    showToast('Client deleted');
+    loadClientRegistry();
+    loadClientDropdown();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
 // ADMIN PANEL
 // ═══════════════════════════════════════════════════
 const TIER_COL_A = {1:'var(--critical)',2:'var(--medium-text)',3:'var(--green)',0:'var(--text-disabled)'};
@@ -4415,6 +4714,7 @@ async function loadAdminPanel() {
   checkEscalation();
   loadHuntLeads();
   loadNetworkGraph();
+  loadClientRegistry();
 }
 
 // ═══════════════════════════════════════════════════
@@ -5066,7 +5366,7 @@ async function loadDIThreatLevel() {
 
 async function loadDIFeed() {
   try {
-    const r = await fetch('/api/dark/feed?limit=500');
+    const r = await fetch('/api/dark/feed?limit=500' + getClientParam());
     const d = await r.json();
     _diFeed = d.findings || [];
     renderDIFeed(_diFeed);
@@ -6050,6 +6350,8 @@ async function _doLoadBlocklist() {
   if (typeF) params.set('type', typeF);
   if (verdictF) params.set('verdict', verdictF);
   if (search) params.set('q', search);
+  const _cid = (document.getElementById('global-client-filter') || {}).value || '';
+  if (_cid) params.set('client', _cid);
 
   try {
     const resp = await fetch('/api/blocklist?' + params.toString());
@@ -6136,19 +6438,19 @@ function copyBlocklistIPs() {
   alert('Copied ' + ips.length + ' IP addresses to clipboard.');
 }
 
-async function generateReport(btn) {
-  const orig = btn.textContent;
+async function generateReport(btn, fmt) {
+  const orig = btn.innerHTML;
   btn.disabled = true;
-  btn.textContent = 'Generating...';
+  btn.innerHTML = 'Generating...';
   btn.style.opacity = '0.6';
   try {
-    const resp = await fetch('/api/blocklist/report');
+    const resp = await fetch('/api/blocklist/report?format=' + (fmt || 'pdf'));
     if (!resp.ok) throw new Error('Report generation failed');
     const blob = await resp.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = resp.headers.get('Content-Disposition')?.split('filename=')[1] || 'ScanWave_Report.pdf';
+    a.download = resp.headers.get('Content-Disposition')?.split('filename=')[1] || ('ScanWave_Report.' + (fmt || 'pdf'));
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -6157,7 +6459,7 @@ async function generateReport(btn) {
     alert('Error generating report: ' + e.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = orig;
+    btn.innerHTML = orig;
     btn.style.opacity = '1';
   }
 }

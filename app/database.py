@@ -153,6 +153,28 @@ CREATE TABLE IF NOT EXISTS timing_analysis (
     data_json TEXT,
     created_at TEXT DEFAULT (datetime('now'))
 );
+
+-- ── Client asset registry ─────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS clients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    short_name TEXT,
+    sector TEXT DEFAULT 'banking',
+    status TEXT DEFAULT 'active',
+    notes TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS client_assets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+    asset_type TEXT NOT NULL,
+    asset_value TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(client_id, asset_type, asset_value)
+);
+CREATE INDEX IF NOT EXISTS idx_ca_client ON client_assets(client_id);
 """
 
 
@@ -168,6 +190,16 @@ def init_db(db_path):
     conn.execute("PRAGMA foreign_keys=ON")
     conn.execute("PRAGMA busy_timeout=5000")
     conn.executescript(SCHEMA_SQL)
+    # Idempotent column additions (ALTER TABLE doesn't support IF NOT EXISTS)
+    for col_sql in [
+        "ALTER TABLE messages ADD COLUMN media_purged INTEGER DEFAULT 0",
+        "ALTER TABLE messages ADD COLUMN media_meta TEXT",
+    ]:
+        try:
+            conn.execute(col_sql)
+        except sqlite3.OperationalError:
+            pass  # column already exists
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_msg_media_purged ON messages(media_purged)")
     conn.commit()
     conn.close()
 

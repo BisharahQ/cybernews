@@ -1309,11 +1309,13 @@ class TelegramMonitor:
             # Substring match: signal keyword appears inside the hit phrase (or exact match)
             is_cyber    = any(sig in hit for hit in hits_lower for sig in cyber_set)
             is_national = any(sig in hit for hit in hits_lower for sig in national_set)
-            # Demote service/sale ads unless Jordan is mentioned
+            # Demote service/sale ads to MEDIUM unless Jordan is mentioned
             if is_cyber and not is_national:
                 svc_count = sum(1 for sig in SERVICE_AD_SIGNALS if sig in text_lower)
                 if svc_count >= 2 and not any(ref in text_lower for ref in JORDAN_REFS):
-                    is_cyber = False  # demote to GENERAL
+                    priority = "MEDIUM"
+                    critical_subtype = "GENERAL"
+                    return priority, critical_hits + medium_hits, critical_subtype
 
             if is_cyber and is_national:
                 critical_subtype = "BOTH"

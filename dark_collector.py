@@ -284,7 +284,11 @@ def _is_seen(state, content_text):
 _write_lock = threading.Lock()
 
 def _write_finding(finding):
-    """Append a finding to dark_intel.jsonl (thread-safe)."""
+    """Append a finding to dark_intel.jsonl (thread-safe). Auto-tags client matches."""
+    # Auto-tag with matched clients if not already tagged
+    if "matched_client_ids" not in finding:
+        text = f"{finding.get('title', '')} {finding.get('description', '')} {' '.join(finding.get('matched_keywords', []))}"
+        _tag_finding_clients(finding, text)
     with _write_lock:
         with open(DARK_INTEL_FILE, "a", encoding="utf-8") as f:
             f.write(json.dumps(finding, ensure_ascii=False) + "\n")
@@ -432,6 +436,70 @@ def _assess_severity(matches, source_type):
     if len(matches) >= 2:
         return "MEDIUM"
     return "LOW"
+
+
+# ── Client Asset Matching (reads from shared intel.db) ────────────────────────
+import sqlite3 as _sqlite3
+_client_cache = {"data": {}, "ts": 0}
+_CLIENT_CACHE_TTL = 300  # 5 minutes
+
+
+def _load_client_assets():
+    """Read client assets from intel.db. Returns {client_id: {name, short_name, patterns: [...]}}."""
+    now = time.time()
+    if _client_cache["data"] and (now - _client_cache["ts"]) < _CLIENT_CACHE_TTL:
+        return _client_cache["data"]
+
+    db_path = OUTPUT_DIR / "intel.db"
+    if not db_path.exists():
+        return {}
+    try:
+        conn = _sqlite3.connect(str(db_path))
+        conn.execute("PRAGMA busy_timeout=5000")
+        rows = conn.execute("""
+            SELECT c.id, c.name, c.short_name, ca.asset_type, ca.asset_value
+            FROM clients c JOIN client_assets ca ON c.id = ca.client_id
+            WHERE c.status = 'active'
+        """).fetchall()
+        conn.close()
+    except Exception as e:
+        log.warning(f"[ClientAssets] Failed to read intel.db: {e}")
+        return _client_cache["data"]  # return stale cache
+
+    clients = {}
+    for cid, name, short_name, atype, aval in rows:
+        if cid not in clients:
+            clients[cid] = {"name": name, "short_name": short_name or "", "patterns": []}
+        clients[cid]["patterns"].append(aval.lower().strip())
+
+    _client_cache["data"] = clients
+    _client_cache["ts"] = now
+    return clients
+
+
+def _match_clients(text_lower, client_assets=None):
+    """Returns list of (client_id, client_name) for clients whose assets appear in text."""
+    if client_assets is None:
+        client_assets = _load_client_assets()
+    matched = []
+    for cid, client in client_assets.items():
+        for pattern in client["patterns"]:
+            if pattern and pattern in text_lower:
+                matched.append((cid, client["name"]))
+                break
+    return matched
+
+
+def _tag_finding_clients(finding, text):
+    """Add matched_client_ids and matched_client_names to a finding dict."""
+    client_assets = _load_client_assets()
+    if not client_assets:
+        return finding
+    matches = _match_clients(text.lower(), client_assets)
+    if matches:
+        finding["matched_client_ids"] = [m[0] for m in matches]
+        finding["matched_client_names"] = [m[1] for m in matches]
+    return finding
 
 
 # ── AI Analysis Pipeline ─────────────────────────────────────────────────────
@@ -700,6 +768,15 @@ def loop_breach_monitor(state):
         "zain.jo", "orange.jo", "umniah.jo",
         "rj.com", "ju.edu.jo", "just.edu.jo",
     ]
+    # Expand with client email_domain and domain assets from DB
+    try:
+        client_assets = _load_client_assets()
+        for cid, client in client_assets.items():
+            for pat in client["patterns"]:
+                if "." in pat and pat not in MONITORED_DOMAINS:
+                    MONITORED_DOMAINS.append(pat)
+    except Exception as e:
+        log.warning(f"[L2-Breach] Could not load client domains: {e}")
 
     while True:
         try:
@@ -1080,6 +1157,18 @@ def loop_github_monitor(state):
         '"Cyber Av3ngers" water OR PLC',
     ]
 
+    # Append client-specific dork queries (top 2 domains per client, max 50 extra)
+    try:
+        client_assets = _load_client_assets()
+        client_dorks = []
+        for cid, client in client_assets.items():
+            domains = [p for p in client["patterns"] if "." in p and " " not in p][:2]
+            for d in domains:
+                client_dorks.append(f'"{d}" password OR secret OR token')
+        GITHUB_DORKS.extend(client_dorks[:50])
+    except Exception as e:
+        log.warning(f"[L5-GitHub] Could not load client dorks: {e}")
+
     while True:
         try:
             token = os.environ.get("GITHUB_TOKEN", "")
@@ -1339,13 +1428,20 @@ def loop_ransom_leak_tracker(state):
                             vname = v.get("post_title", "") or v.get("victim", "") or ""
                             vdesc = v.get("description", "") or ""
                             combined = f"{vname} {vdesc}".lower()
-                            if any(w in combined for w in [
-                            "jordan", "belectric", "solar", ".jo", "amman",
-                            "اردن", "energy", "hashemite", "arab bank",
-                            "zain", "orange telecom", "umniah",
-                            "etihad", "nepco", "royal jordanian",
-                        ]):
+                            # Generic Jordan keywords (fallback)
+                            _generic_kw = [
+                                "jordan", "belectric", "solar", ".jo", "amman",
+                                "اردن", "energy", "hashemite", "arab bank",
+                                "zain", "orange telecom", "umniah",
+                                "etihad", "nepco", "royal jordanian",
+                            ]
+                            generic_hit = any(w in combined for w in _generic_kw)
+                            # Dynamic client matching
+                            _cl_assets = _load_client_assets()
+                            client_matches = _match_clients(combined, _cl_assets)
+                            if (generic_hit or client_matches):
                                 if not _is_seen(state, f"rwlive_{group}_{vname}"):
+                                    matched_kw = [w for w in _generic_kw if w in combined]
                                     finding = {
                                         "source": "ransomware_live",
                                         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
@@ -1353,14 +1449,18 @@ def loop_ransom_leak_tracker(state):
                                         "title": f"ransomware.live: {vname} (group: {group})",
                                         "description": vdesc[:500] or f"Victim: {vname}",
                                         "raw_url": f"https://www.ransomware.live/group/{group}",
-                                        "matched_keywords": [w for w in ["jordan","belectric","solar",".jo"] if w in combined],
+                                        "matched_keywords": matched_kw,
                                         "confidence": 95,
                                         "verified": False,
                                         "tags": ["ransomware", group],
                                     }
+                                    if client_matches:
+                                        finding["matched_client_ids"] = [m[0] for m in client_matches]
+                                        finding["matched_client_names"] = [m[1] for m in client_matches]
                                     _write_finding(finding)
                                     state["findings_total"] = state.get("findings_total", 0) + 1
-                                    log.info(f"[L6-Ransom] ransomware.live JORDAN HIT: {vname} on {group}!")
+                                    client_info = f" [Clients: {', '.join(m[1] for m in client_matches)}]" if client_matches else ""
+                                    log.info(f"[L6-Ransom] ransomware.live JORDAN HIT: {vname} on {group}!{client_info}")
             except Exception as e:
                 log.warning(f"[L6-Ransom] ransomware.live error: {e}")
 
